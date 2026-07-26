@@ -1,0 +1,35 @@
+{
+  "scroll": "PHerc1451",
+  "ct_level": 2,
+  "prediction": "20260319101107-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+  "run_id": "20260413222639",
+  "threshold": 0.2,
+  "bbox": [
+    9740,
+    9996,
+    2601,
+    2857,
+    2601,
+    2857
+  ],
+  "trim": 64,
+  "scored_shape": [
+    128,
+    128,
+    128
+  ],
+  "published_positive_fraction": 0.21190786361694336,
+  "our_positive_fraction": 0.21190929412841797,
+  "dice": 0.9994880789910994,
+  "iou": 0.9989766818402634,
+  "agreement": 0.9997830390930176,
+  "disagreeing_voxels": 455,
+  "best_dice_any_threshold": 0.9994880789910994,
+  "best_threshold": 0.2,
+  "disagreement_near_threshold": {
+    "0.01": 1.0,
+    "0.05": 1.0,
+    "0.15": 1.0
+  },
+  "verdict": "reproduced"
+}

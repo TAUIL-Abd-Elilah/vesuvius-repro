@@ -8,11 +8,15 @@ had checked.
 This checks it, for any scroll, and reports how close the match is and — when it is not
 close — what class of explanation is still open.
 
-**Headline: they do reproduce.** Every scroll checked so far, across both CT pyramid
-levels, comes back at Dice 0.9983 or better, with the residual disagreement confined to
-voxels sitting on the decision boundary — one of them exact to the voxel. Exactly one
-scroll does not: **PHerc. Paris 4**, the Title-prize scroll. The count is in the table
-below, which is generated from the raw reports rather than typed.
+**Headline: they do reproduce, and the whole collection has now been checked.** All 36
+scrolls carrying a published m7 surface prediction were audited against public inputs.
+**35 reproduce** at Dice 0.9983–1.0000, one of them exact to the voxel, with every
+residual difference sitting on the decision boundary. **Exactly one does not: PHerc.
+Paris 4**, the Title-prize scroll.
+
+That ratio is the point. One failure in thirty-six, with the other thirty-five agreeing
+to a few hundred voxels out of 2.1 million, is not a tolerance question — it says the
+pipeline is right and that this one artifact was made differently.
 
 ## Results
 
@@ -25,31 +29,42 @@ Scored on the interior of a 256³ region (64 voxels trimmed per face), threshold
 |---|---|---|---|---|
 | PHerc0500P2 | L2 | **1.0000** | **0** | reproduced exactly |
 | PHerc1203 | L2 | 0.9999 | 81 (0.004%) | reproduced |
+| PHerc1447 | L0 | 0.9999 | 119 (0.006%) | reproduced |
 | PHerc0009B | L2 | 0.9998 | 169 (0.008%) | reproduced |
+| PHerc0846B | L0 | 0.9998 | 197 (0.009%) | reproduced |
 | PHerc0343P | L2 | 0.9998 | 105 (0.005%) | reproduced |
+| PHercMAN5 | L2 | 0.9998 | 115 (0.005%) | reproduced |
 | PHerc0332 | L2 | 0.9998 | 134 (0.006%) | reproduced |
+| PHercMANB | L2 | 0.9998 | 240 (0.011%) | reproduced |
+| PHercMANBp | L2 | 0.9997 | 146 (0.007%) | reproduced |
 | PHerc0125 | L0 | 0.9997 | 254 (0.012%) | reproduced |
 | PHerc0175A | L0 | 0.9997 | 254 (0.012%) | reproduced |
 | PHerc0846A | L2 | 0.9997 | 281 (0.013%) | reproduced |
 | PHerc0139 | L0 | 0.9997 | 266 (0.013%) | reproduced |
+| PHerc1218 | L0 | 0.9997 | 347 (0.017%) | reproduced |
 | PHerc0358 | L0 | 0.9997 | 315 (0.015%) | reproduced |
 | PHerc0841 | L2 | 0.9996 | 404 (0.019%) | reproduced |
 | PHerc0343 | L0 | 0.9996 | 406 (0.019%) | reproduced |
 | PHerc0211 | L0 | 0.9996 | 384 (0.018%) | reproduced |
 | PHerc0306B | L0 | 0.9995 | 446 (0.021%) | reproduced |
+| PHerc1545 | L0 | 0.9995 | 696 (0.033%) | reproduced |
+| PHerc1451 | L2 | 0.9995 | 455 (0.022%) | reproduced |
 | PHerc0800 | L0 | 0.9994 | 642 (0.031%) | reproduced |
+| PHerc1299 | L2 | 0.9994 | 646 (0.031%) | reproduced |
+| PHerc0826 | L0 | 0.9993 | 779 (0.037%) | reproduced |
 | PHerc0490B | L0 | 0.9993 | 856 (0.041%) | reproduced |
 | PHerc0483A | L0 | 0.9991 | 833 (0.040%) | reproduced |
 | PHerc0257 | L0 | 0.9990 | 1,080 (0.051%) | reproduced |
 | PHerc0268 | L0 | 0.9990 | 1,492 (0.071%) | reproduced |
 | PHerc0191 | L0 | 0.9989 | 1,267 (0.060%) | reproduced |
 | PHerc0175B | L0 | 0.9986 | 1,708 (0.081%) | reproduced |
+| PHerc0813 | L0 | 0.9986 | 1,695 (0.081%) | reproduced |
 | PHerc0490A | L0 | 0.9985 | 1,615 (0.077%) | reproduced |
 | PHerc0483B | L0 | 0.9985 | 2,329 (0.111%) | reproduced |
 | PHerc0814 | L2 | 0.9983 | 2,918 (0.139%) | reproduced |
 | **PHercParis4** | **L2** | **0.8907** | **108,044 (5.15%)** | **not reproduced** |
 
-**24 scrolls reproduce** — 16 at CT level 0 and 8 at level 2 — at Dice 0.9983–1.0000. In every one, 100% of the differing voxels lie within 0.01 of the threshold, which is what float16 storage and autocast leave behind.
+**35 scrolls reproduce** — 22 at CT level 0 and 13 at level 2 — at Dice 0.9983–1.0000. In every one, 100% of the differing voxels lie within 0.01 of the threshold, which is what float16 storage and autocast leave behind.
 
 **PHercParis4 does not reproduce.** Detail below.
 
@@ -57,8 +72,9 @@ Scored on the interior of a 256³ region (64 voxels trimmed per face), threshold
 
 Every row has its raw report in [`results/`](results), and the table above is generated
 from those files by `update_results_table.py` rather than maintained by hand — it drifted
-out of sync with the evidence twice while it was hand-written. A sweep of the remaining
-scrolls (`sweep_all.py`) is still landing, so the table grows.
+out of sync with the evidence twice while it was hand-written. `sweep_all.py` ran the
+whole collection unattended, one 256³ region per scroll, and every one of the 36 runs
+completed.
 
 PHerc. Paris 4 fails on a second independent region too (0.8425, 158,236 voxels, 7.55%);
 the table shows one row per scroll, so only its better region appears above.
@@ -86,9 +102,9 @@ PHerc. Paris 4 is also the only scroll carrying a second surface model
 (`surface-recto-2um-ps256`, a different run), so it visibly receives bespoke treatment.
 
 We are **not** claiming the published prediction is wrong. The claim is narrower and
-checkable: it is not reproducible from the published inputs, while every other scroll
-checked is. If the run used a resampled volume or a configuration that is not in the
-bucket, publishing that would close the gap.
+checkable: it is not reproducible from the published inputs, while **the other 35 scrolls
+in the collection are** — every one of them, not a sample. If the run used a resampled
+volume or a configuration that is not in the bucket, publishing that would close the gap.
 
 Filed upstream as [ScrollPrize/villa#1250](https://github.com/ScrollPrize/villa/issues/1250),
 with the elimination table and the diagnostics behind it.
