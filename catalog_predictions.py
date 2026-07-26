@@ -110,8 +110,20 @@ def main() -> None:
             continue
         preds = [p for p in preds if PRED_RE.match(p)]
         if not preds:
-            print(f"[{i:2}/{len(scrolls)}] {scroll:18} no published surface prediction")
-            rows.append({"scroll": scroll, "status": "no_prediction"})
+            # "no prediction" and "nothing to predict from" are different facts, and
+            # conflating them overstates what is missing: six of these prefixes carry
+            # only photographs, with no CT volume at all.
+            try:
+                ct_vols = [v.rstrip("/").split("/")[-1]
+                           for v in list_prefixes(f"{scroll}/volumes/")
+                           if v.rstrip("/").endswith(".zarr")]
+            except Exception:
+                ct_vols = []
+            status = "no_prediction" if ct_vols else "no_ct"
+            note = (f"no published surface prediction ({len(ct_vols)} CT volumes)"
+                    if ct_vols else "no CT volumes at all (photos only)")
+            print(f"[{i:2}/{len(scrolls)}] {scroll:18} {note}")
+            rows.append({"scroll": scroll, "status": status, "ct_volumes": ct_vols})
             continue
 
         for pred in preds:

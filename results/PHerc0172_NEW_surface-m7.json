@@ -1,0 +1,43 @@
+{
+  "scroll": "PHerc0172",
+  "volume": "20241024131838-7.910um-53keV-masked.zarr",
+  "ct_level": 0,
+  "resolution_um": 7.91,
+  "volume_shape": [
+    21000,
+    6700,
+    9100
+  ],
+  "bbox": [
+    7349,
+    7605,
+    3222,
+    3478,
+    4422,
+    4678
+  ],
+  "trim": 64,
+  "threshold": 0.2,
+  "positive_fraction": 0.08209419250488281,
+  "logit_fg_range": [
+    -9.125,
+    3.10546875
+  ],
+  "logit_bg_range": [
+    -3.1015625,
+    9.1328125
+  ],
+  "logit_span": 12.23046875,
+  "mean_confidence": 0.9677192568778992,
+  "confidence_reference": {
+    "reproduced_range": [
+      0.231,
+      0.944
+    ],
+    "known_degenerate": 0.032
+  },
+  "regime": "normal",
+  "positive_fraction_outside_observed_range": true,
+  "published_prediction": null,
+  "note": "No published prediction exists for this scroll, so this is a new artifact and not a reproduction. No Dice is claimable. The regime call rests on mean confidence, calibrated against regions of known status; logit span was tested and does not discriminate."
+}

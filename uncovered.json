@@ -1,0 +1,160 @@
+[
+  {
+    "scroll": "PHerc0172",
+    "volumes": [
+      {
+        "volume": "20241024131838-7.910um-53keV-masked.zarr",
+        "level0_um": 7.91,
+        "levels": [
+          {
+            "level": 0,
+            "um": 7.91,
+            "shape": [
+              21000,
+              6700,
+              9100
+            ],
+            "voxels": 1280370000000
+          }
+        ]
+      },
+      {
+        "volume": "20241024131839-7.910um-53keV-masked.zarr",
+        "level0_um": 7.91,
+        "levels": [
+          {
+            "level": 0,
+            "um": 7.91,
+            "shape": [
+              20820,
+              6700,
+              9100
+            ],
+            "voxels": 1269395400000
+          }
+        ]
+      }
+    ],
+    "best": {
+      "volume": "20241024131838-7.910um-53keV-masked.zarr",
+      "level": 0,
+      "um": 7.91,
+      "shape": [
+        21000,
+        6700,
+        9100
+      ],
+      "voxels": 1280370000000
+    }
+  },
+  {
+    "scroll": "PHerc1667",
+    "volumes": [
+      {
+        "volume": "20251217075048-2.399um-0.2m-78keV-masked.zarr",
+        "level0_um": 2.399,
+        "levels": [
+          {
+            "level": 2,
+            "um": 9.596,
+            "shape": [
+              9269,
+              3808,
+              3808
+            ],
+            "voxels": 134408508416
+          }
+        ]
+      },
+      {
+        "volume": "20260323082859-1.129um-0.2m-59keV-masked.zarr",
+        "level0_um": 1.129,
+        "levels": [
+          {
+            "level": 3,
+            "um": 9.032,
+            "shape": [
+              5277,
+              2766,
+              2535
+            ],
+            "voxels": 37001321370
+          }
+        ]
+      }
+    ],
+    "best": {
+      "volume": "20251217075048-2.399um-0.2m-78keV-masked.zarr",
+      "level": 2,
+      "um": 9.596,
+      "shape": [
+        9269,
+        3808,
+        3808
+      ],
+      "voxels": 134408508416
+    }
+  },
+  {
+    "scroll": "PHerc1667Cr1Fr3",
+    "volumes": [],
+    "best": null
+  },
+  {
+    "scroll": "PHerc51Cr4Fr8",
+    "volumes": [],
+    "best": null
+  },
+  {
+    "scroll": "PHercParis1Fr34",
+    "volumes": [],
+    "best": null
+  },
+  {
+    "scroll": "PHercParis1Fr39",
+    "volumes": [],
+    "best": null
+  },
+  {
+    "scroll": "PHercParis2Fr143",
+    "volumes": [],
+    "best": null
+  },
+  {
+    "scroll": "PHercParis2Fr47",
+    "volumes": [],
+    "best": null
+  },
+  {
+    "scroll": "PHercParis3",
+    "volumes": [
+      {
+        "volume": "20260427095331-2.400um-0.2m-78keV-masked.zarr",
+        "level0_um": 2.4,
+        "levels": [
+          {
+            "level": 2,
+            "um": 9.6,
+            "shape": [
+              17105,
+              10601,
+              10601
+            ],
+            "voxels": 1922280443105
+          }
+        ]
+      }
+    ],
+    "best": {
+      "volume": "20260427095331-2.400um-0.2m-78keV-masked.zarr",
+      "level": 2,
+      "um": 9.6,
+      "shape": [
+        17105,
+        10601,
+        10601
+      ],
+      "voxels": 1922280443105
+    }
+  }
+]

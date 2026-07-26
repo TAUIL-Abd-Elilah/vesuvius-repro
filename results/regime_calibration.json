@@ -1,0 +1,134 @@
+[
+  [
+    "PHerc0125 L0",
+    "reproduced",
+    {
+      "fg_min": -11.03125,
+      "fg_max": 3.283203125,
+      "span": 14.314453125,
+      "positive_fraction": 0.23142147064208984,
+      "mean_confidence": 0.8918163180351257,
+      "frac_p_above_0.9": 0.09488105773925781
+    }
+  ],
+  [
+    "PHerc0175A L0",
+    "reproduced",
+    {
+      "fg_min": -14.4296875,
+      "fg_max": 4.02734375,
+      "span": 18.45703125,
+      "positive_fraction": 0.2220759391784668,
+      "mean_confidence": 0.8895578384399414,
+      "frac_p_above_0.9": 0.08932781219482422
+    }
+  ],
+  [
+    "PHerc0191 L0",
+    "reproduced",
+    {
+      "fg_min": -10.5,
+      "fg_max": 2.447265625,
+      "span": 12.947265625,
+      "positive_fraction": 0.28585195541381836,
+      "mean_confidence": 0.7568423748016357,
+      "frac_p_above_0.9": 0.012989044189453125
+    }
+  ],
+  [
+    "PHerc0211 L0",
+    "reproduced",
+    {
+      "fg_min": -13.0546875,
+      "fg_max": 3.580078125,
+      "span": 16.634765625,
+      "positive_fraction": 0.24500513076782227,
+      "mean_confidence": 0.8714599609375,
+      "frac_p_above_0.9": 0.0926961898803711
+    }
+  ],
+  [
+    "PHerc0500P2 L2",
+    "reproduced",
+    {
+      "fg_min": -6.24609375,
+      "fg_max": 0.0,
+      "span": 6.24609375,
+      "positive_fraction": 0.768310546875,
+      "mean_confidence": 0.2312319278717041,
+      "frac_p_above_0.9": 0.0
+    }
+  ],
+  [
+    "PHerc0814 L2",
+    "reproduced",
+    {
+      "fg_min": -5.3984375,
+      "fg_max": 1.060546875,
+      "span": 6.458984375,
+      "positive_fraction": 0.41707849502563477,
+      "mean_confidence": 0.6295663118362427,
+      "frac_p_above_0.9": 0.0
+    }
+  ],
+  [
+    "PHerc0841 L2",
+    "reproduced",
+    {
+      "fg_min": -21.796875,
+      "fg_max": 3.615234375,
+      "span": 25.412109375,
+      "positive_fraction": 0.2614130973815918,
+      "mean_confidence": 0.8453730940818787,
+      "frac_p_above_0.9": 0.07869148254394531
+    }
+  ],
+  [
+    "PHerc1203 L2",
+    "reproduced",
+    {
+      "fg_min": -18.296875,
+      "fg_max": 4.25,
+      "span": 22.546875,
+      "positive_fraction": 0.18999052047729492,
+      "mean_confidence": 0.9441347122192383,
+      "frac_p_above_0.9": 0.12212800979614258
+    }
+  ],
+  [
+    "PHerc0846A r2",
+    "reproduced",
+    {
+      "fg_min": -8.4296875,
+      "fg_max": 3.794921875,
+      "span": 12.224609375,
+      "positive_fraction": 0.23811674118041992,
+      "mean_confidence": 0.8683090209960938,
+      "frac_p_above_0.9": 0.07347249984741211
+    }
+  ],
+  [
+    "PHerc0846A r1",
+    "KNOWN DEGENERATE",
+    {
+      "fg_min": -6.4609375,
+      "fg_max": 1.8759765625,
+      "span": 8.3369140625,
+      "positive_fraction": 0.9693198204040527,
+      "mean_confidence": 0.03214384615421295,
+      "frac_p_above_0.9": 0.0004620552062988281
+    }
+  ],
+  [
+    "PHerc1667 L2*",
+    "NEW - unknown",
+    {
+      "fg_min": -8.6640625,
+      "fg_max": 2.1640625,
+      "span": 10.828125,
+      "positive_fraction": 0.1106877326965332,
+      "mean_confidence": 0.9383730292320251,
+      "frac_p_above_0.9": 0.029191017150878906
+    }
+  ]
+]

@@ -114,6 +114,23 @@ def main() -> None:
         print(r.stdout[-2000:], r.stderr[-2000:])
         raise SystemExit("predict failed")
 
+    # A run against a tree WITHOUT the global-grid fix (villa#1247) still succeeds -
+    # it just anchors the sliding window to the ROI, giving 8 patches at stride 64
+    # instead of ~100-125 at the volume's stride. The output looks plausible and
+    # scores ~0.6-0.9, which reads as "this scroll does not reproduce" rather than
+    # "you are on the wrong branch". That mistake nearly went out as a finding, so
+    # it is now a hard failure rather than a silent one.
+    n_patches = int(zarr.open(str(work / "logits" / "logits_part_0.zarr"),
+                              mode="r").shape[0])
+    expected = max(27, (args.size // 64) ** 3)
+    if n_patches < expected:
+        raise SystemExit(
+            f"only {n_patches} patches for a {args.size}^3 region (expected >= "
+            f"{expected}). The patch grid was anchored to the ROI, so this tree is "
+            f"missing villa#1247. Check out the branch that carries it "
+            f"(run-gpu-grid) and rerun; do NOT record this result.")
+    print(f"  {n_patches} patches (global grid ok)")
+
     print("  blending ...")
     blend = (
         "import sys, torch\n"

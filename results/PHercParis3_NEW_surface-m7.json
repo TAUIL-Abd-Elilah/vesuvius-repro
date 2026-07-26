@@ -1,0 +1,43 @@
+{
+  "scroll": "PHercParis3",
+  "volume": "20260427095331-2.400um-0.2m-78keV-masked.zarr",
+  "ct_level": 2,
+  "resolution_um": 9.6,
+  "volume_shape": [
+    17105,
+    10601,
+    10601
+  ],
+  "bbox": [
+    11118,
+    11374,
+    5172,
+    5428,
+    5172,
+    5428
+  ],
+  "trim": 64,
+  "threshold": 0.2,
+  "positive_fraction": 0.22439241409301758,
+  "logit_fg_range": [
+    -17.890625,
+    2.658203125
+  ],
+  "logit_bg_range": [
+    -2.65234375,
+    17.921875
+  ],
+  "logit_span": 20.548828125,
+  "mean_confidence": 0.8026300072669983,
+  "confidence_reference": {
+    "reproduced_range": [
+      0.231,
+      0.944
+    ],
+    "known_degenerate": 0.032
+  },
+  "regime": "normal",
+  "positive_fraction_outside_observed_range": false,
+  "published_prediction": null,
+  "note": "No published prediction exists for this scroll, so this is a new artifact and not a reproduction. No Dice is claimable. The regime call rests on mean confidence, calibrated against regions of known status; logit span was tested and does not discriminate."
+}

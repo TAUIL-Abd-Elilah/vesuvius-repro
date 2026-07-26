@@ -8,7 +8,7 @@ had checked.
 This checks it, for any scroll, and reports how close the match is and — when it is not
 close — what class of explanation is still open.
 
-**Headline: they do reproduce.** Eleven scrolls sampled across both CT pyramid levels come
+**Headline: they do reproduce.** Twelve scrolls sampled across both CT pyramid levels come
 back at Dice 0.9983–1.0000, with the residual disagreement confined to voxels sitting on
 the decision boundary. One scroll does not: **PHerc. Paris 4**, the Title-prize scroll.
 
@@ -21,6 +21,7 @@ Scored on the interior of a 256³ region (64 voxels trimmed per face), threshold
 |---|---|---|---|---|
 | PHerc0500P2 | L2 | **1.0000** | **0** | reproduced exactly |
 | PHerc1203   | L2 | 0.9999 |    81 (0.004%) | reproduced |
+| PHerc0009B  | L2 | 0.9998 |   169 (0.008%) | reproduced |
 | PHerc0332   | L2 | 0.9998 |   134 (0.006%) | reproduced |
 | PHerc0139   | L0 | 0.9997 |   266 (0.013%) | reproduced |
 | PHerc0125   | L0 | 0.9997 |   254 (0.012%) | reproduced |
@@ -33,10 +34,13 @@ Scored on the interior of a 256³ region (64 voxels trimmed per face), threshold
 | **PHercParis4** | **L2** | **0.8907** | **108,044 (5.15%)** | **not reproduced** |
 | **PHercParis4** (2nd region) | **L2** | **0.8425** | **158,236 (7.55%)** | **not reproduced** |
 
-Eleven scrolls, five at CT level 0 and six at level 2. In every reproduced case **100% of
-the differing voxels lie within 0.01 of the threshold** — that is what float16 storage and
-autocast leave behind, and nothing structural remains. One region came back exact to the
-voxel. Every row here has its raw report in [`results/`](results).
+Twelve scrolls, five at CT level 0 and seven at level 2. In every reproduced case **100%
+of the differing voxels lie within 0.01 of the threshold** — that is what float16 storage
+and autocast leave behind, and nothing structural remains. One region came back exact to
+the voxel. Every row here has its raw report in [`results/`](results).
+
+A sweep of the remaining scrolls is in progress (`sweep_all.py`), to make this "every
+published m7 prediction was audited" rather than a sample. The table grows as it lands.
 
 One region of PHerc0846A (z 2460, 36% positive) is worth a note: there the model produced
 an unusually flat output — logits spanning [-1.9, 6.5] against [-4.3, 18.3] on a healthy
@@ -61,7 +65,7 @@ PHerc. Paris 4 is also the only scroll carrying a second surface model
 (`surface-recto-2um-ps256`, a different run), so it visibly receives bespoke treatment.
 
 We are **not** claiming the published prediction is wrong. The claim is narrower and
-checkable: it is not reproducible from the published inputs, while eleven other scrolls
+checkable: it is not reproducible from the published inputs, while twelve other scrolls
 are. If the run used a resampled volume or a configuration that is not in the bucket,
 publishing that would close the gap.
 
@@ -81,6 +85,8 @@ declared CT level matches the grid : 42   (L0=28, L2=14)
 declared level WRONG               : 0
 model families                     : surface-m7 (run 20260413222639) x41
                                      surface-recto-2um-ps256 (run 20260413141734) x1
+public CT but no prediction        :  3   (PHerc0172, PHerc1667, PHercParis3)
+no CT at all - photographs only    :  6
 ```
 
 Two things worth knowing that fall out of it:
@@ -88,11 +94,49 @@ Two things worth knowing that fall out of it:
 * **The `L<k>` token in the filenames is accurate on all 42.** The ~9 µm scans are
   predicted at level 0 and the ~2.4 µm scans at level 2, i.e. the model has one working
   resolution (~9.6 µm) and the level is chosen to hit it. You can rely on the token.
-* **Nine scrolls have public CT but no published surface prediction**: PHerc0172,
-  PHerc1667, PHerc1667Cr1Fr3, PHerc51Cr4Fr8, PHercParis1Fr34, PHercParis1Fr39,
-  PHercParis2Fr143, PHercParis2Fr47, PHercParis3.
+* **Three scrolls have public CT but no published surface prediction**: PHerc0172,
+  PHerc1667 and PHercParis3. Six further prefixes carry *no CT at all* — only
+  photographs (PHerc1667Cr1Fr3, PHerc51Cr4Fr8, PHercParis1Fr34, PHercParis1Fr39,
+  PHercParis2Fr143, PHercParis2Fr47). An earlier version of this README counted all
+  nine as "public CT but no prediction", which overstated what is missing; the
+  catalogue now distinguishes `no_prediction` from `no_ct`.
 * **Five scrolls are predicted twice**, once from a 9 µm scan and once from a 2.4 µm scan:
   PHerc0500P2, PHerc0814, PHerc0841, PHerc0846A, PHerc1203.
+
+## Scrolls with no published prediction
+
+Verification has a natural other half: if the model is public and the CT is public, the
+scrolls the project *hasn't* covered can be predicted too. Three have public CT and no
+published surface prediction — `survey_uncovered.py` finds them and checks whether any
+pyramid level of any of their volumes lands on the model's ~9.6 µm working resolution.
+
+| scroll | volume | level | µm | positive | mean confidence |
+|---|---|---|---|---|---|
+| PHercParis3 | 20260427095331 | 2 | 9.600 | 22.4% | 0.803 |
+| PHerc1667   | 20251217075048 | 2 | 9.596 | 11.1% | 0.938 |
+| PHerc0172   | 20241024131838 | 0 | 7.910 |  8.2% | 0.968 |
+
+**These are new artifacts, not reproductions — there is nothing to score against, so no
+Dice is claimable for them and none is quoted.** What is checkable is whether the model
+is operating in its normal regime, and that judgement is calibrated rather than asserted:
+`calibrate_regime.py` measures the same statistics on regions whose status is already
+known. Mean confidence separates them cleanly — reproduced regions run 0.231–0.944, the
+one known-degenerate region sits at 0.032. All three above land inside the healthy band.
+
+Two caveats stated rather than buried. **PHerc0172's CT is 7.91 µm, 18% off the model's
+working resolution** — the other two are within 0.05% of it — so its output deserves
+less weight. And PHerc1667 and PHerc0172 have positive fractions below the 19–77% seen
+in published regions; that is flagged in their JSON, not treated as failure.
+
+Logit span, incidentally, does *not* indicate health, though it looks like it should:
+PHerc0500P2 reproduced **exactly** (Dice 1.0000) with a span of 6.2, narrower than the
+known-degenerate region's 8.3.
+
+```bash
+python survey_uncovered.py --out uncovered.json
+python predict_uncovered.py --scroll PHercParis3
+python calibrate_regime.py          # the evidence behind the healthy band
+```
 
 ## How the measurements work
 

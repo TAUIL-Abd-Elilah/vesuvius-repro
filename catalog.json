@@ -64,7 +64,11 @@
   },
   {
     "scroll": "PHerc0172",
-    "status": "no_prediction"
+    "status": "no_prediction",
+    "ct_volumes": [
+      "20241024131838-7.910um-53keV-masked.zarr",
+      "20241024131839-7.910um-53keV-masked.zarr"
+    ]
   },
   {
     "scroll": "PHerc0175A",
@@ -782,15 +786,21 @@
   },
   {
     "scroll": "PHerc1667",
-    "status": "no_prediction"
+    "status": "no_prediction",
+    "ct_volumes": [
+      "20251217075048-2.399um-0.2m-78keV-masked.zarr",
+      "20260323082859-1.129um-0.2m-59keV-masked.zarr"
+    ]
   },
   {
     "scroll": "PHerc1667Cr1Fr3",
-    "status": "no_prediction"
+    "status": "no_ct",
+    "ct_volumes": []
   },
   {
     "scroll": "PHerc51Cr4Fr8",
-    "status": "no_prediction"
+    "status": "no_ct",
+    "ct_volumes": []
   },
   {
     "scroll": "PHercMAN5",
@@ -857,23 +867,30 @@
   },
   {
     "scroll": "PHercParis1Fr34",
-    "status": "no_prediction"
+    "status": "no_ct",
+    "ct_volumes": []
   },
   {
     "scroll": "PHercParis1Fr39",
-    "status": "no_prediction"
+    "status": "no_ct",
+    "ct_volumes": []
   },
   {
     "scroll": "PHercParis2Fr143",
-    "status": "no_prediction"
+    "status": "no_ct",
+    "ct_volumes": []
   },
   {
     "scroll": "PHercParis2Fr47",
-    "status": "no_prediction"
+    "status": "no_ct",
+    "ct_volumes": []
   },
   {
     "scroll": "PHercParis3",
-    "status": "no_prediction"
+    "status": "no_prediction",
+    "ct_volumes": [
+      "20260427095331-2.400um-0.2m-78keV-masked.zarr"
+    ]
   },
   {
     "scroll": "PHercParis4",
