@@ -1,0 +1,35 @@
+{
+  "scroll": "PHercParis4",
+  "ct_level": 2,
+  "prediction": "20260411134726-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+  "run_id": "20260413222639",
+  "threshold": 0.2,
+  "bbox": [
+    9400,
+    9656,
+    4032,
+    4288,
+    4032,
+    4288
+  ],
+  "trim": 64,
+  "scored_shape": [
+    128,
+    128,
+    128
+  ],
+  "published_positive_fraction": 0.23742961883544922,
+  "our_positive_fraction": 0.24171733856201172,
+  "dice": 0.8425268001799284,
+  "iou": 0.7279017780376242,
+  "agreement": 0.9245471954345703,
+  "disagreeing_voxels": 158236,
+  "best_dice_any_threshold": 0.8435035685856137,
+  "best_threshold": 0.16000000000000003,
+  "disagreement_near_threshold": {
+    "0.01": 0.04095149017922597,
+    "0.05": 0.19641548067443565,
+    "0.15": 0.5747048712050356
+  },
+  "verdict": "structural_difference"
+}

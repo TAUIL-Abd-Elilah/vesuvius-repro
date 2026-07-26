@@ -1,0 +1,31 @@
+{
+  "scroll": "PHerc0500P2",
+  "ct_level": 2,
+  "prediction": "20250526151718-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+  "run_id": "20260413222639",
+  "threshold": 0.2,
+  "bbox": [
+    2458,
+    2714,
+    2276,
+    2532,
+    2276,
+    2532
+  ],
+  "trim": 64,
+  "scored_shape": [
+    128,
+    128,
+    128
+  ],
+  "published_positive_fraction": 0.768310546875,
+  "our_positive_fraction": 0.768310546875,
+  "dice": 1.0,
+  "iou": 1.0,
+  "agreement": 1.0,
+  "disagreeing_voxels": 0,
+  "best_dice_any_threshold": 1.0,
+  "best_threshold": 0.2,
+  "disagreement_near_threshold": {},
+  "verdict": "reproduced"
+}

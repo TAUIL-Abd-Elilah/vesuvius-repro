@@ -1,0 +1,920 @@
+[
+  {
+    "scroll": "PHerc0009B",
+    "prediction": "20260319104112-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20260319104112-2.401um-0.3m-77keV-masked.zarr",
+    "pred_shape": [
+      7278,
+      7065,
+      7065
+    ],
+    "ct_shape": [
+      29112,
+      28259,
+      28259
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0125",
+    "prediction": "20250821151825-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250821151825-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      20840,
+      8387,
+      8387
+    ],
+    "ct_shape": [
+      20840,
+      8387,
+      8387
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0139",
+    "prediction": "20250728140407-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250728140407-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      20974,
+      6621,
+      6621
+    ],
+    "ct_shape": [
+      20974,
+      6621,
+      6621
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0172",
+    "status": "no_prediction"
+  },
+  {
+    "scroll": "PHerc0175A",
+    "prediction": "20250521115057-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250521115057-8.640um-1.2m-116keV-masked.zarr",
+    "pred_shape": [
+      12748,
+      9363,
+      9363
+    ],
+    "ct_shape": [
+      12748,
+      9363,
+      9363
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0175B",
+    "prediction": "20250521125822-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250521125822-8.640um-1.2m-116keV-masked.zarr",
+    "pred_shape": [
+      15897,
+      9613,
+      9613
+    ],
+    "ct_shape": [
+      15897,
+      9613,
+      9613
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0191",
+    "prediction": "20250821151635-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250821151635-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      18977,
+      8387,
+      8387
+    ],
+    "ct_shape": [
+      18977,
+      8387,
+      8387
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0211",
+    "prediction": "20250821151803-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250821151803-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      19416,
+      7948,
+      7948
+    ],
+    "ct_shape": [
+      19416,
+      7948,
+      7948
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0257",
+    "prediction": "20250821151750-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250821151750-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      18872,
+      8388,
+      8388
+    ],
+    "ct_shape": [
+      18872,
+      8388,
+      8388
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0268",
+    "prediction": "20251110183117-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20251110183117-8.640um-1.2m-116keV-masked.zarr",
+    "pred_shape": [
+      14833,
+      12145,
+      12145
+    ],
+    "ct_shape": [
+      14833,
+      12145,
+      12145
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0306B",
+    "prediction": "20250521133212-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250521133212-8.640um-1.2m-116keV-masked.zarr",
+    "pred_shape": [
+      15898,
+      8849,
+      8849
+    ],
+    "ct_shape": [
+      15898,
+      8849,
+      8849
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0332",
+    "prediction": "20251211183505-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20251211183505-2.399um-0.2m-78keV-masked.zarr",
+    "pred_shape": [
+      8398,
+      3941,
+      3941
+    ],
+    "ct_shape": [
+      33592,
+      15761,
+      15761
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0343",
+    "prediction": "20250521140437-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250521140437-8.640um-1.2m-116keV-masked.zarr",
+    "pred_shape": [
+      17998,
+      8595,
+      8595
+    ],
+    "ct_shape": [
+      17998,
+      8595,
+      8595
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0343P",
+    "prediction": "20260304131111-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20260304131111-2.215um-0.4m-111keV-masked.zarr",
+    "pred_shape": [
+      5179,
+      3289,
+      3289
+    ],
+    "ct_shape": [
+      20714,
+      13155,
+      13155
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0358",
+    "prediction": "20250821151737-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250821151737-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      14744,
+      7783,
+      7783
+    ],
+    "ct_shape": [
+      14744,
+      7783,
+      7783
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0483A",
+    "prediction": "20250521140913-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250521140913-8.640um-1.2m-116keV-masked.zarr",
+    "pred_shape": [
+      15898,
+      8849,
+      8849
+    ],
+    "ct_shape": [
+      15898,
+      8849,
+      8849
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0483B",
+    "prediction": "20251124083638-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20251124083638-8.640um-1.2m-116keV-masked.zarr",
+    "pred_shape": [
+      11880,
+      8343,
+      8343
+    ],
+    "ct_shape": [
+      11880,
+      8343,
+      8343
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0490A",
+    "prediction": "20250521151210-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250521151210-8.640um-1.2m-116keV-masked.zarr",
+    "pred_shape": [
+      11698,
+      9101,
+      9101
+    ],
+    "ct_shape": [
+      11698,
+      9101,
+      9101
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0490B",
+    "prediction": "20250521151215-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250521151215-8.640um-1.2m-116keV-masked.zarr",
+    "pred_shape": [
+      10648,
+      8343,
+      8343
+    ],
+    "ct_shape": [
+      10648,
+      8343,
+      8343
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0500P2",
+    "prediction": "20250526151718-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250526151718-2.215um-0.4m-111keV-masked.zarr",
+    "pred_shape": [
+      7024,
+      4553,
+      4553
+    ],
+    "ct_shape": [
+      28096,
+      18209,
+      18209
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0500P2",
+    "prediction": "20250820143440-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250820143440-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      7057,
+      4196,
+      4196
+    ],
+    "ct_shape": [
+      7057,
+      4196,
+      4196
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0800",
+    "prediction": "20250521135224-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250521135224-8.640um-1.2m-116keV-masked.zarr",
+    "pred_shape": [
+      24298,
+      9867,
+      9867
+    ],
+    "ct_shape": [
+      24298,
+      9867,
+      9867
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0813",
+    "prediction": "20250821151723-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250821151723-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      16993,
+      7947,
+      7947
+    ],
+    "ct_shape": [
+      16993,
+      7947,
+      7947
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0814",
+    "prediction": "20250804134230-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250804134230-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      19390,
+      5784,
+      5784
+    ],
+    "ct_shape": [
+      19390,
+      5784,
+      5784
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0814",
+    "prediction": "20260309142202-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20260309142202-2.399um-0.2m-78keV-masked.zarr",
+    "pred_shape": [
+      18642,
+      5973,
+      5973
+    ],
+    "ct_shape": [
+      74568,
+      23891,
+      23891
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0826",
+    "prediction": "20250821151701-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250821151701-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      16920,
+      8169,
+      8169
+    ],
+    "ct_shape": [
+      16920,
+      8169,
+      8169
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0841",
+    "prediction": "20250821151531-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250821151531-9.366um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      19400,
+      7703,
+      7703
+    ],
+    "ct_shape": [
+      19400,
+      7703,
+      7703
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0841",
+    "prediction": "20260319124803-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20260319124803-2.403um-0.2m-77keV-masked.zarr",
+    "pred_shape": [
+      3781,
+      7618,
+      7618
+    ],
+    "ct_shape": [
+      15121,
+      30469,
+      30469
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0846A",
+    "prediction": "20250728152254-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250728152254-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      14019,
+      7726,
+      7726
+    ],
+    "ct_shape": [
+      14019,
+      7726,
+      7726
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0846A",
+    "prediction": "20260319102732-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20260319102732-2.403um-0.2m-77keV-masked.zarr",
+    "pred_shape": [
+      3785,
+      7397,
+      7397
+    ],
+    "ct_shape": [
+      15137,
+      29587,
+      29587
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc0846B",
+    "prediction": "20250804142305-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250804142305-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      13926,
+      7859,
+      7859
+    ],
+    "ct_shape": [
+      13926,
+      7859,
+      7859
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc1203",
+    "prediction": "20250820131727-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250820131727-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      18977,
+      6844,
+      6844
+    ],
+    "ct_shape": [
+      18977,
+      6844,
+      6844
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc1203",
+    "prediction": "20260319130212-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20260319130212-2.403um-0.2m-77keV-masked.zarr",
+    "pred_shape": [
+      3785,
+      6624,
+      6624
+    ],
+    "ct_shape": [
+      15137,
+      26493,
+      26493
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc1218",
+    "prediction": "20250521120456-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250521120456-8.640um-1.2m-116keV-masked.zarr",
+    "pred_shape": [
+      23247,
+      7593,
+      7593
+    ],
+    "ct_shape": [
+      23247,
+      7593,
+      7593
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc1299",
+    "prediction": "20260309130042-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20260309130042-2.399um-0.2m-78keV-masked.zarr",
+    "pred_shape": [
+      12309,
+      5145,
+      5145
+    ],
+    "ct_shape": [
+      49233,
+      20579,
+      20579
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc1447",
+    "prediction": "20250521151220-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250521151220-8.640um-1.2m-116keV-masked.zarr",
+    "pred_shape": [
+      24297,
+      8343,
+      8343
+    ],
+    "ct_shape": [
+      24297,
+      8343,
+      8343
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc1451",
+    "prediction": "20260319101107-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20260319101107-2.399um-0.2m-78keV-masked.zarr",
+    "pred_shape": [
+      14986,
+      5203,
+      5203
+    ],
+    "ct_shape": [
+      59944,
+      20811,
+      20811
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc1545",
+    "prediction": "20250821151648-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20250821151648-9.362um-1.2m-113keV-masked.zarr",
+    "pred_shape": [
+      20961,
+      7506,
+      7506
+    ],
+    "ct_shape": [
+      20961,
+      7506,
+      7506
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHerc1667",
+    "status": "no_prediction"
+  },
+  {
+    "scroll": "PHerc1667Cr1Fr3",
+    "status": "no_prediction"
+  },
+  {
+    "scroll": "PHerc51Cr4Fr8",
+    "status": "no_prediction"
+  },
+  {
+    "scroll": "PHercMAN5",
+    "prediction": "20260311104824-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20260311104824-2.399um-0.2m-78keV-masked.zarr",
+    "pred_shape": [
+      7910,
+      4374,
+      4374
+    ],
+    "ct_shape": [
+      31640,
+      17495,
+      17495
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHercMANB",
+    "prediction": "20260323091048-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20260323091048-2.399um-0.2m-78keV-masked.zarr",
+    "pred_shape": [
+      18171,
+      6681,
+      6681
+    ],
+    "ct_shape": [
+      72681,
+      26723,
+      26723
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHercMANBp",
+    "prediction": "20251216152116-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20251216152116-2.399um-0.2m-78keV-masked.zarr",
+    "pred_shape": [
+      4287,
+      3145,
+      3145
+    ],
+    "ct_shape": [
+      17148,
+      12577,
+      12577
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHercParis1Fr34",
+    "status": "no_prediction"
+  },
+  {
+    "scroll": "PHercParis1Fr39",
+    "status": "no_prediction"
+  },
+  {
+    "scroll": "PHercParis2Fr143",
+    "status": "no_prediction"
+  },
+  {
+    "scroll": "PHercParis2Fr47",
+    "status": "no_prediction"
+  },
+  {
+    "scroll": "PHercParis3",
+    "status": "no_prediction"
+  },
+  {
+    "scroll": "PHercParis4",
+    "prediction": "20260411134726-surface-20260413141734-surface-recto-2um-ps256-L0-th0.45.zarr",
+    "run_id": "20260413141734",
+    "model": "surface-recto-2um-ps256",
+    "threshold": 0.45,
+    "ct_volume": "20260411134726-2.400um-0.2m-78keV-masked.zarr",
+    "pred_shape": [
+      75784,
+      32693,
+      32693
+    ],
+    "ct_shape": [
+      75784,
+      32693,
+      32693
+    ],
+    "declared_level": 0,
+    "actual_level": 0,
+    "status": "verifiable"
+  },
+  {
+    "scroll": "PHercParis4",
+    "prediction": "20260411134726-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+    "run_id": "20260413222639",
+    "model": "surface-m7",
+    "threshold": 0.2,
+    "ct_volume": "20260411134726-2.400um-0.2m-78keV-masked.zarr",
+    "pred_shape": [
+      18946,
+      8174,
+      8174
+    ],
+    "ct_shape": [
+      75784,
+      32693,
+      32693
+    ],
+    "declared_level": 2,
+    "actual_level": 2,
+    "status": "verifiable"
+  }
+]
