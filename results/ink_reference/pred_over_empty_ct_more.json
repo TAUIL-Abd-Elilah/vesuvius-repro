@@ -1,0 +1,71 @@
+{
+  "note": "P(CT empty | predicted sheet) on masked CT volumes. Non-zero means the published prediction asserts papyrus where the scan has no data.",
+  "scrolls": [
+    {
+      "scroll": "PHercParis4",
+      "prediction": "20260411134726-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+      "blocks_sampled": 20,
+      "block": 64,
+      "voxels": 5242880,
+      "frac_ct_empty": 0.8,
+      "frac_predicted_sheet": 0.09568290710449219,
+      "p_ct_empty_given_pred": 0.5225593735921571,
+      "blocks_with_any": 1
+    },
+    {
+      "scroll": "PHerc0814",
+      "prediction": "20260309142202-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+      "blocks_sampled": 20,
+      "block": 64,
+      "voxels": 5242880,
+      "frac_ct_empty": 0.750006103515625,
+      "frac_predicted_sheet": 0.17134857177734375,
+      "p_ct_empty_given_pred": 0.6393873280199475,
+      "blocks_with_any": 3
+    },
+    {
+      "scroll": "PHerc0841",
+      "prediction": "20260319124803-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+      "blocks_sampled": 20,
+      "block": 64,
+      "voxels": 5242880,
+      "frac_ct_empty": 0.8542531967163086,
+      "frac_predicted_sheet": 0.03545875549316406,
+      "p_ct_empty_given_pred": 0.003609350962314288,
+      "blocks_with_any": 1
+    },
+    {
+      "scroll": "PHerc0846A",
+      "prediction": "20260319102732-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+      "blocks_sampled": 20,
+      "block": 64,
+      "voxels": 5242880,
+      "frac_ct_empty": 0.8000005722045899,
+      "frac_predicted_sheet": 0.060780906677246095,
+      "p_ct_empty_given_pred": 0.10283148239384687,
+      "blocks_with_any": 2
+    },
+    {
+      "scroll": "PHerc1203",
+      "prediction": "20260319130212-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+      "blocks_sampled": 20,
+      "block": 64,
+      "voxels": 5242880,
+      "frac_ct_empty": 0.8,
+      "frac_predicted_sheet": 0.051926612854003906,
+      "p_ct_empty_given_pred": 0.0,
+      "blocks_with_any": 0
+    },
+    {
+      "scroll": "PHerc1299",
+      "prediction": "20260309130042-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+      "blocks_sampled": 20,
+      "block": 64,
+      "voxels": 5242880,
+      "frac_ct_empty": 0.8537557601928711,
+      "frac_predicted_sheet": 0.16495704650878906,
+      "p_ct_empty_given_pred": 0.8416338093310979,
+      "blocks_with_any": 5
+    }
+  ]
+}

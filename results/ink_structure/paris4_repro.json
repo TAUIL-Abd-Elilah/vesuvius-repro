@@ -1,0 +1,173 @@
+{
+  "ink_thresh": 0.5,
+  "ink_mean": 0.022705459967255592,
+  "ink_std": 0.10704226046800613,
+  "ink_max": 0.9915544390678406,
+  "ink_frac_hot": 0.014496326446533203,
+  "ct_mean": 67.91253662109375,
+  "ct_std": 31.472654342651367,
+  "status": "ok",
+  "ct_p90": 114.0,
+  "ct_p50": 51.0,
+  "aligned": {
+    "p_ink_dense": 0.029787831315482065,
+    "p_ink_sparse": 0.0006820756172549137,
+    "dense_lift": 43.67232981493515,
+    "frac_of_ink_in_dense": 0.2164073550212164
+  },
+  "shifted_null": {
+    "p_ink_dense": 0.003640282167145095,
+    "p_ink_sparse": 0.02423861545235255,
+    "dense_lift": 0.1501852353861151,
+    "frac_of_ink_in_dense": 0.02644649847044505
+  },
+  "lift_over_null": 290.78976839938247,
+  "pearson_ink_vs_ct": 0.09584283831447732,
+  "ct_profile": [
+    {
+      "decile": 1,
+      "ct_lo": 15.0,
+      "ct_hi": 37.0,
+      "n_voxels": 177047,
+      "ink_mean": 0.008316706866025925,
+      "frac_hot": 0.0
+    },
+    {
+      "decile": 2,
+      "ct_lo": 37.0,
+      "ct_hi": 40.0,
+      "n_voxels": 173562,
+      "ink_mean": 0.00798776838928461,
+      "frac_hot": 0.0
+    },
+    {
+      "decile": 3,
+      "ct_lo": 40.0,
+      "ct_hi": 43.0,
+      "n_voxels": 227432,
+      "ink_mean": 0.00794450007379055,
+      "frac_hot": 0.0
+    },
+    {
+      "decile": 4,
+      "ct_lo": 43.0,
+      "ct_hi": 46.0,
+      "n_voxels": 222220,
+      "ink_mean": 0.008107648231089115,
+      "frac_hot": 4.500045000450005e-06
+    },
+    {
+      "decile": 5,
+      "ct_lo": 46.0,
+      "ct_hi": 51.0,
+      "n_voxels": 236661,
+      "ink_mean": 0.011880643665790558,
+      "frac_hot": 0.001588770435348452
+    },
+    {
+      "decile": 6,
+      "ct_lo": 51.0,
+      "ct_hi": 72.0,
+      "n_voxels": 216474,
+      "ink_mean": 0.0475311353802681,
+      "frac_hot": 0.04016648650646267
+    },
+    {
+      "decile": 7,
+      "ct_lo": 72.0,
+      "ct_hi": 90.0,
+      "n_voxels": 205632,
+      "ink_mean": 0.034750793129205704,
+      "frac_hot": 0.026712768440709616
+    },
+    {
+      "decile": 8,
+      "ct_lo": 90.0,
+      "ct_hi": 102.0,
+      "n_voxels": 206686,
+      "ink_mean": 0.02982155606150627,
+      "frac_hot": 0.021733450741704807
+    },
+    {
+      "decile": 9,
+      "ct_lo": 102.0,
+      "ct_hi": 114.0,
+      "n_voxels": 210576,
+      "ink_mean": 0.03050881065428257,
+      "frac_hot": 0.022628409695311907
+    },
+    {
+      "decile": 10,
+      "ct_lo": 114.0,
+      "ct_hi": 255.0,
+      "n_voxels": 220862,
+      "ink_mean": 0.037645794451236725,
+      "frac_hot": 0.029787831315482065
+    }
+  ],
+  "material_threshold": 73.59375,
+  "material_frac": 0.39414024353027344,
+  "depth_profile": [
+    {
+      "depth_lo": 1,
+      "depth_hi": 2,
+      "n_voxels": 221917,
+      "ink_mean": 0.04389539733529091,
+      "frac_hot": 0.03649112055408103
+    },
+    {
+      "depth_lo": 3,
+      "depth_hi": 4,
+      "n_voxels": 137742,
+      "ink_mean": 0.025833461433649063,
+      "frac_hot": 0.016821303596579112
+    },
+    {
+      "depth_lo": 5,
+      "depth_hi": 8,
+      "n_voxels": 186759,
+      "ink_mean": 0.024061832576990128,
+      "frac_hot": 0.016026001424295482
+    },
+    {
+      "depth_lo": 9,
+      "depth_hi": 16,
+      "n_voxels": 40050,
+      "ink_mean": 0.055344436317682266,
+      "frac_hot": 0.050162297128589266
+    },
+    {
+      "depth_lo": 17,
+      "depth_hi": 32,
+      "n_voxels": 156,
+      "ink_mean": 0.008211429230868816,
+      "frac_hot": 0.0
+    }
+  ],
+  "surface_vs_core": {
+    "p_ink_shell": 0.028369652020342077,
+    "p_ink_core": 0.039216560414902,
+    "shell_over_core": 0.7234100012902157,
+    "calibration": {
+      "paris4_published_real_ink": 0.64,
+      "paris4_repro": 0.72
+    },
+    "does_it_discriminate": "NO - see the comment in depth_profile()"
+  },
+  "case": "paris4_repro",
+  "origin_l0": [
+    34166,
+    16410,
+    16410
+  ],
+  "n": 128,
+  "reference": "CT density at L0 (what the ink model was shown)",
+  "recto_check": {
+    "recto_coverage": 0.2134246826171875,
+    "p_ink_on_sheet": 0.00456897476227926,
+    "p_ink_off_sheet": 0.017189955188267474,
+    "sheet_lift": 0.26579329103764543,
+    "frac_of_ink_on_sheet": 0.06726752409460215,
+    "shifted_null_sheet_lift": 0.46885164223285997
+  }
+}

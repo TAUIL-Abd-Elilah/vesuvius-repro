@@ -1,0 +1,47 @@
+{
+  "scroll": "PHercMANBp",
+  "ct_volume": "20251216152116-2.399um-0.2m-78keV-masked.zarr",
+  "ct_level": 0,
+  "bbox": [
+    6000,
+    6256,
+    6160,
+    6416,
+    6160,
+    6416
+  ],
+  "trim": 64,
+  "surface_fraction_at_region": 0.15813446044921875,
+  "ink_mean": 0.007881286554038525,
+  "ink_max": 0.4571063816547394,
+  "ink_p99": 0.010328153148293495,
+  "frac_gt_0.3": 1.430511474609375e-06,
+  "frac_gt_0.5": 0.0,
+  "frac_gt_0.7": 0.0,
+  "paris4_reference": {
+    "mean": 0.02,
+    "frac_gt_0.5": 0.0127,
+    "max": 0.988
+  },
+  "model": "scrollprize/ink_3d_dino_guided ckpt_78k_fullsup.pth",
+  "trained_on": "PHercParis4 only - this is cross-scroll generalisation",
+  "published_ink_prediction": null,
+  "note": "No published ink prediction exists for this scroll, so this is a new artifact and not a reproduction. No Dice is claimable.",
+  "status": "ok",
+  "verdict": "no voxel reaches 0.5 (max 0.457) - no ink signal in this region",
+  "paris4_range": {
+    "n_regions": 16,
+    "frac_gt_0.5": {
+      "min": 0.0,
+      "median": 0.03753,
+      "max": 0.14718
+    },
+    "p_ink_dense": {
+      "min": 0.0,
+      "median": 0.05875,
+      "max": 0.37388
+    },
+    "source": "paris4_ink_range.py, published ink-3d artifact"
+  },
+  "note_on_comparison": "Paris 4 spans 0.000%-14.718% hot across 16 regions, so a ratio against any single Paris 4 region is not meaningful and none is quoted."
+}

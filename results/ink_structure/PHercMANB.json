@@ -1,0 +1,165 @@
+{
+  "ink_thresh": 0.5,
+  "ink_mean": 0.055768027901649475,
+  "ink_std": 0.16278354823589325,
+  "ink_max": 0.9810583591461182,
+  "ink_frac_hot": 0.03686714172363281,
+  "ct_mean": 74.08106231689453,
+  "ct_std": 29.89322280883789,
+  "status": "ok",
+  "ct_p90": 113.0,
+  "ct_p50": 75.0,
+  "aligned": {
+    "p_ink_dense": 0.0467376469885442,
+    "p_ink_sparse": 0.03637769095726599,
+    "dense_lift": 1.2847887196427163,
+    "frac_of_ink_in_dense": 0.1315510373014641
+  },
+  "shifted_null": {
+    "p_ink_dense": 0.015421447575809098,
+    "p_ink_sparse": 0.049616525492789186,
+    "dense_lift": 0.3108127266599978,
+    "frac_of_ink_in_dense": 0.04340628071809199
+  },
+  "lift_over_null": 4.133642574578884,
+  "pearson_ink_vs_ct": 0.05419882886896731,
+  "ct_profile": [
+    {
+      "decile": 1,
+      "ct_lo": 0.0,
+      "ct_hi": 35.0,
+      "n_voxels": 201551,
+      "ink_mean": 0.019583482295274734,
+      "frac_hot": 3.969218708912384e-05
+    },
+    {
+      "decile": 2,
+      "ct_lo": 35.0,
+      "ct_hi": 43.0,
+      "n_voxels": 197019,
+      "ink_mean": 0.027388697490096092,
+      "frac_hot": 0.0064359274993782325
+    },
+    {
+      "decile": 3,
+      "ct_lo": 43.0,
+      "ct_hi": 55.0,
+      "n_voxels": 217261,
+      "ink_mean": 0.07046590745449066,
+      "frac_hot": 0.05047385402810445
+    },
+    {
+      "decile": 4,
+      "ct_lo": 55.0,
+      "ct_hi": 66.0,
+      "n_voxels": 206121,
+      "ink_mean": 0.08510306477546692,
+      "frac_hot": 0.06733423571591445
+    },
+    {
+      "decile": 5,
+      "ct_lo": 66.0,
+      "ct_hi": 75.0,
+      "n_voxels": 224176,
+      "ink_mean": 0.0691758245229721,
+      "frac_hot": 0.05223128256369995
+    },
+    {
+      "decile": 6,
+      "ct_lo": 75.0,
+      "ct_hi": 82.0,
+      "n_voxels": 194674,
+      "ink_mean": 0.057787515223026276,
+      "frac_hot": 0.04063203098513412
+    },
+    {
+      "decile": 7,
+      "ct_lo": 82.0,
+      "ct_hi": 90.0,
+      "n_voxels": 212188,
+      "ink_mean": 0.0527610182762146,
+      "frac_hot": 0.0347710520858861
+    },
+    {
+      "decile": 8,
+      "ct_lo": 90.0,
+      "ct_hi": 100.0,
+      "n_voxels": 221525,
+      "ink_mean": 0.050421759486198425,
+      "frac_hot": 0.032461347477711316
+    },
+    {
+      "decile": 9,
+      "ct_lo": 100.0,
+      "ct_hi": 113.0,
+      "n_voxels": 205018,
+      "ink_mean": 0.051938921213150024,
+      "frac_hot": 0.03334341374903667
+    },
+    {
+      "decile": 10,
+      "ct_lo": 113.0,
+      "ct_hi": 255.0,
+      "n_voxels": 217619,
+      "ink_mean": 0.06887821108102798,
+      "frac_hot": 0.0467376469885442
+    }
+  ],
+  "material_threshold": 73.212890625,
+  "material_frac": 0.514094352722168,
+  "depth_profile": [
+    {
+      "depth_lo": 1,
+      "depth_hi": 2,
+      "n_voxels": 384987,
+      "ink_mean": 0.07346033304929733,
+      "frac_hot": 0.055378493299773755
+    },
+    {
+      "depth_lo": 3,
+      "depth_hi": 4,
+      "n_voxels": 169099,
+      "ink_mean": 0.05699261650443077,
+      "frac_hot": 0.03799549376400806
+    },
+    {
+      "depth_lo": 5,
+      "depth_hi": 8,
+      "n_voxels": 187308,
+      "ink_mean": 0.03451620414853096,
+      "frac_hot": 0.015172870352574369
+    },
+    {
+      "depth_lo": 9,
+      "depth_hi": 16,
+      "n_voxels": 60034,
+      "ink_mean": 0.02327866293489933,
+      "frac_hot": 0.004031049072192424
+    },
+    {
+      "depth_lo": 17,
+      "depth_hi": 32,
+      "n_voxels": 750,
+      "ink_mean": 0.017299097031354904,
+      "frac_hot": 0.0
+    }
+  ],
+  "surface_vs_core": {
+    "p_ink_shell": 0.04891228179454039,
+    "p_ink_core": 0.005906661276557517,
+    "shell_over_core": 8.280867905641465,
+    "calibration": {
+      "paris4_published_real_ink": 0.64,
+      "paris4_repro": 0.72
+    },
+    "does_it_discriminate": "NO - see the comment in depth_profile()"
+  },
+  "case": "PHercMANB",
+  "origin_l0": [
+    25500,
+    13296,
+    13296
+  ],
+  "n": 128,
+  "reference": "CT density at L0 (what the ink model was shown)"
+}

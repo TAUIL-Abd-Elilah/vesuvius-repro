@@ -1,0 +1,47 @@
+{
+  "scroll": "PHerc1451",
+  "ct_volume": "20260319101107-2.399um-0.2m-78keV-masked.zarr",
+  "ct_level": 0,
+  "bbox": [
+    20980,
+    21236,
+    10276,
+    10532,
+    10276,
+    10532
+  ],
+  "trim": 64,
+  "surface_fraction_at_region": 0.19454193115234375,
+  "ink_mean": 0.014067621901631355,
+  "ink_max": 0.9728823304176331,
+  "ink_p99": 0.032466813921928406,
+  "frac_gt_0.3": 0.003239154815673828,
+  "frac_gt_0.5": 0.0024552345275878906,
+  "frac_gt_0.7": 0.0018601417541503906,
+  "paris4_reference": {
+    "mean": 0.02,
+    "frac_gt_0.5": 0.0127,
+    "max": 0.988
+  },
+  "model": "scrollprize/ink_3d_dino_guided ckpt_78k_fullsup.pth",
+  "trained_on": "PHercParis4 only - this is cross-scroll generalisation",
+  "published_ink_prediction": null,
+  "note": "No published ink prediction exists for this scroll, so this is a new artifact and not a reproduction. No Dice is claimable.",
+  "status": "ok",
+  "verdict": "within the range Paris 4 itself spans across regions",
+  "paris4_range": {
+    "n_regions": 16,
+    "frac_gt_0.5": {
+      "min": 0.0,
+      "median": 0.03753,
+      "max": 0.14718
+    },
+    "p_ink_dense": {
+      "min": 0.0,
+      "median": 0.05875,
+      "max": 0.37388
+    },
+    "source": "paris4_ink_range.py, published ink-3d artifact"
+  },
+  "note_on_comparison": "Paris 4 spans 0.000%-14.718% hot across 16 regions, so a ratio against any single Paris 4 region is not meaningful and none is quoted."
+}

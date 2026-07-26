@@ -1,0 +1,49 @@
+{
+  "note": "P(CT empty | predicted sheet) on masked CT volumes. Non-zero means the published prediction asserts papyrus where the scan has no data.",
+  "scrolls": [
+    {
+      "scroll": "PHerc0500P2",
+      "prediction": "20250526151718-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+      "blocks_sampled": 30,
+      "block": 64,
+      "voxels": 7864320,
+      "frac_ct_empty": 0.878125,
+      "frac_predicted_sheet": 0.10100059509277344,
+      "p_ct_empty_given_pred": 0.7683535586635293,
+      "blocks_with_any": 3
+    },
+    {
+      "scroll": "PHerc0332",
+      "prediction": "20251211183505-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+      "blocks_sampled": 30,
+      "block": 64,
+      "voxels": 7864320,
+      "frac_ct_empty": 0.7,
+      "frac_predicted_sheet": 0.04938367207845052,
+      "p_ct_empty_given_pred": 0.0,
+      "blocks_with_any": 0
+    },
+    {
+      "scroll": "PHerc0343P",
+      "prediction": "20260304131111-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+      "blocks_sampled": 30,
+      "block": 64,
+      "voxels": 7864320,
+      "frac_ct_empty": 0.90439453125,
+      "frac_predicted_sheet": 0.24183425903320313,
+      "p_ct_empty_given_pred": 0.9206304137734493,
+      "blocks_with_any": 11
+    },
+    {
+      "scroll": "PHerc0009B",
+      "prediction": "20260319104112-surface-20260413222639-surface-m7-L2-th0.2.zarr",
+      "blocks_sampled": 30,
+      "block": 64,
+      "voxels": 7864320,
+      "frac_ct_empty": 0.8727607727050781,
+      "frac_predicted_sheet": 0.0612341562906901,
+      "p_ct_empty_given_pred": 0.5229470580295494,
+      "blocks_with_any": 3
+    }
+  ]
+}

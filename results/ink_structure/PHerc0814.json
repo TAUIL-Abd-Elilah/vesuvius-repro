@@ -1,0 +1,158 @@
+{
+  "ink_thresh": 0.5,
+  "ink_mean": 0.01503688097000122,
+  "ink_std": 0.03259395435452461,
+  "ink_max": 0.9569571614265442,
+  "ink_frac_hot": 0.0014810562133789062,
+  "ct_mean": 107.78545379638672,
+  "ct_std": 27.91924476623535,
+  "status": "ok",
+  "ct_p90": 140.0,
+  "ct_p50": 109.0,
+  "aligned": {
+    "p_ink_dense": 0.0007429486215649682,
+    "p_ink_sparse": 0.001324872281556607,
+    "dense_lift": 0.560769994140167,
+    "frac_of_ink_in_dense": 0.0540888602704443
+  },
+  "shifted_null": {
+    "p_ink_dense": 0.00017247021572043905,
+    "p_ink_sparse": 0.0021511468691275486,
+    "dense_lift": 0.08017593693655546,
+    "frac_of_ink_in_dense": 0.012556342562781713
+  },
+  "lift_over_null": 6.994243105433411,
+  "pearson_ink_vs_ct": 0.024624682443896144,
+  "ct_profile": [
+    {
+      "decile": 1,
+      "ct_lo": 3.0,
+      "ct_hi": 72.0,
+      "n_voxels": 203566,
+      "ink_mean": 0.011575047858059406,
+      "frac_hot": 4.421170529459733e-05
+    },
+    {
+      "decile": 2,
+      "ct_lo": 72.0,
+      "ct_hi": 85.0,
+      "n_voxels": 200946,
+      "ink_mean": 0.013783070258796215,
+      "frac_hot": 0.0010848685716560668
+    },
+    {
+      "decile": 3,
+      "ct_lo": 85.0,
+      "ct_hi": 94.0,
+      "n_voxels": 200786,
+      "ink_mean": 0.015387807972729206,
+      "frac_hot": 0.0017531102766129112
+    },
+    {
+      "decile": 4,
+      "ct_lo": 94.0,
+      "ct_hi": 102.0,
+      "n_voxels": 215765,
+      "ink_mean": 0.01582367718219757,
+      "frac_hot": 0.001988274279887841
+    },
+    {
+      "decile": 5,
+      "ct_lo": 102.0,
+      "ct_hi": 109.0,
+      "n_voxels": 207212,
+      "ink_mean": 0.015653645619750023,
+      "frac_hot": 0.001722873192672239
+    },
+    {
+      "decile": 6,
+      "ct_lo": 109.0,
+      "ct_hi": 116.0,
+      "n_voxels": 216701,
+      "ink_mean": 0.01557675376534462,
+      "frac_hot": 0.0014720744251295564
+    },
+    {
+      "decile": 7,
+      "ct_lo": 116.0,
+      "ct_hi": 123.0,
+      "n_voxels": 210921,
+      "ink_mean": 0.015658047050237656,
+      "frac_hot": 0.0016783535067631957
+    },
+    {
+      "decile": 8,
+      "ct_lo": 123.0,
+      "ct_hi": 131.0,
+      "n_voxels": 218918,
+      "ink_mean": 0.01605812832713127,
+      "frac_hot": 0.002142354671612202
+    },
+    {
+      "decile": 9,
+      "ct_lo": 131.0,
+      "ct_hi": 140.0,
+      "n_voxels": 196211,
+      "ink_mean": 0.015699351206421852,
+      "frac_hot": 0.0021966148686872805
+    },
+    {
+      "decile": 10,
+      "ct_lo": 140.0,
+      "ct_hi": 255.0,
+      "n_voxels": 226126,
+      "ink_mean": 0.014979708939790726,
+      "frac_hot": 0.0007429486215649682
+    }
+  ],
+  "material_threshold": 104.8828125,
+  "material_frac": 0.566737174987793,
+  "depth_profile": [
+    {
+      "depth_lo": 1,
+      "depth_hi": 2,
+      "n_voxels": 477983,
+      "ink_mean": 0.015918239951133728,
+      "frac_hot": 0.0017824901722446197
+    },
+    {
+      "depth_lo": 3,
+      "depth_hi": 4,
+      "n_voxels": 213130,
+      "ink_mean": 0.015522828325629234,
+      "frac_hot": 0.0018345610660160465
+    },
+    {
+      "depth_lo": 5,
+      "depth_hi": 8,
+      "n_voxels": 157240,
+      "ink_mean": 0.014970891177654266,
+      "frac_hot": 0.000903078097176291
+    },
+    {
+      "depth_lo": 9,
+      "depth_hi": 16,
+      "n_voxels": 15817,
+      "ink_mean": 0.013747100718319416,
+      "frac_hot": 6.322311437061389e-05
+    }
+  ],
+  "surface_vs_core": {
+    "p_ink_shell": 0.0018751028264019887,
+    "p_ink_core": 0.00027831895352073476,
+    "shell_over_core": 6.737244455262346,
+    "calibration": {
+      "paris4_published_real_ink": 0.64,
+      "paris4_repro": 0.72
+    },
+    "does_it_discriminate": "NO - see the comment in depth_profile()"
+  },
+  "case": "PHerc0814",
+  "origin_l0": [
+    48532,
+    11880,
+    11880
+  ],
+  "n": 128,
+  "reference": "CT density at L0 (what the ink model was shown)"
+}
