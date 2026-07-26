@@ -8,8 +8,8 @@ had checked.
 This checks it, for any scroll, and reports how close the match is and — when it is not
 close — what class of explanation is still open.
 
-**Headline: they do reproduce.** Six scrolls sampled across both CT pyramid levels come
-back at Dice 0.9996–0.9999, with the residual disagreement confined to voxels sitting on
+**Headline: they do reproduce.** Eleven scrolls sampled across both CT pyramid levels come
+back at Dice 0.9983–1.0000, with the residual disagreement confined to voxels sitting on
 the decision boundary. One scroll does not: **PHerc. Paris 4**, the Title-prize scroll.
 
 ## Results
@@ -29,12 +29,14 @@ Scored on the interior of a 256³ region (64 voxels trimmed per face), threshold
 | PHerc0211   | L0 | 0.9996 |   384 (0.018%) | reproduced |
 | PHerc0841   | L2 | 0.9996 |   404 (0.019%) | reproduced |
 | PHerc0191   | L0 | 0.9989 | 1,267 (0.060%) | reproduced |
+| PHerc0814   | L2 | 0.9983 | 2,918 (0.139%) | reproduced |
 | **PHercParis4** | **L2** | **0.8907** | **108,044 (5.15%)** | **not reproduced** |
 | **PHercParis4** (2nd region) | **L2** | **0.8425** | **158,236 (7.55%)** | **not reproduced** |
 
-Ten scrolls, five at each CT level. In every reproduced case **100% of the differing
-voxels lie within 0.01 of the threshold** — that is what float16 storage and autocast
-leave behind, and nothing structural remains. One region came back exact to the voxel.
+Eleven scrolls, five at CT level 0 and six at level 2. In every reproduced case **100% of
+the differing voxels lie within 0.01 of the threshold** — that is what float16 storage and
+autocast leave behind, and nothing structural remains. One region came back exact to the
+voxel. Every row here has its raw report in [`results/`](results).
 
 One region of PHerc0846A (z 2460, 36% positive) is worth a note: there the model produced
 an unusually flat output — logits spanning [-1.9, 6.5] against [-4.3, 18.3] on a healthy
@@ -59,9 +61,12 @@ PHerc. Paris 4 is also the only scroll carrying a second surface model
 (`surface-recto-2um-ps256`, a different run), so it visibly receives bespoke treatment.
 
 We are **not** claiming the published prediction is wrong. The claim is narrower and
-checkable: it is not reproducible from the published inputs, while six other scrolls are.
-If the run used a resampled volume or a configuration that is not in the bucket,
+checkable: it is not reproducible from the published inputs, while eleven other scrolls
+are. If the run used a resampled volume or a configuration that is not in the bucket,
 publishing that would close the gap.
+
+Filed upstream as [ScrollPrize/villa#1250](https://github.com/ScrollPrize/villa/issues/1250),
+with the elimination table and the diagnostics behind it.
 
 ## The catalogue
 
