@@ -8,15 +8,31 @@ had checked.
 This checks it, for any scroll, and reports how close the match is and — when it is not
 close — what class of explanation is still open.
 
-**Headline: they do reproduce, and the whole collection has now been checked.** All 36
-scrolls carrying a published m7 surface prediction were audited against public inputs.
-**35 reproduce** at Dice 0.9983–1.0000, one of them exact to the voxel, with every
-residual difference sitting on the decision boundary. **Exactly one does not: PHerc.
-Paris 4**, the Title-prize scroll.
+**Headline: all 36 reproduce.** Every scroll carrying a published m7 surface prediction
+was audited against public inputs, and every one of them regenerates at Dice 0.9983 or
+better, with the residual difference always sitting on the decision boundary.
 
-That ratio is the point. One failure in thirty-six, with the other thirty-five agreeing
-to a few hundred voxels out of 2.1 million, is not a tolerance question — it says the
-pipeline is right and that this one artifact was made differently.
+**But not all with the same settings.** 35 reproduce with test-time augmentation *off*.
+**PHerc. Paris 4 reproduces only with mirroring TTA on** — 0.8907 without it, **0.9999**
+with it. The published artifacts carry no record of which setting produced them, so the
+only way to find out is to try both.
+
+| | TTA off | TTA on |
+|---|---|---|
+| PHerc0139 (and 34 others) | **0.9997** | 0.8273 |
+| PHerc. Paris 4 | 0.8907 | **0.9999** |
+
+The pattern is complementary: TTA breaks PHerc0139 by about as much as its absence broke
+PHerc. Paris 4. So the finding is not an unreproducible artifact — it is that **the
+collection is not internally uniform in its inference configuration**, and nothing in the
+data says so.
+
+> **Earlier versions of this README claimed PHerc. Paris 4 was not reproducible.** That
+> was wrong, and it is corrected here and in
+> [villa#1250](https://github.com/ScrollPrize/villa/issues/1250). I had eliminated six
+> hypotheses by measurement and treated the remaining space as empty; TTA had been
+> dropped early because it *hurt* on PHerc0139, and I never revisited that it might vary
+> per scroll. Eliminating six candidates is not eliminating all of them.
 
 ## Results
 
@@ -76,8 +92,12 @@ out of sync with the evidence twice while it was hand-written. `sweep_all.py` ra
 whole collection unattended, one 256³ region per scroll, and every one of the 36 runs
 completed.
 
-PHerc. Paris 4 fails on a second independent region too (0.8425, 158,236 voxels, 7.55%);
-the table shows one row per scroll, so only its better region appears above.
+**The PHerc. Paris 4 row above is its TTA-off score, kept deliberately.** With TTA on it
+reproduces at 0.9999 on both regions — see below. The table is generated from the default
+(TTA-off) runs so it answers one question consistently: *does this scroll reproduce under
+the settings that work for the rest of the collection?* For PHerc. Paris 4 the answer is
+no, and that is the whole point. Its TTA runs live in
+[`results/variants/`](results/variants), outside the generated table.
 
 One region of PHerc0846A (z 2460, 36% positive) is worth a note: there the model produced
 an unusually flat output — logits spanning [-1.9, 6.5] against [-4.3, 18.3] on a healthy
@@ -86,9 +106,10 @@ reproduced at 0.9997, so this is a property of that region, not a reproduction f
 It is recorded here rather than dropped because a region where the published model loses
 confidence is worth someone's attention.
 
-### The PHerc. Paris 4 exception
+### The PHerc. Paris 4 exception — solved: it was predicted with TTA
 
-Two independent regions fail, and the usual suspects are ruled out by measurement:
+Under the collection's default settings, two independent regions fail. These were each
+ruled out by measurement:
 
 | hypothesis | test | result |
 |---|---|---|
@@ -97,17 +118,32 @@ Two independent regions fail, and the usual suspects are ruled out by measuremen
 | step size | rerun at 0.5 / 0.75 / 1.0 | 0.8907 / 0.8467 / 0.7483 — the default is best; ruled out |
 | calibration or precision | Dice over every threshold 0.01–0.95 | headroom **+0.0005**; ruled out |
 | the region | a second, independent region | also fails; ruled out |
+| CT pyramid construction | is published L2 `round(mean(L1))` or a direct 4x of L0? | it is the standard successive 2x mean+round, same as the reproducing L2 scrolls; ruled out |
+| model fold | which checkpoints exist | only `fold_0/checkpoint_best.pth`, and all 35 others reproduce with it; ruled out |
+| **mirroring TTA** | **rerun both regions with TTA on** | **0.9999 and 0.9999 — this is the answer** |
 
-PHerc. Paris 4 is also the only scroll carrying a second surface model
-(`surface-recto-2um-ps256`, a different run), so it visibly receives bespoke treatment.
+```bash
+python run_verification.py --scroll PHercParis4 --model m7 --level 2 --tta \
+    --bbox 6600:6856,3200:3456,4032:4288 --tag tta
+```
 
-We are **not** claiming the published prediction is wrong. The claim is narrower and
-checkable: it is not reproducible from the published inputs, while **the other 35 scrolls
-in the collection are** — every one of them, not a sample. If the run used a resampled
-volume or a configuration that is not in the bucket, publishing that would close the gap.
+The converse holds, which is what makes it conclusive rather than coincidental: running
+PHerc0139 **with** TTA drops it from 0.9997 to **0.8273** — it breaks by about as much as
+PHerc. Paris 4 broke without it. One setting, two scrolls, opposite directions.
 
-Filed upstream as [ScrollPrize/villa#1250](https://github.com/ScrollPrize/villa/issues/1250),
-with the elimination table and the diagnostics behind it.
+So the collection is reproducible end to end, but **not under a single configuration**,
+and the artifacts do not record which one produced them. Their `.zattrs` carry only
+boilerplate `multiscales` — nothing about TTA, step size, or patch size. Recording the
+inference configuration alongside each prediction would make every artifact here
+checkable without a search.
+
+Nothing here says any published prediction is wrong. All 36 are reproducible; the only
+gap is that the configuration each was produced under is not recorded anywhere, so
+reproducing one means searching for its settings.
+
+Tracked upstream at
+[ScrollPrize/villa#1250](https://github.com/ScrollPrize/villa/issues/1250) — filed
+originally as a non-reproduction, then corrected there once TTA turned out to explain it.
 
 ## The catalogue
 
