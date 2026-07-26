@@ -32,18 +32,24 @@ Scored on the interior of a 256³ region (64 voxels trimmed per face), threshold
 | PHerc0175A | L0 | 0.9997 | 254 (0.012%) | reproduced |
 | PHerc0846A | L2 | 0.9997 | 281 (0.013%) | reproduced |
 | PHerc0139 | L0 | 0.9997 | 266 (0.013%) | reproduced |
+| PHerc0358 | L0 | 0.9997 | 315 (0.015%) | reproduced |
 | PHerc0841 | L2 | 0.9996 | 404 (0.019%) | reproduced |
 | PHerc0343 | L0 | 0.9996 | 406 (0.019%) | reproduced |
 | PHerc0211 | L0 | 0.9996 | 384 (0.018%) | reproduced |
 | PHerc0306B | L0 | 0.9995 | 446 (0.021%) | reproduced |
+| PHerc0800 | L0 | 0.9994 | 642 (0.031%) | reproduced |
+| PHerc0490B | L0 | 0.9993 | 856 (0.041%) | reproduced |
+| PHerc0483A | L0 | 0.9991 | 833 (0.040%) | reproduced |
 | PHerc0257 | L0 | 0.9990 | 1,080 (0.051%) | reproduced |
 | PHerc0268 | L0 | 0.9990 | 1,492 (0.071%) | reproduced |
 | PHerc0191 | L0 | 0.9989 | 1,267 (0.060%) | reproduced |
 | PHerc0175B | L0 | 0.9986 | 1,708 (0.081%) | reproduced |
+| PHerc0490A | L0 | 0.9985 | 1,615 (0.077%) | reproduced |
+| PHerc0483B | L0 | 0.9985 | 2,329 (0.111%) | reproduced |
 | PHerc0814 | L2 | 0.9983 | 2,918 (0.139%) | reproduced |
 | **PHercParis4** | **L2** | **0.8907** | **108,044 (5.15%)** | **not reproduced** |
 
-**18 scrolls reproduce** — 10 at CT level 0 and 8 at level 2 — at Dice 0.9983–1.0000. In every one, 100% of the differing voxels lie within 0.01 of the threshold, which is what float16 storage and autocast leave behind.
+**24 scrolls reproduce** — 16 at CT level 0 and 8 at level 2 — at Dice 0.9983–1.0000. In every one, 100% of the differing voxels lie within 0.01 of the threshold, which is what float16 storage and autocast leave behind.
 
 **PHercParis4 does not reproduce.** Detail below.
 
