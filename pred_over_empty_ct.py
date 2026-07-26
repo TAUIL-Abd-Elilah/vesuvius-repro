@@ -49,18 +49,21 @@ def retry(fn, attempts: int = 6):
 def check(scroll: str, catalog: list[dict], n_blocks: int, block: int,
           seed: int) -> dict | None:
     rows = [r for r in catalog if r.get("scroll") == scroll
-            and r.get("status") == "verifiable" and "m7" in r.get("model", "")
-            and r.get("declared_level") == 2]
+            and r.get("status") == "verifiable" and "m7" in r.get("model", "")]
     if not rows:
-        print(f"{scroll}: no L2 m7 prediction")
+        print(f"{scroll}: no m7 prediction")
         return None
     row = rows[0]
+    # Only 14 of the 41 published m7 predictions sit at level 2; the other 27 are at
+    # level 0. Reading the CT at whatever level the prediction declares is what makes
+    # this a collection-wide audit rather than a third of one.
+    level = row.get("declared_level", 2)
     pred = zarr.open(f"{BUCKET}/{scroll}/representations/predictions/surfaces/"
                      f"{row['prediction']}/0", mode="r")
-    ct = zarr.open(f"{BUCKET}/{scroll}/volumes/{row['ct_volume']}/2", mode="r")
+    ct = zarr.open(f"{BUCKET}/{scroll}/volumes/{row['ct_volume']}/{level}", mode="r")
     if pred.shape != ct.shape:
-        print(f"{scroll}: prediction {pred.shape} and CT L2 {ct.shape} differ - skipped, "
-              "this test assumes a shared grid")
+        print(f"{scroll}: prediction {pred.shape} and CT L{level} {ct.shape} differ - "
+              "skipped, this test assumes a shared grid")
         return None
 
     rng = np.random.default_rng(seed)
@@ -87,17 +90,19 @@ def check(scroll: str, catalog: list[dict], n_blocks: int, block: int,
         print(f"{scroll}: no predicted sheet in {n_blocks} sampled blocks")
         return None
     frac = tot_pred_on_empty / tot_pred
-    out = {"scroll": scroll, "prediction": row["prediction"],
+    out = {"scroll": scroll, "prediction": row["prediction"], "level": level,
            "blocks_sampled": n_blocks, "block": block,
            "voxels": tot_vox,
            "frac_ct_empty": tot_empty / tot_vox,
            "frac_predicted_sheet": tot_pred / tot_vox,
            "p_ct_empty_given_pred": frac,
            "blocks_with_any": hits}
-    print(f"{scroll:<12} CT empty {100*out['frac_ct_empty']:5.1f}%   "
+    # flush: a 36-scroll run is thousands of network reads and takes a long time. Without
+    # this, stdout redirected to a file stays block-buffered and the log looks dead.
+    print(f"{scroll:<12} L{level}  CT empty {100*out['frac_ct_empty']:5.1f}%   "
           f"sheet {100*out['frac_predicted_sheet']:5.2f}%   "
           f"P(CT empty | sheet) {100*frac:6.3f}%   "
-          f"blocks affected {hits}/{n_blocks}")
+          f"blocks affected {hits}/{n_blocks}", flush=True)
     return out
 
 
@@ -113,7 +118,8 @@ def main() -> None:
     args = ap.parse_args()
 
     catalog = json.load(open(args.catalog))
-    print(f"sampling {args.n_blocks} blocks of {args.block}^3 per scroll at CT level 2\n")
+    print(f"sampling {args.n_blocks} blocks of {args.block}^3 per scroll, "
+          "each against the CT at its own prediction's declared level\n")
     rows = [r for r in (check(s, catalog, args.n_blocks, args.block, args.seed)
                         for s in args.scrolls) if r]
     if rows:
