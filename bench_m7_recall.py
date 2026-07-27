@@ -1,5 +1,17 @@
 """What fraction of labelled sheet does the published m7 model MISS?
 
+TWO THINGS TO KNOW BEFORE READING ANY NUMBER OUT OF THIS.
+
+  * The labels have three classes, and m7's own dataset.json names them
+    {0: background, 1: surface, 2: ignore}. Class 2 is the MAJORITY of a typical volume
+    (~59%) and must be excluded from scoring. An earlier version of this script folded it
+    into background, which left recall correct but precision badly understated.
+  * That dataset.json also says numTraining: 786, with shapes [320, 314, 314] - the same
+    scale, count and label scheme as this 868-volume set. **This is almost certainly m7's
+    own training data.** Recall measured here is therefore recall on data the model was
+    fitted to, which makes a low-recall tail more notable rather than less, but it is NOT
+    a held-out benchmark and must never be described as one.
+
 Everything measured in July asked whether the published predictions are right WHERE THEY
 EXIST. This asks the inverse, which is the one that matters for reading: a sheet the model
 misses is text nobody will ever recover.
@@ -103,16 +115,25 @@ def run_one(ip: str, lp: str, work: Path, size: int, trim: int) -> dict | None:
     p = 1.0 / (1.0 + np.exp(-(l1 - l0)))
     gt = lab[sl, sl, sl]
 
+    # m7's own dataset.json declares labels {0: background, 1: surface, 2: ignore}, and
+    # class 2 is the MAJORITY of a typical volume (~59%). It must be excluded from
+    # scoring, not folded into background: counting predictions there as false positives
+    # understates precision badly. Recall is unaffected either way, since it only ever
+    # looks at class-1 voxels - which is why the recall figures predate this fix and
+    # remain valid.
     sheet = gt == 1                       # the labelled sheet class
+    ignore = gt == 2
+    scored = ~ignore                      # background-or-sheet; everything else is unscored
     if sheet.sum() == 0:
         return {"sample": os.path.basename(ip), "status": "no_sheet_in_region"}
     pred = p > THRESH
 
     tp = float((pred & sheet).sum())
     fn = float((~pred & sheet).sum())
-    fp = float((pred & ~sheet).sum())
+    fp = float((pred & scored & ~sheet).sum())   # false positives in SCORED background only
     recall = tp / (tp + fn)
     precision = tp / (tp + fp) if (tp + fp) else 0.0
+    fp_ignore = float((pred & ignore).sum())     # predictions landing in unscored regions
 
     # Recall over thresholds: how much does the miss rate depend on where the cut is?
     rec_by_thr = {f"{t:.2f}": float((p > t)[sheet].mean()) for t in
@@ -151,6 +172,9 @@ def run_one(ip: str, lp: str, work: Path, size: int, trim: int) -> dict | None:
         "sample": os.path.basename(ip), "status": "ok",
         "region": bbox, "trim": trim,
         "label_sheet_fraction": float(sheet.mean()),
+        "label_ignore_fraction": float(ignore.mean()),
+        "scored_fraction": float(scored.mean()),
+        "pred_in_ignore_frac": float(fp_ignore / max(pred.sum(), 1)),
         "pred_positive_fraction": float(pred.mean()),
         "recall": recall, "precision": precision,
         "miss_fraction": 1.0 - recall,

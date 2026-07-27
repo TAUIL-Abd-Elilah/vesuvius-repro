@@ -242,13 +242,28 @@ labelled sheet in the scored interior; 37 do not, and 5 hit a transient CUDA fai
 to 0.05 moves median recall only from 90.8% to 96.3%; at 0.7 it falls to 78.8%. The signal
 mostly is not there to be recovered by re-thresholding.
 
-**Two limits, stated rather than buried.** The Kaggle labels and m7's output are not the
-same object — m7 predicts a band several times thicker than the labelled sheet, so a Dice
-benchmark between them is meaningless and none is quoted. Recall is well-defined
-regardless. And labels exist only where somebody already segmented, so this measures recall
-*where labels exist* and says nothing about the compressed or highly curved regions of
-[villa#191](https://github.com/ScrollPrize/villa/issues/191) — which is the catch-22
-described in [villa#193](https://github.com/ScrollPrize/villa/issues/193).
+### Three limits, and the first one matters most
+
+**This is almost certainly m7's own training data.** `dataset.json` in the published model
+declares `numTraining: 786`, shapes `[320, 314, 314]`, and labels
+`{0: background, 1: surface, 2: ignore}` — the same scale, count and label scheme as this
+868-volume public set. **These are not held-out numbers** and must not be read as a
+generalisation benchmark. It cuts the other way from how it sounds: a quarter of volumes
+below 80% recall, and 41 labelled sheets barely recovered, are volumes the model was
+*fitted on*.
+
+**The third label class is `ignore`, and it is the majority of a typical volume (~59%).**
+It has to be excluded from scoring. Recall is unaffected, since it only ever looks at
+class-1 voxels — but an earlier version of this benchmark folded `ignore` into background,
+which understated precision badly. **No precision figure is quoted here** until it is
+recomputed with `ignore` excluded. The claim that m7 "predicts a band several times thicker
+than the labelled sheet" rested on that flawed precision and is withdrawn pending
+remeasurement.
+
+**Labels exist only where somebody already segmented**, so this measures recall *where
+labels exist* and says nothing about the compressed or highly curved regions of
+[villa#191](https://github.com/ScrollPrize/villa/issues/191) — the catch-22 described in
+[villa#193](https://github.com/ScrollPrize/villa/issues/193).
 
 ```bash
 python bench_m7_recall.py --n 900     # resumable, one JSON per volume
