@@ -1,0 +1,27 @@
+{
+  "sample": "sample_00746.tif",
+  "status": "ok",
+  "region": "32:288,32:288,32:288",
+  "trim": 64,
+  "label_sheet_fraction": 0.10212039947509766,
+  "pred_positive_fraction": 0.15641450881958008,
+  "recall": 0.9136681577497409,
+  "precision": 0.596518558036735,
+  "miss_fraction": 0.08633184225025914,
+  "recall_by_threshold": {
+    "0.05": 0.9673471484203546,
+    "0.10": 0.9434913756875636,
+    "0.20": 0.9136681577497409,
+    "0.30": 0.8935198587984796,
+    "0.50": 0.8594615291228136,
+    "0.70": 0.8128145982947488
+  },
+  "sheet_mean_depth": 1.2291063674018103,
+  "orphan_dist_median": 1.0,
+  "orphan_dist_p90": 1.0,
+  "missed_far_frac": 0.0011358104819081617,
+  "sheet_components": 6,
+  "sheet_components_lost": 0,
+  "frac_components_lost": 0.0,
+  "mean_confidence": 0.952630877494812
+}

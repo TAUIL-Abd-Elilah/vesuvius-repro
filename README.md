@@ -25,7 +25,15 @@ only way to find out is to try both.
 The pattern is complementary: TTA breaks PHerc0139 by about as much as its absence broke
 PHerc. Paris 4. So the finding is not an unreproducible artifact — it is that **the
 collection is not internally uniform in its inference configuration**, and nothing in the
-data says so.
+data said so.
+
+> **Update, 27 July 2026 — this is now fixed upstream.**
+> [villa#1253](https://github.com/ScrollPrize/villa/pull/1253) records `tta` and
+> `tta_type` on the inference output, and is merged. In merging it @jrudolph noted the
+> team had the setting on their side all along but had never propagated it to the
+> metadata, and **backfilled the existing published entries**. The published predictions
+> now carry the setting that was missing, retroactively. Past tense throughout this
+> section is deliberate.
 
 > **Earlier versions of this README claimed PHerc. Paris 4 was not reproducible.** That
 > was wrong, and it is corrected here and in
@@ -209,6 +217,71 @@ known-degenerate region's 8.3.
 python survey_uncovered.py --out uncovered.json
 python predict_uncovered.py --scroll PHercParis3
 python calibrate_regime.py          # the evidence behind the healthy band
+```
+
+## The other question: what does the published model MISS?
+
+Everything above asks whether the predictions are right *where they exist*. The inverse
+matters more for reading, because a missed sheet is text nobody recovers.
+
+The public Kaggle surface-detection set is ground truth for exactly this. The published m7
+path was run over **all 868 labelled volumes** and scored against the labels — 826 have
+labelled sheet in the scored interior; 37 do not, and 5 hit a transient CUDA failure.
+
+| recall — labelled sheet the model finds | |
+|---|---|
+| median | **90.8%** |
+| mean | 84.6% |
+| 5th percentile | **55.1%** |
+| below 80% recall | **25.7% of volumes** |
+| below 70% | 14.5% |
+| below 50% | 3.4% |
+| **whole labelled sheets barely recovered** | **41 of 3,400** components, across 38 volumes |
+
+**It is not a thresholding artifact.** Dropping the cut from the published 0.2 all the way
+to 0.05 moves median recall only from 90.8% to 96.3%; at 0.7 it falls to 78.8%. The signal
+mostly is not there to be recovered by re-thresholding.
+
+**Two limits, stated rather than buried.** The Kaggle labels and m7's output are not the
+same object — m7 predicts a band several times thicker than the labelled sheet, so a Dice
+benchmark between them is meaningless and none is quoted. Recall is well-defined
+regardless. And labels exist only where somebody already segmented, so this measures recall
+*where labels exist* and says nothing about the compressed or highly curved regions of
+[villa#191](https://github.com/ScrollPrize/villa/issues/191) — which is the catch-22
+described in [villa#193](https://github.com/ScrollPrize/villa/issues/193).
+
+```bash
+python bench_m7_recall.py --n 900     # resumable, one JSON per volume
+```
+
+## Predictions that extend past the scan — confirming @IyanDopico at collection scale
+
+Some published surface predictions mark sheet where the masked CT is identically zero.
+**This is [@IyanDopico](https://github.com/IyanDopico)'s finding, not mine** —
+[vesuvius-sheet-tools](https://github.com/IyanDopico/vesuvius-sheet-tools) documented it on
+12 July and already gates on `ct > 0` to remove what they called "chunk-aligned false
+positives floating in air outside the scroll". I filed
+[villa#1254](https://github.com/ScrollPrize/villa/issues/1254) two weeks later without
+checking whether the community already knew, and corrected that on the issue.
+
+What the measurement adds is scale and shape. Sampling 30 random 64³ blocks per scroll
+across all 36, against the CT at each prediction's own declared level:
+
+- **30 of 36** scrolls have more than 10% of their predicted sheet on identically-zero CT.
+  Median 38%, worst 92.1%, 39.7% pooled over every sampled voxel.
+- Only **PHerc0332** is exactly clean; three more sit below 0.01%.
+- Decomposed by distance to the nearest scanned voxel: **99.69%** of that volume sits in
+  blocks with *no scan data at all*, not at sheet boundaries — which independently supports
+  the "chunk-aligned" description. Where scan and prediction coexist, 59.3% of the
+  disagreement is within 2 voxels.
+
+Per-scroll figures are noisy — ±20–50 pp — and an earlier version of the issue had three
+rows wrong because it mixed 20-block and 30-block samples in one table. The collection-level
+pattern is the robust part.
+
+```bash
+python pred_over_empty_ct.py --scrolls PHerc0343P PHerc0332 --n-blocks 30
+python phantom_sheet_depth.py --scrolls PHerc0343P --n-blocks 12   # fringe vs unscanned
 ```
 
 ## How the measurements work
