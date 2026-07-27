@@ -16,8 +16,9 @@ Everything measured in July asked whether the published predictions are right WH
 EXIST. This asks the inverse, which is the one that matters for reading: a sheet the model
 misses is text nobody will ever recover.
 
-bench_m7_derisk.py answered this on ONE region of ONE sample - 95.3% recall, 16.7%
-precision, best Dice 0.4391 over any threshold. That single number is currently quoted in
+bench_m7_derisk.py answered this on ONE region of ONE sample - 95.3% recall, best Dice
+0.4391 over any threshold. (Its 16.7% precision figure is invalid for the same
+ignore-class reason described above, and is not repeated.) That single number is currently quoted in
 our own record as though it were settled. It is n=1, and this session produced three
 separate cases where a small sample gave the wrong answer with an unpredictable sign. So
 it gets run at scale before anything is built on it.

@@ -6,7 +6,6 @@
   "label_sheet_fraction": 0.07634973526000977,
   "pred_positive_fraction": 0.11386585235595703,
   "recall": 0.9257418013077937,
-  "precision": 0.6207316766752934,
   "miss_fraction": 0.07425819869220629,
   "recall_by_threshold": {
     "0.05": 0.9725575672789273,
@@ -23,5 +22,7 @@
   "sheet_components": 4,
   "sheet_components_lost": 0,
   "frac_components_lost": 0.0,
-  "mean_confidence": 0.9637933969497681
+  "mean_confidence": 0.9637933969497681,
+  "precision_INVALID": 0.6207316766752934,
+  "_precision_note": "INVALID: computed with label class 2 ('ignore', ~59% of a volume) folded into background, so predictions landing in unscored regions were counted as false positives. Recall in this file is unaffected and valid. See results/m7_recall/README.md"
 }
