@@ -255,10 +255,25 @@ below 80% recall, and 41 labelled sheets barely recovered, are volumes the model
 **The third label class is `ignore`, and it is the majority of a typical volume (~59%).**
 It has to be excluded from scoring. Recall is unaffected, since it only ever looks at
 class-1 voxels — but an earlier version of this benchmark folded `ignore` into background,
-which understated precision badly. **No precision figure is quoted here** until it is
-recomputed with `ignore` excluded. The claim that m7 "predicts a band several times thicker
-than the labelled sheet" rested on that flawed precision and is withdrawn pending
-remeasurement.
+which understated precision by roughly a factor of two.
+
+Recomputed with `ignore` excluded, on a 49-volume subset (**not** the full 826 — the sample
+sizes differ and are labelled deliberately):
+
+| | invalid, ignore as background | **corrected** |
+|---|---|---|
+| precision | median 34.7% | **median 76.9%** (34.4–90.3%) |
+| recall | 90.8% | 91.5% — unchanged, as expected |
+
+**45.4% of the model's predictions land in the `ignore` region**, which is why the original
+figure was so far off: nearly half of what it predicts was being scored as error when it is
+simply unscoreable.
+
+So the earlier claim that m7 "predicts a band several times thicker than the labelled
+sheet" **was an artifact of this scoring bug, not a property of the model** — and it is
+withdrawn rather than restated. At 91.5% recall and 77% precision within the scored region
+it is a well-behaved model. The `ignore` class also undermines the "best achievable Dice
+0.4391" ceiling reported earlier from a single sample, which was computed the same way.
 
 **Labels exist only where somebody already segmented**, so this measures recall *where
 labels exist* and says nothing about the compressed or highly curved regions of

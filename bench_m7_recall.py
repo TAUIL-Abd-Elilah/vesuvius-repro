@@ -157,7 +157,37 @@ def run_one(ip: str, lp: str, work: Path, size: int, trim: int) -> dict | None:
     dist_to_pred = distance_transform_edt(~pred) if pred.any() else np.full(pred.shape, 999.0)
     orphan = dist_to_pred[missed] if missed.any() else np.array([0.0])
 
+    # LOCAL comparison: missed sheet voxels against FOUND sheet voxels, inside the same
+    # volume. Volume-level averages explained almost nothing (all 9 properties jointly
+    # gave R^2 = 0.099 over 826 volumes), which is consistent with the failures being
+    # local rather than a property of whole volumes. Pairing within a volume makes each
+    # volume its own control, so anything that shows up here is not a volume-level
+    # confound.
+    from scipy.ndimage import uniform_filter
+    im = img[sl, sl, sl].astype(np.float32)
+    loc_mean = uniform_filter(im, 5)
+    loc_std = np.sqrt(np.clip(uniform_filter(im * im, 5) - loc_mean ** 2, 0, None))
+
     lab_cc, n_cc = cc_label(sheet)
+    comp_size = np.zeros_like(lab_cc, dtype=np.float32)
+    if n_cc:
+        sizes = np.bincount(lab_cc.ravel())
+        comp_size = sizes[lab_cc].astype(np.float32)
+
+    local = {}
+    if missed.any() and (sheet & pred).any():
+        fnd = sheet & pred
+        for name, field in (("depth", depth), ("ct", im), ("ct_local_std", loc_std),
+                            ("component_size", comp_size)):
+            mv, fv = field[missed], field[fnd]
+            local[name] = {
+                "missed_median": float(np.median(mv)),
+                "found_median": float(np.median(fv)),
+                # signed difference in units of the found-group spread, so it is
+                # comparable across volumes with different scales
+                "delta_z": float((np.median(mv) - np.median(fv)) /
+                                 (fv.std() + 1e-6)),
+            }
     lost = small = 0
     if n_cc:
         for cid in range(1, n_cc + 1):
@@ -190,6 +220,7 @@ def run_one(ip: str, lp: str, work: Path, size: int, trim: int) -> dict | None:
         "sheet_components_lost": int(lost),
         "frac_components_lost": (lost / scored_cc) if scored_cc else 0.0,
         "mean_confidence": float(np.abs(p - 0.5).mean() * 2),
+        "local_missed_vs_found": local,
     }
     return out
 
