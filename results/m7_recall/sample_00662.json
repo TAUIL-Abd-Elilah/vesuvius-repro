@@ -1,5 +1,52 @@
 {
   "sample": "sample_00662.tif",
-  "status": "predict_failed",
-  "tail": "C:\\Users\\PC\\miniconda3\\envs\\blogging\\lib\\site-packages\\torch\\nn\\modules\\module.py:1160: UserWarning: expandable_segments not supported on this platform (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\builder\\windows\\pytorch\\c10/cuda/CUDAAllocatorConfig.h:28.)\n  return t.to(\n\nInferring Part 0:   0%|          | 0/27 [00:00<?, ?it/s]"
+  "status": "ok",
+  "region": "32:288,32:288,32:288",
+  "trim": 64,
+  "label_sheet_fraction": 0.01968240737915039,
+  "label_ignore_fraction": 0.8571405410766602,
+  "scored_fraction": 0.14285945892333984,
+  "pred_in_ignore_frac": 0.7854038997214484,
+  "pred_positive_fraction": 0.1283884048461914,
+  "recall": 0.9019793105119074,
+  "precision": 0.6443579093111803,
+  "miss_fraction": 0.09802068948809262,
+  "recall_by_threshold": {
+    "0.05": 0.9580880393439446,
+    "0.10": 0.9333527145868159,
+    "0.20": 0.9019793105119074,
+    "0.30": 0.8790852048356227,
+    "0.50": 0.8389175569929985,
+    "0.70": 0.7827361484604016
+  },
+  "sheet_mean_depth": 1.171094427193576,
+  "orphan_dist_median": 1.0,
+  "orphan_dist_p90": 1.4142135623730951,
+  "missed_far_frac": 0.0,
+  "sheet_components": 2,
+  "sheet_components_lost": 0,
+  "frac_components_lost": 0.0,
+  "mean_confidence": 0.9562780857086182,
+  "local_missed_vs_found": {
+    "depth": {
+      "missed_median": 1.0,
+      "found_median": 1.0,
+      "delta_z": 0.0
+    },
+    "ct": {
+      "missed_median": 103.0,
+      "found_median": 95.0,
+      "delta_z": 0.17916135489940643
+    },
+    "ct_local_std": {
+      "missed_median": 33.769126892089844,
+      "found_median": 33.85501480102539,
+      "delta_z": -0.008704868145287037
+    },
+    "component_size": {
+      "missed_median": 29192.0,
+      "found_median": 29192.0,
+      "delta_z": 0.0
+    }
+  }
 }

@@ -245,23 +245,36 @@ Everything above asks whether the predictions are right *where they exist*. The 
 matters more for reading, because a missed sheet is text nobody recovers.
 
 The public Kaggle surface-detection set is ground truth for exactly this. The published m7
-path was run over **868 of the set's 892 labelled volumes** and scored against the labels —
-826 have labelled sheet in the scored interior; 37 do not, and 5 hit a transient CUDA
-failure. (The remaining 24 are indices 893–916, found late; see the shape table below.)
+path was run over **all 892 labelled volumes** and scored against the labels — 855 have
+labelled sheet in the scored interior and 37 do not. There are no failures: the five
+transient CUDA errors in the earlier 868-volume run were retried and all five completed.
+
+Regenerate every figure below with `summarize_m7_recall.py` rather than reading them off
+this page.
 
 | recall — labelled sheet the model finds | |
 |---|---|
-| median | **90.8%** |
-| mean | 84.6% |
-| 5th percentile | **55.1%** |
-| below 80% recall | **25.7% of volumes** |
-| below 70% | 14.5% |
-| below 50% | 3.4% |
-| **whole labelled sheets barely recovered** | **41 of 3,400** components, across 38 volumes |
+| median | **90.6%** |
+| mean | 84.3% |
+| 5th percentile | **55.0%** |
+| below 80% recall | **26.5% of volumes** |
+| below 70% | 14.6% |
+| below 50% | 3.5% |
+| **whole labelled sheets barely recovered** | **43 of 3,517** components, across 39 volumes |
 
 **It is not a thresholding artifact.** Dropping the cut from the published 0.2 all the way
-to 0.05 moves median recall only from 90.8% to 96.3%; at 0.7 it falls to 78.8%. The signal
+to 0.05 moves median recall only from 90.6% to 96.2%; at 0.7 it falls to 78.5%. The signal
 mostly is not there to be recovered by re-thresholding.
+
+**Recall is very uneven across the set, and index position is not a proxy for difficulty.**
+Median recall by index block runs 90.1 / 81.6 / 79.9 / 91.8 / 93.3 / 92.8 / 92.3 / 91.9 /
+77.0 for blocks of 100. The 24 volumes found late (893–916) have median recall 79.1% against
+90.8% for the rest, which looks like a train/test gap and **is not one**: they sit inside a
+broader low-recall region that begins around index 800 and was already in the original run,
+there is no trend within 1–892 (Spearman ρ = 0.03, p = 0.40), and several other contiguous
+24-volume blocks score lower still — 845–873 medians 57.3%. Comparing any block against the
+global mixture will look significant; that comparison is recorded here because it was run
+and it failed, not because it shows anything.
 
 ### Three limits, and the first one matters most
 
@@ -302,15 +315,14 @@ bounded.
 **⚠ The public set is 892 volumes, not 868.** An earlier version of this README said 868 and
 bucketed by largest dimension only. The indices run 1–916 with 24 genuine 404 gaps inside
 them; the gaps were verified individually but the *upper bound* never was, and 893–916 were
-missed. The benchmark numbers above were computed on 868 of the 892 — a 97% sample — and the
-last 24 volumes are not yet scored.
+missed. The benchmark numbers above have since been recomputed over all 892.
 
 **The third label class is `ignore`, and it is the majority of a typical volume (~59%).**
 It has to be excluded from scoring. Recall is unaffected, since it only ever looks at
 class-1 voxels — but an earlier version of this benchmark folded `ignore` into background,
 which understated precision by roughly a factor of two.
 
-Recomputed with `ignore` excluded, on a 58-volume subset (**not** the full 826 — the sample
+Recomputed with `ignore` excluded, on a 58-volume subset (**not** the full 855 — the sample
 sizes differ and are labelled deliberately):
 
 | | invalid, ignore as background | **corrected** |
@@ -339,7 +351,7 @@ The rate alone is not useful; an improver needs to know what is hard. Two analys
 first one failed.
 
 **Volume-level properties have weak predictive power in this analysis.** Thickness,
-inter-sheet spacing, CT contrast, fragmentation and flatness, measured for the 868 scored volumes,
+inter-sheet spacing, CT contrast, fragmentation and flatness, measured for the 868 volumes scored at the time,
 jointly explain **9.9% in-sample**. Random 10-fold validation explains about **3.7–6.0%**,
 depending on the split seed, and no source-group identifiers were available to prevent
 related samples crossing folds. The fitted model spans 77–92% predicted recall against an
