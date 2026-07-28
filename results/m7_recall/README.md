@@ -1,6 +1,6 @@
 # m7 recall benchmark — read this before using the numbers
 
-One JSON per volume from `bench_m7_recall.py`, over the 868 public Kaggle
+One JSON per volume from `bench_m7_recall.py`, over 868 of the 892 public Kaggle
 surface-detection volumes. 826 have labelled sheet in the scored interior.
 
 ## `recall` is valid. `precision_INVALID` is not.

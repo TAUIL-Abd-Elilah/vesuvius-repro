@@ -245,8 +245,9 @@ Everything above asks whether the predictions are right *where they exist*. The 
 matters more for reading, because a missed sheet is text nobody recovers.
 
 The public Kaggle surface-detection set is ground truth for exactly this. The published m7
-path was run over **all 868 labelled volumes** and scored against the labels — 826 have
-labelled sheet in the scored interior; 37 do not, and 5 hit a transient CUDA failure.
+path was run over **868 of the set's 892 labelled volumes** and scored against the labels —
+826 have labelled sheet in the scored interior; 37 do not, and 5 hit a transient CUDA
+failure. (The remaining 24 are indices 893–916, found late; see the shape table below.)
 
 | recall — labelled sheet the model finds | |
 |---|---|
@@ -266,21 +267,43 @@ mostly is not there to be recovered by re-thresholding.
 
 **These public labels appear to overlap heavily with m7's training set, but exact identity
 is not proven.** The published model's `dataset_fingerprint.json` lists 786 training cases,
-but not their public sample identifiers. Bucketing both sets by largest dimension after
-nnUNet's crop-to-nonzero step gives:
+but not their public sample identifiers. Comparing the *exact* crop-to-nonzero shape of
+every public volume against that list (`hash_public_volumes.py --fingerprint`) gives:
 
-| max dim | m7 training | this public set |
-|---|---|---|
-| 320 | 738 | 816 |
-| 256 | 47 | 51 |
-| **384** | **1** | **1** |
-| total | **786** | **868** |
+| crop-to-nonzero shape | m7 training | this public set | surplus |
+|---|---|---|---|
+| (320, 314, 314) | 737 | 837 | +100 |
+| (256, 250, 250) | 43 | 47 | +4 |
+| (320, 297, 314) | 1 | 1 | 0 |
+| (384, 177, 378) | 1 | 1 | 0 |
+| (256, 170, 250) | 1 | 1 | 0 |
+| (256, 216, 250) | 1 | 1 | 0 |
+| (256, 139, 250) | 1 | 1 | 0 |
+| (256, 134, 250) | 1 | 1 | 0 |
+| (296, 314, 314) | **0** | **1** | +1 |
+| (320, 227, 314) | **0** | **1** | +1 |
+| total | **786** | **892** | **+106** |
 
-A single 384-volume appears in each set and the bucket counts line up closely, which is
-strong evidence of substantial overlap — not proof that the 786 cases are a subset of
-these 868. **These therefore cannot be treated as held-out numbers.** Nor can the roughly
-82-count difference be called a held-out set without source identifiers or grouping
-metadata. The safe interpretation is an overlap audit, not a generalisation benchmark.
+Every shape m7 trained on occurs in the public set at least as often as m7 needs it,
+including five singleton shapes that match one-for-one. That is strong evidence of
+substantial overlap — **not proof** that the 786 are a subset of these 892, because a shape
+is not an identifier. **These numbers therefore cannot be treated as held-out.** Nor can the
+106-volume difference be called a held-out set: the count says how many volumes *could* be
+outside the training list, not which.
+
+**Two of them can be named, though.** `sample_00853` (296, 314, 314) and `sample_00854`
+(320, 227, 314) carry crop shapes that appear nowhere in the fingerprint, so no training
+case had their geometry. Under the one assumption this rests on — that nnUNet's
+crop-to-nonzero matches the one computed here, which the 837 exact (320, 314, 314) matches
+support — those two volumes were **not** in m7's training set. That is 2 named of a possible
+106, not a held-out set, but it is the first part of this question answered rather than
+bounded.
+
+**⚠ The public set is 892 volumes, not 868.** An earlier version of this README said 868 and
+bucketed by largest dimension only. The indices run 1–916 with 24 genuine 404 gaps inside
+them; the gaps were verified individually but the *upper bound* never was, and 893–916 were
+missed. The benchmark numbers above were computed on 868 of the 892 — a 97% sample — and the
+last 24 volumes are not yet scored.
 
 **The third label class is `ignore`, and it is the majority of a typical volume (~59%).**
 It has to be excluded from scoring. Recall is unaffected, since it only ever looks at
@@ -316,7 +339,7 @@ The rate alone is not useful; an improver needs to know what is hard. Two analys
 first one failed.
 
 **Volume-level properties have weak predictive power in this analysis.** Thickness,
-inter-sheet spacing, CT contrast, fragmentation and flatness, measured for all 868 volumes,
+inter-sheet spacing, CT contrast, fragmentation and flatness, measured for the 868 scored volumes,
 jointly explain **9.9% in-sample**. Random 10-fold validation explains about **3.7–6.0%**,
 depending on the split seed, and no source-group identifiers were available to prevent
 related samples crossing folds. The fitted model spans 77–92% predicted recall against an

@@ -7,10 +7,12 @@ TWO THINGS TO KNOW BEFORE READING ANY NUMBER OUT OF THIS.
     (~59%) and must be excluded from scoring. An earlier version of this script folded it
     into background, which left recall correct but precision badly understated.
   * That dataset.json also says numTraining: 786, with shapes [320, 314, 314] - the same
-    scale and label scheme as this 868-volume set. The close shape-bucket counts are strong
+    scale and label scheme as this 892-volume set. The close shape counts are strong
     evidence of substantial overlap, but the fingerprint does not expose public sample
     identifiers. Exact membership is therefore unknown, and this is NOT a held-out
-    benchmark. The roughly 82-count difference is not a proven held-out subset either.
+    benchmark. The 106-count difference is not a proven held-out subset either - though
+    hash_public_volumes.py names two volumes (sample_00853, sample_00854) whose crop
+    shape appears nowhere in the fingerprint, so those two are provably outside it.
 
 Everything measured in July asked whether the published predictions are right WHERE THEY
 EXIST. This asks the inverse, which is the one that matters for reading: a sheet the model
