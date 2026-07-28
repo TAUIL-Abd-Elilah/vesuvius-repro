@@ -25,12 +25,19 @@ def main() -> None:
     assert len(scrolls) == 36, len(scrolls)
 
     reports = []
-    for path in (HERE / "results").glob("*.json"):
+    report_paths = list((HERE / "results").glob("*.json"))
+    report_paths += list((HERE / "results" / "variants").glob("*.json"))
+    for path in report_paths:
         row = json.loads(path.read_text(encoding="utf-8"))
         if isinstance(row, dict) and "scroll" in row and "dice" in row:
             reports.append(row)
     checked = {row["scroll"] for row in reports}
     assert checked == scrolls, (len(checked), sorted(scrolls - checked))
+
+    catalog_pairs = {(row["scroll"], row["prediction"]) for row in artifacts}
+    matched_pairs = {(row["scroll"], row.get("prediction")) for row in reports
+                     if row.get("dice", 0) > 0.99}
+    assert catalog_pairs <= matched_pairs, sorted(catalog_pairs - matched_pairs)
 
     variants = []
     for path in (HERE / "results" / "variants").glob("*.json"):
@@ -43,8 +50,9 @@ def main() -> None:
         check=True, capture_output=True, text=True, encoding="utf-8")
     assert "published m7 artifacts          : 41" in proc.stdout
     assert "regional spot-checks            : 36" in proc.stdout
+    assert "artifacts with regional match   : 41/41" in proc.stdout
 
-    print("smoke test passed: 41 m7 artifacts, 36 scrolls, 36 regional checks")
+    print("smoke test passed: 41/41 m7 artifacts have a regional match across 36 scrolls")
 
 
 if __name__ == "__main__":

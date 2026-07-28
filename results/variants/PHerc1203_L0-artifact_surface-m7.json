@@ -1,0 +1,41 @@
+{
+  "scroll": "PHerc1203",
+  "ct_level": 0,
+  "prediction": "20250820131727-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+  "run_id": "20260413222639",
+  "threshold": 0.2,
+  "bbox": [
+    6641,
+    6897,
+    3422,
+    3678,
+    3422,
+    3678
+  ],
+  "trim": 64,
+  "scored_shape": [
+    128,
+    128,
+    128
+  ],
+  "published_positive_fraction": 0.2713742256164551,
+  "our_positive_fraction": 0.2714214324951172,
+  "dice": 0.9996301583466936,
+  "iou": 0.9992605901579457,
+  "agreement": 0.9997992515563965,
+  "disagreeing_voxels": 421,
+  "best_dice_any_threshold": 0.9996301583466936,
+  "best_threshold": 0.2,
+  "disagreement_near_threshold": {
+    "0.01": 1.0,
+    "0.05": 1.0,
+    "0.15": 1.0
+  },
+  "verdict": "reproduced",
+  "verification_scope": "one selected 256^3 region; central 128^3 scored",
+  "runner": {
+    "tta": false,
+    "device": "cuda",
+    "model_path": "D:\\Competition\\Vesuvius progress prizes\\model_m7"
+  }
+}

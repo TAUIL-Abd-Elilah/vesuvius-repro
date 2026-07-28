@@ -68,6 +68,19 @@ def main() -> None:
                     if c.get("status") == "verifiable"
                     and "m7" in c.get("model", "")]
     m7_scrolls = {c["scroll"] for c in m7_artifacts}
+    catalog_pairs = {(c["scroll"], c["prediction"]) for c in m7_artifacts}
+
+    all_reports = list(rows)
+    for path in sorted((Path(args.results) / "variants").glob("*.json")):
+        try:
+            report = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(report, dict) and "dice" in report:
+            all_reports.append(report)
+    matched_pairs = {(r.get("scroll"), r.get("prediction")) for r in all_reports
+                     if r.get("dice", 0) > 0.99}
+    matched_artifacts = len(catalog_pairs & matched_pairs)
 
     l0 = sum(1 for r in ok if r["ct_level"] == 0)
     l2 = sum(1 for r in ok if r["ct_level"] == 2)
@@ -80,6 +93,7 @@ def main() -> None:
     print("=" * 72)
     print(f"published m7 artifacts          : {len(m7_artifacts)}")
     print(f"scrolls carrying those artifacts: {len(m7_scrolls)}")
+    print(f"artifacts with regional match   : {matched_artifacts}/{len(m7_artifacts)}")
     print(f"regional spot-checks            : {covered}  "
           f"({100 * covered / max(len(m7_scrolls), 1):.0f}% of scrolls; "
           "one artifact per scroll)")
@@ -126,9 +140,11 @@ def main() -> None:
     exact_txt = (f" {exact[0]['scroll']} came back exact, zero differing voxels."
                  if exact else "")
     print(
-        f"A selected 256^3 surface-containing region (central 128^3 scored) from one "
-        f"m7 artifact on each of {covered} scrolls was checked against public inputs. "
-        f"With TTA off, {len(ok)} regions -- {l0} at CT level 0 and {l2} at level 2 -- "
+        f"A selected 256^3 surface-containing region (central 128^3 scored) from each "
+        f"of {matched_artifacts} m7 artifacts across {len(m7_scrolls)} scrolls matched "
+        f"the public artifact under its recorded configuration. In the original "
+        f"one-artifact-per-scroll baseline, with TTA off, {len(ok)} regions -- "
+        f"{l0} at CT level 0 and {l2} at level 2 -- "
         f"match at Dice {worst:.4f} to {bestd:.4f}; all their disagreement lies within "
         f"0.01 of the 0.2 threshold, consistent with numerical boundary residue."
         f"{exact_txt}{tail}"
@@ -136,10 +152,11 @@ def main() -> None:
     if covered < len(m7_scrolls):
         print(f"\n  NOTE: {len(m7_scrolls) - covered} scroll(s) not yet spot-checked.")
     else:
-        remaining = len(m7_artifacts) - covered
-        print(f"\n  Scroll coverage is complete, but this is regional evidence, not a "
-              f"full-volume comparison. {remaining} additional duplicate-scroll m7 "
-              "artifact(s) are outside the one-artifact-per-scroll baseline.")
+        remaining = len(m7_artifacts) - matched_artifacts
+        print(f"\n  Scroll coverage is complete and {matched_artifacts}/{len(m7_artifacts)} "
+              "artifacts have a matching regional check, but this is regional "
+              "evidence, not a full-volume comparison."
+              + (f" {remaining} artifact(s) remain unchecked." if remaining else ""))
 
 
 if __name__ == "__main__":

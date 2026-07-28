@@ -4,15 +4,15 @@ The public collection contains 41 m7 surface artifacts across 36 scrolls. Their 
 weights (`hf://scrollprize/surface_m7_nnunet`) and source CT are public, so a region of an
 artifact should be regenerable from those inputs and its recorded inference settings.
 
-This repository performs that regional check. The collection sweep selected one
+This repository performs that regional check. The original collection sweep selected one
 surface-containing 256³ region from one m7 artifact on each of all 36 scrolls, then scored
-the central 128³ interior. It is deliberately a **regional spot-check**: it is not a
-full-volume comparison, and five additional L0 artifacts on duplicate-scroll entries were
-outside the original one-artifact-per-scroll sweep.
+the central 128³ interior. A follow-up sweep checked the five additional L0 artifacts on
+duplicate-scroll entries, bringing artifact coverage to 41 of 41. It is deliberately a
+**regional spot-check**: it is not a full-volume comparison.
 
-**Headline: all 36 selected regions can be matched.** Thirty-five match with test-time
-augmentation off at Dice 0.9983–1.0000. PHerc. Paris 4's two checked regions match at
-0.9999 with mirroring TTA on.
+**Headline: all 41 artifacts have a selected region that can be matched.** Forty match
+with test-time augmentation off at Dice 0.9983–1.0000. PHerc. Paris 4's two checked
+regions match at 0.9999 with mirroring TTA on.
 
 **They were not produced with the same settings.** PHerc. Paris 4 scores 0.8907 without
 TTA and 0.9999 with it. At the time of the audit this setting was absent from artifact
@@ -106,6 +106,26 @@ reproduces at 0.9999 on both regions — see below. The table is generated from 
 the settings that work for the rest of the collection?* For PHerc. Paris 4 the answer is
 no, and that is the whole point. Its TTA runs live in
 [`results/variants/`](results/variants), outside the generated table.
+
+### Follow-up: the five additional artifacts
+
+Five scrolls carry a second m7 artifact at L0. These were outside the original
+one-artifact-per-scroll baseline, so each received the same selected-256³/central-128³
+regional check. All five match with TTA off:
+
+| scroll | additional artifact | Dice | disagreeing voxels |
+|---|---|---|---|
+| PHerc0500P2 | L0 | **1.0000** | **0** |
+| PHerc0814 | L0 | 0.9991 | 1,247 (0.059%) |
+| PHerc0841 | L0 | 0.9984 | 1,785 (0.085%) |
+| PHerc0846A | L0 | 0.9995 | 619 (0.030%) |
+| PHerc1203 | L0 | 0.9996 | 421 (0.020%) |
+
+Together with the baseline and PHerc. Paris 4's recorded TTA run, this gives one matching
+regional check for **all 41 catalogued m7 artifacts across all 36 scrolls**. Every nonzero
+difference in the five follow-ups is within 0.01 of the threshold. The raw reports are in
+[`results/variants/`](results/variants); this is still regional evidence, not a statement
+about every voxel in an artifact.
 
 One region of PHerc0846A (z 2460, 36% positive) is worth a note: there the model produced
 an unusually flat output — logits spanning [-1.9, 6.5] against [-4.3, 18.3] on a healthy
