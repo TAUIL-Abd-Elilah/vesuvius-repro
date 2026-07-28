@@ -244,11 +244,21 @@ mostly is not there to be recovered by re-thresholding.
 
 ### Three limits, and the first one matters most
 
-**This is almost certainly m7's own training data.** `dataset.json` in the published model
-declares `numTraining: 786`, shapes `[320, 314, 314]`, and labels
-`{0: background, 1: surface, 2: ignore}` — the same scale, count and label scheme as this
-868-volume public set. **These are not held-out numbers** and must not be read as a
-generalisation benchmark. It cuts the other way from how it sounds: a quarter of volumes
+**These are m7's own training volumes.** The published model's `dataset_fingerprint.json`
+lists 786 training volumes; bucketing both sets by largest dimension after nnUNet's
+crop-to-nonzero step:
+
+| max dim | m7 training | this public set |
+|---|---|---|
+| 320 | 738 | 816 |
+| 256 | 47 | 51 |
+| **384** | **1** | **1** |
+| total | **786** | **868** |
+
+A single 384-volume in each, and ~90% of each bucket present — m7 was trained on 786 of
+these 868. **So these are not held-out numbers** and must not be read as a generalisation
+benchmark. Interestingly it leaves ~82 volumes m7 apparently did *not* see, which would be
+a genuine held-out set if they could be identified. It cuts the other way from how it sounds: a quarter of volumes
 below 80% recall, and 41 labelled sheets barely recovered, are volumes the model was
 *fitted on*.
 
@@ -257,12 +267,12 @@ It has to be excluded from scoring. Recall is unaffected, since it only ever loo
 class-1 voxels — but an earlier version of this benchmark folded `ignore` into background,
 which understated precision by roughly a factor of two.
 
-Recomputed with `ignore` excluded, on a 49-volume subset (**not** the full 826 — the sample
+Recomputed with `ignore` excluded, on a 58-volume subset (**not** the full 826 — the sample
 sizes differ and are labelled deliberately):
 
 | | invalid, ignore as background | **corrected** |
 |---|---|---|
-| precision | median 34.7% | **median 76.9%** (34.4–90.3%) |
+| precision | median 34.7% | **median 76.8%** (34.4–90.3%) |
 | recall | 90.8% | 91.5% — unchanged, as expected |
 
 **45.4% of the model's predictions land in the `ignore` region**, which is why the original
