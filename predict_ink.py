@@ -13,11 +13,11 @@ TWO THINGS THIS IS NOT.
   * It is not a claim that these predictions are correct. There is no ground truth and
     no published artifact to score against, so no Dice is quoted for any scroll but
     Paris 4.
-  * The model was trained on PHerc. Paris 4 alone (`wandb_run_name:
-    ps256_3d_bcedice_dinoguided_paris4_v3_fullsup`, a single dataset entry pointing at
-    Paris 4). Running it elsewhere is cross-scroll generalisation, which is itself an
-    open problem. The output may be worthless on some scrolls, and saying which is the
-    point of the exercise rather than a caveat on it.
+  * The released checkpoint's final full-supervision configuration points at PHerc.
+    Paris 4, while its model card describes a broader teacher/self-distillation lineage.
+    Running it elsewhere is still outside that final supervised domain. The output may
+    be worthless on some scrolls, and saying which is the point of the exercise rather
+    than a caveat on it.
 
 What IS reported is the ink-signal distribution against the one scroll where the model
 is known to work, so a reader can see where signal is plausibly recoverable and where
@@ -40,6 +40,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import time
 import warnings
 from pathlib import Path
@@ -49,8 +50,11 @@ import zarr
 
 warnings.filterwarnings("ignore")
 BUCKET = "https://vesuvius-challenge-open-data.s3.amazonaws.com"
-PY = r"C:/Users/PC/miniconda3/envs/blogging/python.exe"
-INK_CKPT = r"model_ink3d/ckpt_78k_fullsup.pth"
+HERE = Path(__file__).resolve().parent
+PY = os.environ.get("VESUVIUS_PYTHON", sys.executable)
+INK_CKPT = os.environ.get(
+    "VESUVIUS_INK_MODEL_PATH", str(HERE / "model_ink3d" / "ckpt_78k_fullsup.pth"))
+PREDICT_SCRIPT = os.environ.get("VESUVIUS_PREDICT_SCRIPT")
 SIZE = 256
 
 # Measured on PHerc. Paris 4, where this model is known to work (published artifact,
@@ -189,7 +193,9 @@ def run_one(scroll: str, catalog: list[dict], out_dir: Path, keep: bool) -> dict
            "PYTHONIOENCODING": "utf-8"}
 
     print("  predicting ...", flush=True)
-    r = subprocess.run([PY, "run_gpu_roi.py", "--model_path", INK_CKPT,
+    predict_entry = ([PY, PREDICT_SCRIPT] if PREDICT_SCRIPT else
+                     [PY, "-m", "vesuvius.models.run.inference"])
+    r = subprocess.run(predict_entry + ["--model_path", INK_CKPT,
                         "--model-type", "train_py", "--input_dir", ct_url,
                         "--output_dir", str(work / "logits"), "--device", "cuda",
                         "--disable_tta", "--batch_size", "1", "--num_workers", "2",

@@ -32,6 +32,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import time
 import warnings
 from pathlib import Path
@@ -41,8 +42,11 @@ import zarr
 
 warnings.filterwarnings("ignore")
 BUCKET = "https://vesuvius-challenge-open-data.s3.amazonaws.com"
-PY_GPU = r"C:/Users/PC/miniconda3/envs/blogging/python.exe"
-MODEL = r"D:/Competition/Vesuvius progress prizes/model_m7"
+HERE = Path(__file__).resolve().parent
+PY_GPU = os.environ.get("VESUVIUS_PYTHON", sys.executable)
+MODEL = os.environ.get(
+    "VESUVIUS_MODEL_PATH", "hf://scrollprize/surface_m7_nnunet")
+PREDICT_SCRIPT = os.environ.get("VESUVIUS_PREDICT_SCRIPT")
 
 # Calibrated on regions whose status is already known, not picked by eye - see
 # calibrate_regime.py and results/regime_calibration.json.
@@ -121,7 +125,9 @@ def main() -> None:
            "PYTHONIOENCODING": "utf-8"}
 
     print("  predicting ...")
-    r = subprocess.run([PY_GPU, "run_gpu_roi.py", "--model_path", MODEL,
+    predict_entry = ([PY_GPU, PREDICT_SCRIPT] if PREDICT_SCRIPT else
+                     [PY_GPU, "-m", "vesuvius.models.run.inference"])
+    r = subprocess.run(predict_entry + ["--model_path", MODEL,
                         "--input_dir", ct_url, "--output_dir", str(work / "logits"),
                         "--device", "cuda", "--disable_tta", "--batch_size", "1",
                         "--num_workers", "2", "--read-retries", "12",

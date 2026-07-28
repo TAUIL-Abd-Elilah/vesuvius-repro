@@ -1,7 +1,8 @@
-"""Verify every remaining scroll, unattended.
+"""Run one regional m7 spot-check for every remaining scroll, unattended.
 
-Eleven scrolls were checked by hand; this walks the rest so the claim becomes "every
-published m7 surface prediction was audited" rather than "a sample of eleven was".
+Eleven scrolls were checked by hand; this walks the rest so each scroll carrying an m7
+artifact has one checked region. It does not compare complete volumes or every artifact
+on scrolls with multiple published predictions.
 
 Each scroll is independent, so a failure is logged and the sweep continues - on this
 connection a run dies every so often and aborting the batch would waste the ones
@@ -22,13 +23,14 @@ import sys
 import time
 from pathlib import Path
 
-PY = r"C:/Users/PC/miniconda3/envs/blogging/python.exe"
+HERE = Path(__file__).resolve().parent
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--catalog", default="catalog.json")
-    ap.add_argument("--results", default="results")
+    ap.add_argument("--catalog", default=str(HERE / "catalog.json"))
+    ap.add_argument("--results", default=str(HERE / "results"))
+    ap.add_argument("--python", default=sys.executable)
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
@@ -57,7 +59,9 @@ def main() -> None:
     ok, failed = [], []
     for i, scroll in enumerate(todo, 1):
         lv = levels[scroll]
-        cmd = [PY, "run_verification.py", "--scroll", scroll, "--model", "m7"]
+        cmd = [args.python, str(HERE / "run_verification.py"),
+               "--scroll", scroll, "--model", "m7",
+               "--catalog", args.catalog, "--out", args.results]
         if len(lv) > 1:
             cmd += ["--level", str(max(lv))]
         elif lv:

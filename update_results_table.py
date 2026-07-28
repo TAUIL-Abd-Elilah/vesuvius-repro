@@ -27,6 +27,7 @@ END = "<!-- END RESULTS TABLE -->"
 # filename convention, so a stray file cannot quietly change the headline
 ANOMALOUS = {"PHerc0846A_r1_anomalous_region"}
 VOXELS = 128 ** 3
+HERE = Path(__file__).resolve().parent
 
 
 def load(results: Path) -> list[dict]:
@@ -58,7 +59,7 @@ def load(results: Path) -> list[dict]:
     return out
 
 
-def render(rows: list[dict]) -> str:
+def render(rows: list[dict], variants: list[dict]) -> str:
     ok = [r for r in rows if r["dice"] > 0.99]
     bad = [r for r in rows if r["dice"] <= 0.99]
     l0 = sum(1 for r in ok if r["ct_level"] == 0)
@@ -72,37 +73,42 @@ def render(rows: list[dict]) -> str:
         pct = 100 * n / VOXELS
         d = f"**{r['dice']:.4f}**" if r["dice"] >= 0.99995 else f"{r['dice']:.4f}"
         cell = "**0**" if n == 0 else f"{n:,} ({pct:.3f}%)"
-        verdict = "reproduced exactly" if n == 0 else "reproduced"
+        verdict = "regional match (exact)" if n == 0 else "regional match"
         lines.append(f"| {r['scroll']} | L{r['ct_level']} | {d} | {cell} | {verdict} |")
     for r in bad:
         n = r["disagreeing_voxels"]
+        matching = [v for v in variants
+                    if v.get("scroll") == r["scroll"] and v.get("dice", 0) > 0.99]
+        verdict = (f"matches with TTA ({max(v['dice'] for v in matching):.4f})"
+                   if matching else "no matching variant recorded")
         lines.append(f"| **{r['scroll']}** | **L{r['ct_level']}** | **{r['dice']:.4f}** "
-                     f"| **{n:,} ({100*n/VOXELS:.2f}%)** | **not reproduced** |")
+                     f"| **{n:,} ({100*n/VOXELS:.2f}%)** | **{verdict}** |")
 
     lines += ["",
-              f"**{len(ok)} scrolls reproduce** — {l0} at CT level 0 and {l2} at level 2 "
+              f"**{len(ok)} TTA-off regional checks match** — {l0} at CT level 0 and {l2} at level 2 "
               f"— at Dice {min(r['dice'] for r in ok):.4f}–{max(r['dice'] for r in ok):.4f}. "
               "In every one, 100% of the differing voxels lie within 0.01 of the "
-              "threshold, which is what float16 storage and autocast leave behind.",
+              "threshold, consistent with numerical boundary residue.",
               ""]
     if bad:
         names = ", ".join(r["scroll"] for r in bad)
-        lines += [f"**{names} does not reproduce.** Detail below.", ""]
+        lines += [f"**{names} requires a different recorded configuration.** Detail below.", ""]
     lines.append(END)
     return "\n".join(lines)
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--results", default="results")
-    ap.add_argument("--readme", default="vesuvius-repro/README.md")
+    ap.add_argument("--results", default=str(HERE / "results"))
+    ap.add_argument("--readme", default=str(HERE / "README.md"))
     ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
 
     rows = load(Path(args.results))
     if not rows:
         raise SystemExit("no result JSONs found")
-    table = render(rows)
+    variants = load(Path(args.results) / "variants")
+    table = render(rows, variants)
 
     readme = Path(args.readme)
     text = readme.read_text(encoding="utf-8")

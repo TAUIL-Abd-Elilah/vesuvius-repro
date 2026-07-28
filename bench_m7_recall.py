@@ -7,10 +7,10 @@ TWO THINGS TO KNOW BEFORE READING ANY NUMBER OUT OF THIS.
     (~59%) and must be excluded from scoring. An earlier version of this script folded it
     into background, which left recall correct but precision badly understated.
   * That dataset.json also says numTraining: 786, with shapes [320, 314, 314] - the same
-    scale, count and label scheme as this 868-volume set. **This is almost certainly m7's
-    own training data.** Recall measured here is therefore recall on data the model was
-    fitted to, which makes a low-recall tail more notable rather than less, but it is NOT
-    a held-out benchmark and must never be described as one.
+    scale and label scheme as this 868-volume set. The close shape-bucket counts are strong
+    evidence of substantial overlap, but the fingerprint does not expose public sample
+    identifiers. Exact membership is therefore unknown, and this is NOT a held-out
+    benchmark. The roughly 82-count difference is not a proven held-out subset either.
 
 Everything measured in July asked whether the published predictions are right WHERE THEY
 EXIST. This asks the inverse, which is the one that matters for reading: a sheet the model
@@ -23,11 +23,10 @@ our own record as though it were settled. It is n=1, and this session produced t
 separate cases where a small sample gave the wrong answer with an unpredictable sign. So
 it gets run at scale before anything is built on it.
 
-The comparison is NOT a Dice benchmark. m7 and the Kaggle labels measure different objects
-- m7 predicts a band several times thicker than the labelled sheet - so Dice is
-meaningless here and is reported only for continuity with the earlier probe. The question
-is recall: OF THE VOXELS THE LABEL CALLS SHEET, WHAT FRACTION DOES M7 FIND? That is
-well-defined regardless of how much extra the model predicts.
+The comparison is NOT a Dice benchmark. The Kaggle label has an `ignore` region that must
+be excluded, and m7 and the remaining scored labels need not encode identical objects.
+Dice is reported only for continuity with the earlier probe. The primary question is
+recall: OF THE VOXELS THE LABEL CALLS SHEET, WHAT FRACTION DOES M7 FIND?
 
 Resumable: one JSON per sample in results/m7_recall/, existing ones are skipped.
 
@@ -44,6 +43,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import time
 import warnings
 from pathlib import Path
@@ -51,8 +51,11 @@ from pathlib import Path
 import numpy as np
 
 warnings.filterwarnings("ignore")
-PY = r"C:/Users/PC/miniconda3/envs/blogging/python.exe"
-MODEL = r"D:/Competition/Vesuvius progress prizes/model_m7"
+HERE = Path(__file__).resolve().parent
+PY = os.environ.get("VESUVIUS_PYTHON", sys.executable)
+MODEL = os.environ.get(
+    "VESUVIUS_MODEL_PATH", "hf://scrollprize/surface_m7_nnunet")
+PREDICT_SCRIPT = os.environ.get("VESUVIUS_PREDICT_SCRIPT")
 THRESH = 0.2  # the published m7 threshold, from the artifact filenames (th0.2)
 
 
@@ -84,7 +87,9 @@ def run_one(ip: str, lp: str, work: Path, size: int, trim: int) -> dict | None:
     env = {**os.environ, "nnUNet_compile": "0", "TORCHDYNAMO_DISABLE": "1",
            "PYTHONIOENCODING": "utf-8"}
 
-    r = subprocess.run([PY, "run_gpu_roi.py", "--model_path", MODEL,
+    predict_entry = ([PY, PREDICT_SCRIPT] if PREDICT_SCRIPT else
+                     [PY, "-m", "vesuvius.models.run.inference"])
+    r = subprocess.run(predict_entry + ["--model_path", MODEL,
                         "--input_dir", str(zpath), "--output_dir", str(work / "logits"),
                         "--device", "cuda", "--disable_tta", "--batch_size", "1",
                         "--num_workers", "2", "--bbox", bbox],
