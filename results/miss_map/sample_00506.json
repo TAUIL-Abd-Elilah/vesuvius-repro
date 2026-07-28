@@ -1,0 +1,18 @@
+{
+  "sheet_fraction": 0.10670030117034912,
+  "thickness_mean": 2.3308912486545967,
+  "thickness_p90": 2.8284271247461903,
+  "spacing_median": 11.313708498984761,
+  "spacing_p10": 2.8284271247461903,
+  "ct_sheet_mean": 92.91108703613281,
+  "ct_bg_mean": 67.43657684326172,
+  "ct_bg_std": 45.4145393371582,
+  "contrast_sigma": 0.5609329207051503,
+  "components": 14,
+  "largest_component_frac": 0.11933240751809641,
+  "components_over_1k": 14,
+  "normal_anisotropy": 0.850005030632019,
+  "flatness": 0.7549048066139221,
+  "status": "ok",
+  "sample": "sample_00506.tif"
+}

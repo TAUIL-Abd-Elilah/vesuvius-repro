@@ -280,8 +280,50 @@ labels exist* and says nothing about the compressed or highly curved regions of
 [villa#191](https://github.com/ScrollPrize/villa/issues/191) — the catch-22 described in
 [villa#193](https://github.com/ScrollPrize/villa/issues/193).
 
+### Where it misses: on the faint parts of the sheet
+
+The rate alone is not useful; an improver needs to know what is hard. Two analyses, and the
+first one failed.
+
+**Volume-level properties explain almost nothing.** Thickness, inter-sheet spacing, CT
+contrast, fragmentation and flatness, measured for all 868 volumes and regressed against
+recall: **all nine jointly explain 9.9% of the variance**. The fitted model spans 77–92%
+predicted recall against an actual 55–97% — it cannot tell a volume the model solves from
+one it half fails. So the obvious "thin, low-contrast, crushed volumes are hard" story is
+**not** what the data says.
+
+**Comparing within each volume does find it.** Missed sheet voxels against found sheet
+voxels in the *same* volume, so each volume is its own control:
+
+| property at missed vs found voxels | result |
+|---|---|
+| **CT intensity** | **missed are 10.3% darker** (median 96 vs 107) |
+| consistency | **161 of 201 volumes (80.1%)**, sign test **p = 2×10⁻¹⁸** |
+| local CT texture | weakly lower (61%) |
+| local sheet thickness | no difference |
+| component size | no difference |
+
+Dose-dependent, which is what separates a cause from a bias — the worse a volume is, the
+darker its missed regions are relative to what was found:
+
+| volumes by recall | median effect | darker in |
+|---|---|---|
+| recall < 70% | −0.708 σ | **90%** |
+| 70–90% | −0.475 σ | 84% |
+| > 90% | −0.163 σ | 71% |
+
+**The model finds the bright parts of a sheet and misses the faint parts.** Not thickness,
+not fragmentation, not crowding — intensity. That points at intensity-targeted augmentation
+or normalisation rather than at architecture, and it is consistent with
+[villa#191](https://github.com/ScrollPrize/villa/issues/191)'s "compressed or highly curved
+regions", where the papyrus is faintest.
+
+Since these are the model's own training volumes, this is a statement about fit rather than
+generalisation: *it misses the faint parts of what it was trained on*.
+
 ```bash
-python bench_m7_recall.py --n 900     # resumable, one JSON per volume
+python bench_m7_recall.py --n 900     # recall + the paired local comparison
+python miss_map.py --n 900            # volume-level descriptors (the negative result)
 ```
 
 ## Predictions that extend past the scan — confirming @IyanDopico at collection scale

@@ -1,0 +1,52 @@
+{
+  "sample": "sample_00112.tif",
+  "status": "ok",
+  "region": "32:288,32:288,32:288",
+  "trim": 64,
+  "label_sheet_fraction": 0.0798182487487793,
+  "label_ignore_fraction": 0.39270448684692383,
+  "scored_fraction": 0.6072955131530762,
+  "pred_in_ignore_frac": 0.3069861590172868,
+  "pred_positive_fraction": 0.1408705711364746,
+  "recall": 0.7317239278097388,
+  "precision": 0.5982562825115393,
+  "miss_fraction": 0.2682760721902612,
+  "recall_by_threshold": {
+    "0.05": 0.8298952751342665,
+    "0.10": 0.7838294770925558,
+    "0.20": 0.7317239278097388,
+    "0.30": 0.6957303558733743,
+    "0.50": 0.6350460896941891,
+    "0.70": 0.5561649073128185
+  },
+  "sheet_mean_depth": 1.168033206066654,
+  "orphan_dist_median": 1.4142135623730951,
+  "orphan_dist_p90": 10.04987562112089,
+  "missed_far_frac": 0.3294141225198744,
+  "sheet_components": 5,
+  "sheet_components_lost": 0,
+  "frac_components_lost": 0.0,
+  "mean_confidence": 0.9227887988090515,
+  "local_missed_vs_found": {
+    "depth": {
+      "missed_median": 1.0,
+      "found_median": 1.0,
+      "delta_z": 0.0
+    },
+    "ct": {
+      "missed_median": 54.0,
+      "found_median": 75.0,
+      "delta_z": -0.5087675251750708
+    },
+    "ct_local_std": {
+      "missed_median": 20.83704948425293,
+      "found_median": 29.164648056030273,
+      "delta_z": -0.6558912767838504
+    },
+    "component_size": {
+      "missed_median": 47419.0,
+      "found_median": 47419.0,
+      "delta_z": 0.0
+    }
+  }
+}
