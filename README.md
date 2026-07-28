@@ -285,7 +285,7 @@ every public volume against that list (`hash_public_volumes.py --fingerprint`) g
 | total | **786** | **892** | **+106** |
 
 Every shape m7 trained on occurs in the public set at least as often as m7 needs it,
-including five singleton shapes that match one-for-one. That is strong evidence of
+including six singleton shapes that match one-for-one. That is strong evidence of
 substantial overlap — **not proof** that the 786 are a subset of these 892, because a shape
 is not an identifier. **These numbers therefore cannot be treated as held-out.** Nor can the
 106-volume difference be called a held-out set: the count says how many volumes *could* be
