@@ -1,0 +1,25 @@
+{
+  "arm": "baseline",
+  "seed": 0,
+  "epochs": 100,
+  "iters": 40,
+  "batch": 2,
+  "train_volumes": 75,
+  "val_volumes": 21,
+  "faint_prob": 0.0,
+  "faint_max": 0.0,
+  "minutes": 87.5,
+  "eval_windows": 168,
+  "dice_per_class": [
+    0.4154549855444055,
+    0.15558878882763755,
+    0.47441648528280145
+  ],
+  "dice_class1_sheet": 0.15558878882763755,
+  "dice_mean": 0.34848675321828154,
+  "recall_sheet_overall": 0.538251277370287,
+  "recall_dark": 0.2875841589121491,
+  "recall_mid": 0.5794067782598133,
+  "recall_bright": 0.7541456523804152,
+  "sheet_voxels_scored": 16439634
+}
