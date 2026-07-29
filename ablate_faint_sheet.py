@@ -58,6 +58,7 @@ FAINT_PROB = 0.5         # fraction of crops that get the attenuation
 FAINT_MAX = 0.45         # strongest attenuation, as a fraction of local intensity
 FAINT_SIGMA = 2.5        # blur applied to the mask before it modulates intensity
 CONTACT_R = 3            # gap thickness, in voxels, that counts as "sheets in contact"
+FAINT_ALPHA = 2.0        # faint-sheet loss weighting; see faint_weighted_ce
 RESULTS = Path("results/ablation_faint")
 
 
@@ -279,6 +280,41 @@ def soft_dice(logits, target, eps: float = 1e-5):
     return 1 - (num / den).mean()
 
 
+def faint_weighted_ce(ce_none, logits, y, x, cls_w, alpha: float):
+    """Cross-entropy with faint sheet voxels weighted up.
+
+    WHY, AND WHY THIS RATHER THAN AUGMENTATION. The benchmark says the published model
+    misses the *faint* parts of a sheet: missed voxels are ~10.3% darker than found voxels
+    inside the same volume, and a model trained from scratch recalls 0.32 of the darkest
+    tercile against 0.75 of the brightest. The augmentation arm attacked that by making
+    training sheet fainter, and failed -- it shifted the whole intensity distribution darker
+    and the model lost the bright regime. This attacks the same measurement from the
+    optimisation side instead: leave the data alone and give faint sheet voxels more of the
+    gradient.
+
+    Two properties that matter. It never modifies the input, so the distribution-shift
+    failure cannot recur, and nothing changes at inference. And the weight is a function of
+    the *input intensity*, which is available at test time -- it is a reweighting, not a
+    label leak.
+
+    WEIGHT. For voxels whose label is sheet, multiplier = 1 + alpha * (1 - intensity), so
+    the darkest sheet voxel gets (1 + alpha)x the weight of the brightest. alpha = 2 gives
+    3:1, chosen to roughly match the measured 2.3x recall deficit between the terciles
+    rather than by trying values -- it is an anchor, not a tuned constant.
+
+    NORMALISATION. `ce_none` already returns cls_w[y] * per-voxel CE. Standard weighted-CE
+    with reduction='mean' equals sum(ce_none) / sum(cls_w[y]); the multiplier generalises
+    that to sum(m * ce_none) / sum(m * cls_w[y]), which reduces EXACTLY to the baseline when
+    alpha = 0. Without that the two arms would not be comparable.
+    """
+    import torch
+    per_vox = ce_none(logits, y)                       # already scaled by cls_w[y]
+    inten = x[:, 0]                                    # crop intensities, already in [0,1]
+    mult = torch.where(y == 1, 1.0 + alpha * (1.0 - inten), torch.ones_like(inten))
+    denom = (mult * cls_w[y]).sum()
+    return (mult * per_vox).sum() / denom.clamp_min(1e-6)
+
+
 def eval_windows(shape, size: int):
     out = []
     for z in (0, shape[0] - size):
@@ -352,6 +388,7 @@ def train(arm: str, epochs: int, iters: int, batch: int, seed: int, n_volumes: i
     model = build_model().to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-5)
     ce = nn.CrossEntropyLoss(weight=w)
+    ce_none = nn.CrossEntropyLoss(weight=w, reduction="none")
     scaler = torch.amp.GradScaler(device, enabled=device == "cuda")
     rng = random.Random(seed)
 
@@ -368,7 +405,9 @@ def train(arm: str, epochs: int, iters: int, batch: int, seed: int, n_volumes: i
             opt.zero_grad(set_to_none=True)
             with torch.autocast("cuda", dtype=torch.float16, enabled=device == "cuda"):
                 logits = model(x)
-                loss = ce(logits, y) + soft_dice(logits, y)
+                ce_term = (faint_weighted_ce(ce_none, logits, y, x, w, FAINT_ALPHA)
+                           if arm == "faintloss" else ce(logits, y))
+                loss = ce_term + soft_dice(logits, y)
             scaler.scale(loss).backward()
             scaler.step(opt); scaler.update()
             tot += float(loss)
@@ -380,6 +419,7 @@ def train(arm: str, epochs: int, iters: int, batch: int, seed: int, n_volumes: i
            "faint_prob": FAINT_PROB if arm in ("faint", "faint_gated") else 0.0,
            "faint_max": FAINT_MAX if arm in ("faint", "faint_gated") else 0.0,
            "contact_r": CONTACT_R if arm == "faint_gated" else None,
+           "faint_alpha": FAINT_ALPHA if arm == "faintloss" else None,
            "minutes": round((time.time() - t0) / 60, 1)}
     rep.update(evaluate(model, va, device))
     RESULTS.mkdir(parents=True, exist_ok=True)
@@ -392,40 +432,74 @@ def train(arm: str, epochs: int, iters: int, batch: int, seed: int, n_volumes: i
 
 
 def compare() -> None:
-    """Compare arms across seeds, and refuse to call a difference that noise explains."""
+    """Compare every arm against baseline, and refuse to call noise a result.
+
+    ⚠ WHY THE HEADROOM COLUMN EXISTS. An earlier version of this function compared only
+    `baseline` vs `faint`, and reported raw tercile recall. The `faintloss` arm then produced
+    dark recall 0.323 -> 0.807, which read as a spectacular confirmation of the faint-sheet
+    hypothesis. It was not. Sheet Dice fell 0.156 -> 0.127 and implied precision fell from
+    ~0.091 to ~0.068: the model had simply learned to predict sheet more liberally
+    everywhere, buying recall with precision.
+
+    Raw tercile recall CANNOT distinguish that from a real fix, because a uniform bias shift
+    always produces the largest RAW gain in the tercile with the lowest baseline -- which is
+    the dark tercile, which is exactly what the hypothesis predicts. Normalising the gain by
+    the headroom (1 - baseline) removes that artefact. For `faintloss` the normalised gain is
+    LOWEST in dark (0.714) and highest in bright (0.877): the opposite of selectivity.
+
+    Any stratified-recall metric needs this, so it is reported by default.
+    """
     runs = {}
     for p in sorted(RESULTS.glob("*_seed*.json")):
         r = json.loads(p.read_text(encoding="utf-8"))
         runs.setdefault(r["arm"], []).append(r)
-    if len(runs) < 2:
-        raise SystemExit(f"need both arms in {RESULTS}; have {list(runs)}")
+    if "baseline" not in runs or len(runs) < 2:
+        raise SystemExit(f"need baseline + one arm in {RESULTS}; have {list(runs)}")
 
     keys = [("dice_class1_sheet", "sheet Dice"), ("recall_sheet_overall", "recall overall"),
             ("recall_dark", "recall DARK tercile"), ("recall_mid", "recall mid"),
             ("recall_bright", "recall bright")]
-    print(f"seeds per arm: " + ", ".join(f"{a}={len(v)}" for a, v in runs.items()))
-    print(f"\n{'metric':<22}{'baseline':>20}{'faint':>20}{'delta':>12}  verdict")
-    for k, name in keys:
-        b = np.array([r[k] for r in runs["baseline"]])
-        f = np.array([r[k] for r in runs["faint"]])
-        d = f.mean() - b.mean()
-        spread = max(b.std(ddof=1) if len(b) > 1 else 0.0,
-                     f.std(ddof=1) if len(f) > 1 else 0.0)
-        verdict = ("not demonstrated" if abs(d) <= spread
-                   else ("faint BETTER" if d > 0 else "faint WORSE"))
-        print(f"{name:<22}{b.mean():>13.4f} ±{b.std(ddof=1) if len(b)>1 else 0:.4f}"
-              f"{f.mean():>13.4f} ±{f.std(ddof=1) if len(f)>1 else 0:.4f}"
-              f"{d:>+12.4f}  {verdict}")
+    mean = lambda a, k: float(np.mean([r[k] for r in runs[a]]))
+    sd = lambda a, k: float(np.std([r[k] for r in runs[a]], ddof=1)) if len(runs[a]) > 1 else 0.0
+
+    print("seeds per arm: " + ", ".join(f"{a}={len(v)}" for a, v in runs.items()))
+    for arm in [a for a in runs if a != "baseline"]:
+        print(f"\n=== {arm} vs baseline ===")
+        print(f"{'metric':<22}{'baseline':>20}{arm:>20}{'delta':>12}  verdict")
+        for k, name in keys:
+            b, f = mean("baseline", k), mean(arm, k)
+            d = f - b
+            spread = max(sd("baseline", k), sd(arm, k))
+            verdict = ("not demonstrated" if abs(d) <= spread
+                       else (f"{arm} BETTER" if d > 0 else f"{arm} WORSE"))
+            print(f"{name:<22}{b:>13.4f} ±{sd('baseline',k):.4f}"
+                  f"{f:>13.4f} ±{sd(arm,k):.4f}{d:>+12.4f}  {verdict}")
+
+        print(f"\n  gain as a fraction of headroom (1 - baseline) -- selectivity check:")
+        norm = {}
+        for t in ("dark", "mid", "bright"):
+            b, f = mean("baseline", "recall_" + t), mean(arm, "recall_" + t)
+            norm[t] = (f - b) / (1.0 - b) if b < 1 else float("nan")
+            print(f"    {t:<7}{norm[t]:>8.3f}")
+        if norm["dark"] <= max(norm["mid"], norm["bright"]):
+            print("    ⚠ NOT selective for faint sheet: normalised gain is not highest in")
+            print("      dark. A uniform bias shift looks like selectivity in RAW recall.")
+        dd = mean(arm, "dice_class1_sheet") - mean("baseline", "dice_class1_sheet")
+        dr = mean(arm, "recall_sheet_overall") - mean("baseline", "recall_sheet_overall")
+        if dr > 0 and dd < 0:
+            print(f"    ⚠ recall {dr:+.3f} while Dice {dd:+.3f}: precision was traded away.")
+            print("      This is a threshold/bias effect, not a better model. Report both.")
 
     print("\nA difference within the across-seed spread is NOT a result. The hypothesis "
-          "predicts\na gain concentrated in the DARK tercile; a uniform gain would mean "
-          "generic regularisation,\nand a bright-only gain would contradict it.")
+          "predicts\na gain concentrated in the DARK tercile *after headroom normalisation*; "
+          "a uniform\ngain means generic regularisation or a bias shift, and a bright-only "
+          "gain contradicts it.")
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--arm", choices=["baseline", "faint", "faint_gated"])
+    ap.add_argument("--arm", choices=["baseline", "faint", "faint_gated", "faintloss"])
     ap.add_argument("--epochs", type=int, default=100)
     ap.add_argument("--iters", type=int, default=40)
     ap.add_argument("--batch", type=int, default=2)

@@ -1,0 +1,27 @@
+{
+  "arm": "faintloss",
+  "seed": 0,
+  "epochs": 100,
+  "iters": 40,
+  "batch": 2,
+  "train_volumes": 75,
+  "val_volumes": 21,
+  "faint_prob": 0.0,
+  "faint_max": 0.0,
+  "contact_r": null,
+  "faint_alpha": 2.0,
+  "minutes": 17.8,
+  "eval_windows": 168,
+  "dice_per_class": [
+    0.36880418091559186,
+    0.12751329059838556,
+    0.2204680717379963
+  ],
+  "dice_class1_sheet": 0.12751329059838556,
+  "dice_mean": 0.23892851441732457,
+  "recall_sheet_overall": 0.881319681447896,
+  "recall_dark": 0.773919757399466,
+  "recall_mid": 0.9040750994368741,
+  "recall_bright": 0.9685908158539989,
+  "sheet_voxels_scored": 16439634
+}

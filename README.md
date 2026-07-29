@@ -531,6 +531,44 @@ widening the variance instead — untested.
 Both scripts need the public labelled volumes under `data/kaggle/`; they exit with a clear
 message rather than a traceback if the data is not present.
 
+#### ⚠ The stratified-recall metric has a failure mode. Here it is, and here is the guard
+
+A third arm, `faintloss`, attacks the same measurement from the optimisation side instead of
+the data side: leave the input alone and weight the cross-entropy so faint sheet voxels carry
+more gradient (`1 + alpha * (1 - intensity)` where the label is sheet, `alpha = 2`). The
+weight is a function of input intensity, available at test time, so it is a reweighting and
+not a label leak, and nothing changes at inference. `alpha = 0` reproduces standard weighted
+CE exactly, so the arms are comparable.
+
+The raw result looks like a decisive confirmation of the faint-sheet hypothesis:
+
+| | baseline | faintloss | delta |
+|---|---|---|---|
+| recall DARK tercile | 0.3233 ±0.0312 | **0.8065 ±0.0420** | **+0.483** |
+| recall mid | 0.5777 | 0.9361 | +0.358 |
+| recall bright | 0.7474 | 0.9689 | +0.222 |
+| **sheet Dice** | **0.1560 ±0.0016** | **0.1265 ±0.0022** | **−0.029** |
+
+**It is not a fix. It is a bias shift, and raw stratified recall cannot tell the difference.**
+Two tells. Sheet Dice fell and implied precision fell from ~0.091 to ~0.068 — the model
+learned to predict sheet more liberally everywhere and bought recall with precision. And
+normalising each tercile's gain by its available headroom `(1 - baseline)` gives **dark
+0.714, mid 0.849, bright 0.877** — the gain is *least* selective for dark sheet, the opposite
+of the hypothesis.
+
+The general point, which applies to any stratified metric: **a uniform bias shift always
+produces the largest raw gain in the stratum with the lowest baseline.** For a metric built
+to detect under-performance on faint sheet, that is precisely the signature the hypothesis
+predicts, so the metric rewards the artefact. `--compare` therefore now reports
+headroom-normalised gain by default and warns explicitly when recall rises while Dice falls.
+It also compares *every* arm against baseline; an earlier version was hardcoded to two and
+silently ignored this third one.
+
+The bar was fixed in advance in `PREREGISTER_faintloss.md`, written before the arm ran.
+`faintloss` passes the dark-gain and bright-recall conditions and **fails the Dice
+condition**, so it is recorded as a trade rather than an improvement, which is what that
+document says to do.
+
 ## Predictions that extend past the scan — confirming @IyanDopico at collection scale
 
 Some published surface predictions mark sheet where the masked CT is identically zero.
