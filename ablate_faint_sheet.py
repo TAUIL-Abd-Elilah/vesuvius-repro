@@ -57,6 +57,7 @@ N_VOLUMES = 96           # capped: the whole set is 892 and Volumes holds them i
 FAINT_PROB = 0.5         # fraction of crops that get the attenuation
 FAINT_MAX = 0.45         # strongest attenuation, as a fraction of local intensity
 FAINT_SIGMA = 2.5        # blur applied to the mask before it modulates intensity
+CONTACT_R = 3            # gap thickness, in voxels, that counts as "sheets in contact"
 RESULTS = Path("results/ablation_faint")
 
 
@@ -110,19 +111,52 @@ def load_split(n_volumes: int) -> tuple[list, list]:
     return picked[n_val:], picked[:n_val]
 
 
-def faint_sheet(im: np.ndarray, lb: np.ndarray, rng: random.Random) -> np.ndarray:
+def contact_mask(m: np.ndarray) -> np.ndarray:
+    """Sheet voxels sitting across a thin gap from another sheet.
+
+    Why this exists: the ungated `faint` arm was a clean negative -- dark-tercile recall did
+    not move while everything else degraded. @Jinhojeong's reading on villa#191 is that the
+    attenuation is geometry-blind, so it also darkens contacts where intensity has already
+    stopped separating adjacent sheets. Those cases are unresolvable by intensity *by
+    construction*, so the arm spends capacity on them while wrecking the bright mass that
+    was working. This mask is what the `faint_gated` arm refuses to touch.
+
+    A morphological closing fills any gap thinner than CONTACT_R; whatever the closing adds
+    was a thin gap, and the sheet voxels bordering it are the contacts.
+    """
+    from scipy.ndimage import binary_closing, binary_dilation, generate_binary_structure
+
+    st = generate_binary_structure(3, 1)
+    closed = binary_closing(m, structure=st, iterations=CONTACT_R)
+    thin_gap = closed & ~m
+    if not thin_gap.any():
+        return np.zeros_like(m)
+    return binary_dilation(thin_gap, structure=st, iterations=CONTACT_R) & m
+
+
+def faint_sheet(im: np.ndarray, lb: np.ndarray, rng: random.Random,
+                gated: bool = False) -> np.ndarray:
     """Attenuate the sheet and its surround, simulating a faint sheet.
 
     The measured failure population is sheet voxels roughly 10% darker than the ones the
     model finds, so the attenuation is drawn up to FAINT_MAX and applied multiplicatively.
     The mask is blurred first: a hard label-shaped edge would let the model locate sheets
     by the artefact rather than by the papyrus.
+
+    `gated=True` removes contact regions from the mask before blurring -- attenuate only
+    where intensity still has a chance of separating the sheets. Note the blur is applied
+    *after* gating, so the gated arm still has no hard label-shaped edge; the leak
+    mitigation is unchanged.
     """
     from scipy.ndimage import gaussian_filter
 
     m = (lb == 1)
     if not m.any():
         return im
+    if gated:
+        m = m & ~contact_mask(m)
+        if not m.any():
+            return im
     soft = gaussian_filter(m.astype(np.float32), FAINT_SIGMA)
     peak = float(soft.max())
     if peak <= 0:
@@ -172,8 +206,9 @@ class Volumes:
             if rng.random() < 0.5:
                 im, lb = np.flip(im, ax), np.flip(lb, ax)
         im, lb = np.ascontiguousarray(im), np.ascontiguousarray(lb)
-        if arm == "faint" and rng.random() < FAINT_PROB:
-            im = np.ascontiguousarray(faint_sheet(im, lb, rng))
+        if arm in ("faint", "faint_gated") and rng.random() < FAINT_PROB:
+            im = np.ascontiguousarray(
+                faint_sheet(im, lb, rng, gated=(arm == "faint_gated")))
         return im, lb
 
 
@@ -342,8 +377,9 @@ def train(arm: str, epochs: int, iters: int, batch: int, seed: int, n_volumes: i
 
     rep = {"arm": arm, "seed": seed, "epochs": epochs, "iters": iters, "batch": batch,
            "train_volumes": len(tr_pairs), "val_volumes": len(va_pairs),
-           "faint_prob": FAINT_PROB if arm == "faint" else 0.0,
-           "faint_max": FAINT_MAX if arm == "faint" else 0.0,
+           "faint_prob": FAINT_PROB if arm in ("faint", "faint_gated") else 0.0,
+           "faint_max": FAINT_MAX if arm in ("faint", "faint_gated") else 0.0,
+           "contact_r": CONTACT_R if arm == "faint_gated" else None,
            "minutes": round((time.time() - t0) / 60, 1)}
     rep.update(evaluate(model, va, device))
     RESULTS.mkdir(parents=True, exist_ok=True)
@@ -389,7 +425,7 @@ def compare() -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--arm", choices=["baseline", "faint"])
+    ap.add_argument("--arm", choices=["baseline", "faint", "faint_gated"])
     ap.add_argument("--epochs", type=int, default=100)
     ap.add_argument("--iters", type=int, default=40)
     ap.add_argument("--batch", type=int, default=2)

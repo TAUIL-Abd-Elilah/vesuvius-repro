@@ -79,6 +79,7 @@ each with its own runnable script and its own result set under `results/`:
 | **Where the model fails**, over all 892 public labelled volumes | `bench_m7_recall.py` | median recall **90.6%**; 26.5% of volumes below 80% |
 | **Why it fails** — missed sheet voxels are *fainter* than found ones, measured within the same volume | `miss_map.py` | 10.3% darker, in 161 of 201 volumes |
 | **Whether a fix follows** — a 3-seed controlled augmentation ablation | `ablate_faint_sheet.py` | a clean **negative**, plus a from-scratch reproduction of the effect |
+| **Whether the proposed explanation for that negative can hold** | `measure_sheet_contact.py` | only **1.5%** of labelled sheet is in sub-4-voxel contact — too small to be the cause |
 | **Predictions over empty CT**, confirming @IyanDopico at collection scale | `pred_over_empty_ct.py`, `phantom_sheet_depth.py` | 30 of 36 scrolls above 10%; 99.69% of it in wholly unscanned blocks |
 | **Provenance** — a content hash per public volume, crop-invariant | `hash_public_volumes.py` | 892 hashes; two volumes provably outside the training fingerprint |
 
@@ -494,6 +495,41 @@ python ablate_faint_sheet.py --compare                  # verdicts vs across-see
 ```
 
 Results for all six runs are in `results/ablation_faint/`.
+
+#### The proposed explanation for the negative does not survive measurement either
+
+On [villa#191](https://github.com/ScrollPrize/villa/issues/191) @Jinhojeong proposed a
+mechanism: the attenuation is geometry-blind, so it also darkens *contacts* — places where
+two sheets sit close enough that intensity has already stopped separating them, making those
+cases unresolvable by construction. They report models merge sheets at sub-4-voxel contacts.
+That predicts a gated fix: attenuate only where the sheet is not in contact.
+
+`measure_sheet_contact.py` checks whether such a gate could bite, before spending GPU time
+on it. A morphological closing fills any gap thinner than 2r voxels; what the closing adds
+was a thin gap, and the sheet bordering it is the contact. Over 40 random 128³ crops:
+
+| gap closed | mean fraction of sheet in contact |
+|---|---|
+| 2 vox | 0.003 |
+| **4 vox** | **0.015** |
+| 6 vox | 0.045 |
+| 10 vox | 0.132 |
+| 16 vox | 0.353 |
+
+**At the reported sub-4-voxel scale, 1.5% of labelled sheet qualifies.** A gated arm would
+still attenuate ~98% of the same voxels, so it would be a near-duplicate of the ungated one
+— and 1.5% of the population cannot explain bright recall falling 0.75 → 0.35. The radius is
+**swept, not tuned**: it could be inflated to 16–24 voxels to make the gate bite, but that is
+not contact in any physical sense, and picking a threshold because it yields a workable
+number is the failure this repository has a rule against.
+
+The remaining hypothesis is a dose/statistics one rather than geometry: attenuating up to
+45% on half of all crops shifts the whole training intensity distribution darker, so the
+model recalibrates and loses the bright regime. That predicts holding the mean fixed and
+widening the variance instead — untested.
+
+Both scripts need the public labelled volumes under `data/kaggle/`; they exit with a clear
+message rather than a traceback if the data is not present.
 
 ## Predictions that extend past the scan — confirming @IyanDopico at collection scale
 
