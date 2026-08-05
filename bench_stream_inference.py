@@ -69,6 +69,20 @@ def chunks_for_patch(start: tuple[int, int, int], patch: int, chunk: int):
     return [range(s // chunk, (s + patch - 1) // chunk + 1) for s in start]
 
 
+def morton(cz: int, cy: int, cx: int, bits: int = 21) -> int:
+    """Z-order key over chunk indices.
+
+    chunk_blocked resets locality at every block boundary; a Morton curve keeps it in all
+    three axes at once, which is aistae's point in villa#1325 and the reason it wins.
+    """
+    key = 0
+    for b in range(bits):
+        key |= ((cz >> b) & 1) << (3 * b + 2)
+        key |= ((cy >> b) & 1) << (3 * b + 1)
+        key |= ((cx >> b) & 1) << (3 * b)
+    return key
+
+
 def simulate(region, cache_chunks, order="zyx", patch=PATCH, step=STEP, chunk=CHUNK):
     """Count chunk fetches under an LRU cache for one traversal order.
 
@@ -82,6 +96,8 @@ def simulate(region, cache_chunks, order="zyx", patch=PATCH, step=STEP, chunk=CH
         # walk patches grouped by the chunk-slab they start in, so a slab's chunks are
         # touched consecutively and can leave the cache for good afterwards
         grid.sort(key=lambda p: (p[0] // chunk, p[1] // chunk, p[2] // chunk))
+    elif order == "morton":
+        grid.sort(key=lambda p: morton(p[0] // chunk, p[1] // chunk, p[2] // chunk))
 
     lru: OrderedDict = OrderedDict()
     fetches = 0
@@ -150,7 +166,7 @@ def cmd_amplification(region_side=1536):
     print(f"{'traversal':<15} {'cache':>10} {'fetches':>12} {'amplification':>14}")
     print("-" * 56)
     rows = []
-    for order in ("zyx", "chunk_blocked"):
+    for order in ("zyx", "chunk_blocked", "morton"):
         for cache_mib in (0, 1024, 4096, 8192, 16384):
             cache_chunks = cache_mib // 2          # 2 MiB per chunk
             f, d, n = simulate(region, cache_chunks, order)
@@ -162,11 +178,16 @@ def cmd_amplification(region_side=1536):
     best = min(rows, key=lambda r: r["amplification"])
     print(f"\nBest: {best['order']} @ {best['cache_mib']} MiB -> {best['amplification']:.2f}x")
     print(f"Patches simulated: {rows[0]['patches']:,} | distinct chunks: {rows[0]['distinct']:,}")
-    print("\nWhat this means for a 1.25 TB scroll (PHerc1218):")
+    # PHerc1218 level 0 is 23247 x 7593 x 7593 uint8, verified from the .zarray. An earlier
+    # version of this print hardcoded 1.25 TB, which understates it by 7%.
+    vol_tb = 23247 * 7593 * 7593 / 1e12
+    bw = 11.0                                  # MB/s measured on this machine, cmd_throughput
+    print(f"\nWhat this means for PHerc1218 ({vol_tb:.2f} TB) at {bw:.0f} MB/s:")
     for r in rows:
-        if r["cache_mib"] in (0, 4096):
+        if r["cache_mib"] in (0, 4096, 16384):
+            fetched = vol_tb * r["amplification"]
             print(f"  {r['order']:<15} {r['cache_mib']:>5} MiB cache -> "
-                  f"{1.25*r['amplification']:.2f} TB fetched")
+                  f"{fetched:6.2f} TB {fetched * 1e12 / (bw * 1e6) / 3600:8.1f} h")
     json.dump(rows, open("results/stream_read_amplification.json", "w"), indent=1)
     print("\nwrote results/stream_read_amplification.json")
 

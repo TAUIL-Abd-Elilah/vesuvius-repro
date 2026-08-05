@@ -78,5 +78,45 @@
   "distinct": 43200,
   "patches": 93615,
   "amplification": 1.6578240740740742
+ },
+ {
+  "order": "morton",
+  "cache_mib": 0,
+  "fetches": 1319506,
+  "distinct": 43200,
+  "patches": 93615,
+  "amplification": 30.544120370370372
+ },
+ {
+  "order": "morton",
+  "cache_mib": 1024,
+  "fetches": 63184,
+  "distinct": 43200,
+  "patches": 93615,
+  "amplification": 1.4625925925925927
+ },
+ {
+  "order": "morton",
+  "cache_mib": 4096,
+  "fetches": 51400,
+  "distinct": 43200,
+  "patches": 93615,
+  "amplification": 1.1898148148148149
+ },
+ {
+  "order": "morton",
+  "cache_mib": 8192,
+  "fetches": 48056,
+  "distinct": 43200,
+  "patches": 93615,
+  "amplification": 1.1124074074074075
+ },
+ {
+  "order": "morton",
+  "cache_mib": 16384,
+  "fetches": 45392,
+  "distinct": 43200,
+  "patches": 93615,
+  "amplification": 1.0507407407407408
  }
 ]
