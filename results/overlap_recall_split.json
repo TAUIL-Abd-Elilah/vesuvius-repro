@@ -1,0 +1,111 @@
+{
+ "source_overlap_report": {
+  "url": "https://raw.githubusercontent.com/Jinhojeong/vesuvius-surface-geometry-diagnostic/9003cefbda06ae27fdc73550aed0438c69ebd6d7/results/overlap/overlap_report.json",
+  "sha256": "cdcce85096236cad8e3dc87a6b498fa50df01ce4850bf4987d2e2785538d60b6"
+ },
+ "n_recall_files": 892,
+ "n_scored": 855,
+ "groups": [
+  {
+   "group": "all_scored",
+   "n": 855,
+   "median_recall": 0.9058,
+   "mean_recall": 0.843,
+   "q1": 0.7893,
+   "q3": 0.9353,
+   "frac_below_0.8": 0.2655
+  },
+  {
+   "group": "locates_on_s1a",
+   "n": 174,
+   "median_recall": 0.7765,
+   "mean_recall": 0.7523,
+   "q1": 0.6767,
+   "q3": 0.8423,
+   "frac_below_0.8": 0.5632
+  },
+  {
+   "group": "s1a_and_intersects_frangiedt",
+   "n": 120,
+   "median_recall": 0.7804,
+   "mean_recall": 0.7529,
+   "q1": 0.6899,
+   "q3": 0.8413,
+   "frac_below_0.8": 0.575
+  },
+  {
+   "group": "s1a_no_intersection",
+   "n": 54,
+   "median_recall": 0.7531,
+   "mean_recall": 0.7508,
+   "q1": 0.6649,
+   "q3": 0.8446,
+   "frac_below_0.8": 0.537
+  },
+  {
+   "group": "iou_1.0_identical_cube",
+   "n": 12,
+   "median_recall": 0.751,
+   "mean_recall": 0.7453,
+   "q1": 0.6823,
+   "q3": 0.8246,
+   "frac_below_0.8": 0.6667
+  },
+  {
+   "group": "finetune_pool_intersection",
+   "n": 110,
+   "median_recall": 0.7896,
+   "mean_recall": 0.7602,
+   "q1": 0.7068,
+   "q3": 0.8605,
+   "frac_below_0.8": 0.5545
+  },
+  {
+   "group": "locates_nowhere_searched",
+   "n": 681,
+   "median_recall": 0.918,
+   "mean_recall": 0.8662,
+   "q1": 0.8492,
+   "q3": 0.9404,
+   "frac_below_0.8": 0.1894
+  }
+ ],
+ "median_by_group_confounds": {
+  "label_sheet_fraction": {
+   "locates_on_s1a": 0.0764,
+   "locates_nowhere_searched": 0.059
+  },
+  "sheet_mean_depth": {
+   "locates_on_s1a": 1.1747,
+   "locates_nowhere_searched": 1.1784
+  },
+  "sheet_components": {
+   "locates_on_s1a": 5.0,
+   "locates_nowhere_searched": 4.0
+  },
+  "mean_confidence": {
+   "locates_on_s1a": 0.8492,
+   "locates_nowhere_searched": 0.951
+  },
+  "pred_positive_fraction": {
+   "locates_on_s1a": 0.266,
+   "locates_nowhere_searched": 0.1359
+  }
+ },
+ "tests": {
+  "intersecting_vs_not_located": {
+   "z": -10.126,
+   "p": 0.0
+  },
+  "located_vs_not_located": {
+   "z": -11.792,
+   "p": 0.0
+  },
+  "intersecting_vs_located_not_intersecting": {
+   "z": 0.25,
+   "p": 0.802,
+   "note": "the leakage test: within Scroll1A, does patch-set membership help?"
+  }
+ },
+ "scope": "Overlap is with the published Dataset059_s1_s4_s5_patches_frangiedt patch set, not with m7's training cases, which carry no public identifiers. 'Locates nowhere' means not found in the four canonical volumes searched (Scroll1A, 1B, 4, 5); Scrolls 2 and 3 were not searched."
+}
