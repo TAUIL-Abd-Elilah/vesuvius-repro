@@ -1,0 +1,19 @@
+{
+ "measured_bandwidth_mb_s": 11.0,
+ "bandwidth_note": "this machine only: sweep 8->5.3, 24->8.9, 48->11.1, 96->11.0 MB/s, so a ~88 Mbit link cap rather than a concurrency limit. The amplification model is portable; the wall-clock is not.",
+ "simulated_slab": "1536 x 7593 x 7593 of PHerc1218 at villa inference defaults (patch 192^3, step 0.5) over 128^3 uncompressed chunks",
+ "patches_simulated": 93615,
+ "distinct_chunks": 43200,
+ "naive_amplification": 30.544120370370372,
+ "best_amplification": 1.6578240740740742,
+ "best_policy": "chunk_blocked @ 16384 MiB",
+ "pherc1218_shape": [
+  23247,
+  7593,
+  7593
+ ],
+ "pherc1218_bytes": 1340274378303,
+ "pherc1218_hours_naive": 1033.7753015204582,
+ "pherc1218_hours_best": 56.10957399533778,
+ "correction_note": "an earlier run of this script used a smaller cross-section and reported 25.15x / 46.6 h. PHerc1218 is 7593 wide (verified from the level-0 .zarray), and at the true cross-section the working set no longer fits the cache the same way. Those earlier figures are superseded by the ones here."
+}
