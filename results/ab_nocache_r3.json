@@ -1,0 +1,38 @@
+{
+ "label": "nocache_r3",
+ "runner": "run_gpu_roi.py",
+ "cache_dir": null,
+ "cache_cleared_first": false,
+ "cache_bytes_before": null,
+ "cache_bytes_after": null,
+ "scroll": "PHerc1218",
+ "level": 0,
+ "shape": [
+  23247,
+  7593,
+  7593
+ ],
+ "region_side": 384,
+ "region_lo": [
+  11000,
+  3400,
+  3400
+ ],
+ "bbox": "11000:11384,3400:3784,3400:3784",
+ "starts_per_axis": [
+  6,
+  6,
+  6
+ ],
+ "n_patches": 216,
+ "n_chunks_spanned": 216,
+ "bytes_if_each_chunk_once": 452984832,
+ "ok": true,
+ "returncode": 0,
+ "elapsed_s": 253.7,
+ "patches_per_s": 0.851,
+ "implied_mb_s_if_each_chunk_once": 1.79,
+ "peak_gpu_mib": 23919,
+ "gpu_samples": 116,
+ "note": "Wall-clock covers streaming AND inference; the two overlap, so implied MB/s is a lower bound on link use, not a pure I/O figure."
+}

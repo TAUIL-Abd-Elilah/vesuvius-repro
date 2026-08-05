@@ -96,6 +96,13 @@ def main() -> None:
     ap.add_argument("--y", type=int, default=3400)
     ap.add_argument("--x", type=int, default=3400)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--runner", default="run_gpu_roi.py",
+                    help="run_gpu_roi_cached.py to route reads through an on-disk chunk cache")
+    ap.add_argument("--cache-dir", default=None,
+                    help="chunk cache directory; only used by the cached runner")
+    ap.add_argument("--clear-cache", action="store_true",
+                    help="empty the cache first, so the run measures WITHIN-run reuse only")
+    ap.add_argument("--label", default="")
     ap.add_argument("--out", default=str(ROOT / "results" / "stream_gate_gpu.json"))
     a = ap.parse_args()
 
@@ -120,12 +127,22 @@ def main() -> None:
     work.mkdir(parents=True)
 
     url = f"{BASE}/{SCROLL}/volumes/{VOLUME}/0"
-    cmd = [PY, "run_gpu_roi.py", "--model_path", MODEL, "--input_dir", url,
+    cmd = [PY, a.runner, "--model_path", MODEL, "--input_dir", url,
            "--output_dir", str(work / "logits"), "--device", "cuda",
            "--disable_tta", "--batch_size", "1", "--num_workers", "2", "--bbox", bbox]
     env = {"nnUNet_compile": "0", "TORCHDYNAMO_DISABLE": "1", "PYTHONIOENCODING": "utf-8"}
 
     import os
+
+    cache_bytes_before = None
+    if a.cache_dir:
+        env["VESUVIUS_CHUNK_CACHE_DIR"] = a.cache_dir
+        cd = Path(a.cache_dir)
+        if a.clear_cache and cd.exists():
+            import shutil
+            shutil.rmtree(cd)
+        cd.mkdir(parents=True, exist_ok=True)
+        cache_bytes_before = sum(f.stat().st_size for f in cd.rglob("*") if f.is_file())
     sampler = GpuSampler()
     sampler.start()
     t0 = time.time()
@@ -135,8 +152,16 @@ def main() -> None:
     sampler.stop_flag = True
     sampler.join(timeout=5)
 
+    cache_bytes_after = None
+    if a.cache_dir:
+        cd = Path(a.cache_dir)
+        cache_bytes_after = sum(f.stat().st_size for f in cd.rglob("*") if f.is_file())
+
     ok = r.returncode == 0
     res = {
+        "label": a.label, "runner": a.runner, "cache_dir": a.cache_dir,
+        "cache_cleared_first": a.clear_cache,
+        "cache_bytes_before": cache_bytes_before, "cache_bytes_after": cache_bytes_after,
         "scroll": SCROLL, "level": 0, "shape": list(SHAPE), "region_side": a.side,
         "region_lo": list(lo), "bbox": bbox, **geom,
         "ok": ok, "returncode": r.returncode, "elapsed_s": round(elapsed, 1),

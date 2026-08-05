@@ -1,0 +1,38 @@
+{
+ "label": "cache_warm_r2",
+ "runner": "run_gpu_roi_cached.py",
+ "cache_dir": "C:/Users/PC/AppData/Local/Temp/claude/vesuv_chunkcache_ab",
+ "cache_cleared_first": false,
+ "cache_bytes_before": 100663535,
+ "cache_bytes_after": 100663535,
+ "scroll": "PHerc1218",
+ "level": 0,
+ "shape": [
+  23247,
+  7593,
+  7593
+ ],
+ "region_side": 384,
+ "region_lo": [
+  11000,
+  3400,
+  3400
+ ],
+ "bbox": "11000:11384,3400:3784,3400:3784",
+ "starts_per_axis": [
+  6,
+  6,
+  6
+ ],
+ "n_patches": 216,
+ "n_chunks_spanned": 216,
+ "bytes_if_each_chunk_once": 452984832,
+ "ok": true,
+ "returncode": 0,
+ "elapsed_s": 52.6,
+ "patches_per_s": 4.108,
+ "implied_mb_s_if_each_chunk_once": 8.61,
+ "peak_gpu_mib": 2410,
+ "gpu_samples": 25,
+ "note": "Wall-clock covers streaming AND inference; the two overlap, so implied MB/s is a lower bound on link use, not a pure I/O figure."
+}
