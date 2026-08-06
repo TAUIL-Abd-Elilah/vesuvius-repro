@@ -1,0 +1,125 @@
+{
+ "note": "estimator response to a CORRECT label of known thickness; the real labels measure 3.335 on the same estimator",
+ "mean_measured_by_true": {
+  "2.0": 2.4958,
+  "2.4": 2.6791,
+  "3.0": 3.3107,
+  "3.5": 3.5568
+ },
+ "mean_inflation": 0.2856,
+ "real_label_thickness": 3.3349,
+ "rows": [
+  {
+   "true_thickness": 2.0,
+   "angle_deg": 0,
+   "n_label_voxels": 12288,
+   "measured_thickness": 3.2455,
+   "inflation": 1.2455
+  },
+  {
+   "true_thickness": 2.0,
+   "angle_deg": 15,
+   "n_label_voxels": 8512,
+   "measured_thickness": 2.302,
+   "inflation": 0.302
+  },
+  {
+   "true_thickness": 2.0,
+   "angle_deg": 30,
+   "n_label_voxels": 9536,
+   "measured_thickness": 2.1812,
+   "inflation": 0.1812
+  },
+  {
+   "true_thickness": 2.0,
+   "angle_deg": 45,
+   "n_label_voxels": 12096,
+   "measured_thickness": 2.2543,
+   "inflation": 0.2543
+  },
+  {
+   "true_thickness": 2.4,
+   "angle_deg": 0,
+   "n_label_voxels": 12288,
+   "measured_thickness": 3.2457,
+   "inflation": 0.8457
+  },
+  {
+   "true_thickness": 2.4,
+   "angle_deg": 15,
+   "n_label_voxels": 10176,
+   "measured_thickness": 2.6447,
+   "inflation": 0.2447
+  },
+  {
+   "true_thickness": 2.4,
+   "angle_deg": 30,
+   "n_label_voxels": 11328,
+   "measured_thickness": 2.5707,
+   "inflation": 0.1707
+  },
+  {
+   "true_thickness": 2.4,
+   "angle_deg": 45,
+   "n_label_voxels": 12096,
+   "measured_thickness": 2.2553,
+   "inflation": -0.1447
+  },
+  {
+   "true_thickness": 3.0,
+   "angle_deg": 0,
+   "n_label_voxels": 12288,
+   "measured_thickness": 3.2458,
+   "inflation": 0.2458
+  },
+  {
+   "true_thickness": 3.0,
+   "angle_deg": 15,
+   "n_label_voxels": 12672,
+   "measured_thickness": 3.1552,
+   "inflation": 0.1552
+  },
+  {
+   "true_thickness": 3.0,
+   "angle_deg": 30,
+   "n_label_voxels": 14272,
+   "measured_thickness": 3.2303,
+   "inflation": 0.2303
+  },
+  {
+   "true_thickness": 3.0,
+   "angle_deg": 45,
+   "n_label_voxels": 20032,
+   "measured_thickness": 3.6114,
+   "inflation": 0.6114
+  },
+  {
+   "true_thickness": 3.5,
+   "angle_deg": 0,
+   "n_label_voxels": 12288,
+   "measured_thickness": 3.2462,
+   "inflation": -0.2538
+  },
+  {
+   "true_thickness": 3.5,
+   "angle_deg": 15,
+   "n_label_voxels": 14912,
+   "measured_thickness": 3.696,
+   "inflation": 0.196
+  },
+  {
+   "true_thickness": 3.5,
+   "angle_deg": 30,
+   "n_label_voxels": 16576,
+   "measured_thickness": 3.6613,
+   "inflation": 0.1613
+  },
+  {
+   "true_thickness": 3.5,
+   "angle_deg": 45,
+   "n_label_voxels": 20032,
+   "measured_thickness": 3.6239,
+   "inflation": 0.1239
+  }
+ ]
+}

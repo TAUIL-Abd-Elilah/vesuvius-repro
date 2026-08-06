@@ -1,0 +1,42 @@
+{
+ "width": 3.0,
+ "n_volumes": 4,
+ "mean_thickness_before": 3.4247,
+ "mean_thickness_after": 3.3796,
+ "mean_frac_kept": 0.9929,
+ "rows": [
+  {
+   "sample": "sample_00246.tif",
+   "width": 3.0,
+   "thickness_before": 3.3983,
+   "thickness_after": 3.358,
+   "frac_voxels_kept": 0.9922,
+   "seconds": 32.9
+  },
+  {
+   "sample": "sample_00470.tif",
+   "width": 3.0,
+   "thickness_before": 3.267,
+   "thickness_after": 3.2559,
+   "frac_voxels_kept": 0.9919,
+   "seconds": 63.5
+  },
+  {
+   "sample": "sample_00777.tif",
+   "width": 3.0,
+   "thickness_before": 3.4871,
+   "thickness_after": 3.4665,
+   "frac_voxels_kept": 0.9939,
+   "seconds": 52.2
+  },
+  {
+   "sample": "sample_00582.tif",
+   "width": 3.0,
+   "thickness_before": 3.5465,
+   "thickness_after": 3.4379,
+   "frac_voxels_kept": 0.9937,
+   "seconds": 66.1
+  }
+ ],
+ "gate": "preregistration condition 1: thinning must measurably reduce thickness toward w on held-out volumes, or stop before training"
+}

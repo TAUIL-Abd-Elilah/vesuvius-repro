@@ -131,3 +131,37 @@ amendment below rather than by editing the text above.*
 ## Amendments
 
 *(none yet)*
+
+### Amendment 1 — 2026-08-06: **STUDY ABANDONED BEFORE ANY ARM WAS TRAINED**
+
+Abandon condition 1 fired, and then the premise itself failed. Both controls were run before
+a single training arm, which is what this document was for.
+
+**1. The transform cannot act at the required scale.** At the registered w = 3.0 it is a
+no-op — thickness 3.425 → 3.380 over 4 held-out volumes, 99.3% of voxels kept. At w = 2.4 it
+moves thickness only 3.425 → 3.119 while dropping 7.8% of voxels. A binary mask on a unit
+grid can only be thinned in ~1-voxel quanta, so any excess smaller than a voxel is not
+addressable this way. (`results/thin_labels_check.json`, `thin_labels_check_w24.json`)
+
+**2. The premise was an artifact plus a unit error, and it points the other way.**
+- Voxelisation alone inflates this estimator: a *correct* label of a known 2.4-voxel sheet
+  reads **2.679**, and of a 3.0-voxel sheet reads **3.311**. Mean inflation **+0.286 vox**
+  (`thickness_control.py`, 16 synthetic sheets across 4 tilts).
+- So the published labels' measured 3.335 implies a true thickness of about **3.05 vox**.
+- **The "~2.4 voxel sheet" this study compared against was never measured.** It came from the
+  scans being the *2.4 µm* family — a voxel size, not a sheet thickness. Measuring the CT
+  sheet directly on 6 volumes gives a median FWHM of **3.5 voxels**
+  (`results/ct_sheet_thickness.json`).
+- **Corrected reading: the labels are about 0.45 voxels THINNER than the sheet, not ~0.9
+  thicker.** Thinning them further would delete true sheet, so H1 is not merely unsupported —
+  it has the wrong sign.
+
+**No arm was trained, so there is no result to report and nothing to withdraw.** Cost: about
+two hours of CPU. The study is closed here rather than amended into a different hypothesis,
+because rewriting the hypothesis after seeing the controls is exactly what preregistration
+exists to prevent. Any follow-up starts as its own registration.
+
+**One consequence worth recording for whoever picks this up:** if the labels under-cover the
+sheet by ~0.45 vox, then some of what a recall benchmark scores as model over-prediction may
+be the model correctly finding sheet the labels do not mark. That is a separate hypothesis
+with its own controls, not a rescue of this one.

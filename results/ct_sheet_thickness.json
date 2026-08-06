@@ -1,0 +1,35 @@
+{
+ "ct_sheet_fwhm_median": 3.5,
+ "per_volume": [
+  [
+   "sample_00246.tif",
+   4.0,
+   317
+  ],
+  [
+   "sample_00581.tif",
+   3.5,
+   456
+  ],
+  [
+   "sample_00469.tif",
+   3.5,
+   485
+  ],
+  [
+   "sample_00281.tif",
+   4.5,
+   298
+  ],
+  [
+   "sample_00037.tif",
+   3.5,
+   529
+  ],
+  [
+   "sample_00775.tif",
+   3.5,
+   443
+  ]
+ ]
+}
