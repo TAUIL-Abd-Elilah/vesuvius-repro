@@ -141,4 +141,57 @@ editing the text above.*
 
 ## Amendments
 
-*(none yet)*
+### Amendment 1 — 2026-08-07 — the proxy model at the registered budget cannot test H1
+
+**Decided on arm A alone. No arm B run existed, and no A-vs-B comparison had been computed,
+when this was written.** Arm A seed 0 was the first and only completed run.
+
+**What arm A seed 0 showed.** At the registered budget (80 epochs × 60 iters × batch 2, 4800
+steps), scored over all 174 test volumes:
+
+| | value |
+|---|---|
+| median predicted-positive fraction, scored region | **0.817** |
+| sheet base rate in the scored region (class 1 / (class 0 + class 1)) | **0.118** |
+| median precision | **0.175** |
+| median recall | 0.925 |
+
+**Median precision 0.175 is 1.48× the base rate of 0.118.** A model that predicted *everything*
+would score recall 1.00 and precision 0.118. So the recall of 0.925 is bought almost entirely by
+predicting 82% of the scored region as sheet, and the model has very little discrimination to
+detect a change in. This is the same artifact `ablate_faint_sheet.compare()` was written to
+catch — recall traded for precision by a bias shift — and it makes a margin effect worth ~0.44×
+the sheet volume undetectable in either direction.
+
+**Changed — training configuration only:**
+
+1. Budget 80 → **200 epochs** (12,000 steps). The loss was still noisy and flat at 80.
+2. Class weights: inverse frequency → **inverse *square-root* frequency**. Inverse frequency put
+   a 7.5× ratio on class 1 over class 0 and drove the collapse.
+3. Model checkpoints are **saved**, so any later threshold question can be asked without
+   retraining. Not saving them is why this needed a rerun rather than a re-score.
+
+**Added — one co-primary endpoint, and the reason it is not optional.** Arm B changes the class
+frequencies of the training labels, so the two arms will have *different operating points* by
+construction. Recall at a fixed threshold therefore confounds discrimination with calibration,
+and a "gain" for arm B could be pure bias shift. So:
+
+> **Co-primary: recall at a matched predicted-positive budget.** For each run, the decision
+> threshold is chosen on the **val set** (the 100 volumes already reserved and so far unused) as
+> the threshold whose predicted-positive fraction equals **0.12** — the sheet base rate in the
+> scored region, fixed here in advance. That threshold is then applied to the test set.
+
+This calibration is **label-free**: it reads only the predicted positive fraction, so it is
+identical in procedure for both arms and cannot be influenced by arm B's relabelling. It is the
+same control §6's magnitude floor and July's headroom normalisation exist to provide, applied
+properly rather than after the fact.
+
+**Explicitly unchanged:** the hypothesis, the two arms, the margin width, the provenance split
+and its file, the registered primary (recall at threshold 0.2, class 2 excluded), the
+localisation and predicted-positive-fraction endpoints, the empty-CT guardrail and its 2-point
+kill condition, 3 seeds, Wilcoxon paired on volumes, and the 0.01 magnitude floor.
+
+**On abandon condition 4 ("no new metric").** That condition governs what happens *after* a null
+at 3 seeds — it forbids going fishing once the registered analysis has come back empty. No arm
+comparison has been run. This is a repair to the instrument before the experiment, recorded
+before the fact, not a search for a result after one.

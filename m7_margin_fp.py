@@ -56,6 +56,35 @@ MODEL = str(ROOT / "model_m7")
 THRESH = 0.2
 TRIM = 64
 
+# Two upstream incompatibilities stand between this env and a working m7 run. Shimmed here
+# rather than by editing the villa tree, so that tree stays clean for a PR.
+#
+#   1. `zarr.Blosc` is a zarr-2 API, REMOVED IN ZARR 3, and villa's inference.py calls it in
+#      four places (_get_zarr_compressor). villa's pyproject declares `zarr>=2.18.7,<4`, so
+#      zarr 3 is supported on paper and broken in fact -- vesuvius.predict cannot write its
+#      output store at all. On zarr 2.18.3, `zarr.Blosc is numcodecs.Blosc` is True, so
+#      pointing at numcodecs is a no-op there and a fix here.
+#   2. `torch.compiler.disable(reason=...)` -- the blogging env's torch 2.4.1 rejects the
+#      keyword, which is why that env can no longer import villa. Kept for symmetry.
+#   3. Having got past (1), zarr 3 then rejects the store outright: villa's open_zarr passes
+#      a v2-style `compressor=` to zarr.open without ever naming a format, so zarr 3 defaults
+#      to v3 and raises `compressor cannot be used for arrays with zarr_format 3`. Pinning
+#      zarr_format=2 whenever a compressor is supplied reproduces exactly what zarr 2.18.3
+#      did, which is the combination the 855-volume benchmark was produced under.
+SHIM = (
+    "import sys, runpy, zarr, numcodecs, torch\n"
+    "if not hasattr(zarr, 'Blosc'): zarr.Blosc = numcodecs.Blosc\n"
+    "_zopen = zarr.open\n"
+    "def _zopen2(*a, **k):\n"
+    "    if k.get('compressor') is not None and 'zarr_format' not in k:\n"
+    "        k['zarr_format'] = 2\n"
+    "    return _zopen(*a, **k)\n"
+    "zarr.open = _zopen2\n"
+    "_o = torch.compiler.disable\n"
+    "def _d(fn=None, *, recursive=True, reason=None): return _o(fn, recursive=recursive)\n"
+    "torch.compiler.disable = _d\n"
+)
+
 
 def margin_mask(name: str) -> tuple[np.ndarray, np.ndarray]:
     """(labels, margin) for one volume. Margin is recovered, never recomputed."""
@@ -110,29 +139,32 @@ def predict_m7(name: str, work: Path, size: int = 256) -> np.ndarray | None:
     env = {**os.environ, "nnUNet_compile": "0", "TORCHDYNAMO_DISABLE": "1",
            "PYTHONIOENCODING": "utf-8"}
 
-    r = subprocess.run([PY, "run_gpu_roi.py", "--model_path", MODEL,
-                        "--input_dir", str(zpath), "--output_dir", str(work / "logits"),
-                        "--device", "cuda", "--disable_tta", "--batch_size", "1",
-                        "--num_workers", "2", "--bbox", bbox],
+    args = ["--model_path", MODEL, "--input_dir", str(zpath),
+            "--output_dir", str(work / "logits"), "--device", "cuda", "--disable_tta",
+            "--batch_size", "1", "--num_workers", "2", "--bbox", bbox]
+    r = subprocess.run([PY, "-c", SHIM + "runpy.run_path(r'run_gpu_roi.py', "
+                        "run_name='__main__')", *args],
                        cwd=ROOT, env=env, capture_output=True, text=True,
                        encoding="utf-8", errors="replace")
-    if r.returncode != 0:
-        print(f"    predict failed: {(r.stderr or '')[-200:]}", flush=True)
+    # ⚠ DO NOT TRUST THE RETURN CODE. villa's inference and blending both catch their own
+    # exceptions, print "--- ... Failed ---" and exit 0. The first version of this script
+    # checked returncode, sailed past a dead inference step, and died later on a missing
+    # merged.zarr with a traceback that pointed at the wrong stage entirely. Check that the
+    # artefact exists instead.
+    logits = work / "logits"
+    if not logits.exists() or not any(logits.iterdir()):
+        print(f"    predict wrote nothing (rc={r.returncode}): "
+              f"{(r.stdout or '')[-300:]}", flush=True)
         return None
 
-    blend = (
-        "import sys, torch\n"
-        "_o=torch.compiler.disable\n"
-        "def d(fn=None,*,recursive=True,reason=None): return _o(fn,recursive=recursive)\n"
-        "torch.compiler.disable=d\n"
-        "from vesuvius.models.run import blending\n"
-        f"sys.argv=['b',r'{work / 'logits'}',r'{work / 'merged.zarr'}']\n"
-        "blending.main()\n"
-    )
+    blend = (SHIM + "from vesuvius.models.run import blending\n"
+             f"sys.argv=['b',r'{work / 'logits'}',r'{work / 'merged.zarr'}']\n"
+             "blending.main()\n")
     r = subprocess.run([PY, "-c", blend], cwd=ROOT, env=env, capture_output=True,
                        text=True, encoding="utf-8", errors="replace")
-    if r.returncode != 0:
-        print(f"    blend failed: {(r.stderr or '')[-200:]}", flush=True)
+    if not (work / "merged.zarr").exists():
+        print(f"    blend wrote nothing (rc={r.returncode}): "
+              f"{(r.stdout or '')[-300:]}", flush=True)
         return None
 
     a = zarr.open(str(work / "merged.zarr"), mode="r")
