@@ -52,25 +52,64 @@ CROP = 128
 THRESH = 0.2          # the published m7 threshold, as bench_m7_recall.py uses it
 TRIM = 32             # drop the volume boundary before scoring, as the benchmark does
 STRIDE = 96           # 320 = 128 + 3 windows at stride 96, so every voxel is covered
+POOL_SIZE = 64        # volume pairs held decompressed; ~4 GB, see Volumes
+POOL_REFRESH = 8      # of those, swapped for fresh draws at each epoch boundary
 LOC_SAMPLE = 1500     # predicted-sheet voxels sampled per volume for localisation error
 HALF, STEP = 4.0, 0.25   # profile half-width / step, as in margin_class_scale.py
 
 
 class Volumes:
-    """Memory-mapped, as in the July ablation: 581 volumes will not fit in RAM."""
+    """A bounded, rotating RAM pool over the training list.
 
-    def __init__(self, names: list[str], label_dir: Path):
-        self.img, self.lab = [], []
-        for nm in names:
-            self.img.append(self._open(IMAGES / f"{nm}.tif"))
-            self.lab.append(self._open(label_dir / f"{nm}.tif"))
+    ⚠ WHY NOT MEMORY-MAPPED, despite what the July ablation's harness claims. These TIFFs
+    are LZW-compressed (compression tag 5, 320 pages each), and `tifffile.memmap` raises
+    `image data are not memory-mappable` on every one of them. The July `Volumes._open`
+    catches that and falls back to `tifffile.imread`, so a class documented as "memory-
+    mapped, not read into RAM" in fact reads every volume into RAM. At 96 volumes that was
+    3 GB and invisible; at 581 it took this box to 1.2 GB free before it was killed, on a
+    machine that shares its RAM with another training job.
 
-    @staticmethod
-    def _open(path: Path):
-        try:
-            return tifffile.memmap(str(path), mode="r")
-        except Exception:                      # noqa: BLE001 - compressed / non-contiguous
-            return tifffile.imread(str(path))
+    So: hold POOL_SIZE volume pairs decompressed, and swap POOL_REFRESH of them for fresh
+    draws at each epoch boundary. RAM is bounded at ~4 GB regardless of the set size, and
+    over 80 epochs the run still draws on far more of the 581 than a fixed subset would.
+    Both arms use the same pool size, refresh rate and seed, so the sampling is identical
+    between them and cannot favour either.
+    """
+
+    def __init__(self, names: list[str], label_dir: Path, seed: int = 0,
+                 size: int = POOL_SIZE):
+        self.names, self.label_dir = list(names), label_dir
+        self.rng = random.Random(seed)
+        self.size = min(size, len(self.names))
+        self.slots: list[int] = []
+        self.img: list[np.ndarray] = []
+        self.lab: list[np.ndarray] = []
+        for _ in range(self.size):
+            self._load_into(len(self.img))
+        self.n_loads = self.size
+
+    def _pick(self) -> int:
+        """Draw a volume not currently resident, so the pool never holds duplicates."""
+        for _ in range(200):
+            k = self.rng.randrange(len(self.names))
+            if k not in self.slots:
+                return k
+        return self.rng.randrange(len(self.names))
+
+    def _load_into(self, slot: int) -> None:
+        k = self._pick()
+        nm = self.names[k]
+        im = np.asarray(tifffile.imread(str(IMAGES / f"{nm}.tif")))
+        lb = np.asarray(tifffile.imread(str(self.label_dir / f"{nm}.tif")))
+        if slot < len(self.img):
+            self.slots[slot], self.img[slot], self.lab[slot] = k, im, lb
+        else:
+            self.slots.append(k); self.img.append(im); self.lab.append(lb)
+
+    def refresh(self, n: int = POOL_REFRESH) -> None:
+        for _ in range(min(n, self.size)):
+            self._load_into(self.rng.randrange(self.size))
+            self.n_loads += 1
 
     def __len__(self) -> int:
         return len(self.img)
@@ -210,8 +249,9 @@ def train(arm: str, seed: int, epochs: int, iters: int, batch: int,
     print(f"arm={arm} seed={seed} device={device} labels={LABEL_DIRS[arm].name} "
           f"train={len(tr_names)} test={len(te_names)}", flush=True)
     t0 = time.time()
-    tr = Volumes(tr_names, LABEL_DIRS[arm])
-    print(f"  mapped in {time.time()-t0:.0f}s", flush=True)
+    tr = Volumes(tr_names, LABEL_DIRS[arm], seed=seed)
+    print(f"  pool of {len(tr)}/{len(tr_names)} volumes loaded in {time.time()-t0:.0f}s",
+          flush=True)
 
     w_np, freq = class_weights(tr)
     w = torch.from_numpy(w_np).to(device)
@@ -239,7 +279,10 @@ def train(arm: str, seed: int, epochs: int, iters: int, batch: int,
             scaler.step(opt); scaler.update()
             tot += float(loss.detach())
         if ep % 10 == 0 or ep == epochs:
-            print(f"  epoch {ep:3d}  loss {tot/iters:.4f}  {time.time()-t0:.0f}s", flush=True)
+            print(f"  epoch {ep:3d}  loss {tot/iters:.4f}  {time.time()-t0:.0f}s  "
+                  f"(pool draws {tr.n_loads})", flush=True)
+        if ep < epochs:
+            tr.refresh()
     train_min = round((time.time() - t0) / 60, 1)
 
     model.eval()
@@ -258,6 +301,8 @@ def train(arm: str, seed: int, epochs: int, iters: int, batch: int,
         "labels_used_for_scoring": EVAL_LABELS.name,
         "epochs": epochs, "iters": iters, "batch": batch,
         "n_train": len(tr_names), "n_test_scored": len(ok),
+        "pool_size": POOL_SIZE, "pool_refresh_per_epoch": POOL_REFRESH,
+        "pool_total_volume_loads": tr.n_loads,
         "class_frequencies": [round(f, 5) for f in freq],
         "class_weights": [round(float(v), 4) for v in w_np],
         "train_minutes": train_min, "eval_minutes": round((time.time() - t0) / 60, 1),

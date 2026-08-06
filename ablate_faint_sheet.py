@@ -168,13 +168,21 @@ def faint_sheet(im: np.ndarray, lb: np.ndarray, rng: random.Random,
 
 
 class Volumes:
-    """Volumes are memory-mapped, not read into RAM.
+    """⚠ CORRECTION (2026-08-07): this class does NOT memory-map. It reads into RAM.
 
-    Holding 96 volumes resident costs ~6 GB and this box shares its RAM with other
-    training jobs; an earlier version died on `Unable to allocate 32 MiB` mid-epoch, with
-    the GPU barely touched. Crops are small and random, so the OS page cache serves the
-    hot parts and dataset size stops being a memory decision. Falls back to a real read
-    for anything tifffile cannot map.
+    It was written and published claiming "volumes are memory-mapped, not read into RAM",
+    with the fallback below described as covering the odd file tifffile cannot map. That is
+    wrong, and wrong for every file in this dataset: the kaggle TIFFs are LZW-compressed
+    (compression tag 5), `tifffile.memmap` raises `image data are not memory-mappable` on
+    all 892 of them, and the `except` therefore fires every time. The fallback is not the
+    exception here, it is the only path.
+
+    The July results are unaffected -- at N_VOLUMES = 96 this holds ~6 GB, which is what the
+    original note assumed it was avoiding, and the runs completed. But the class does not do
+    what it says, and the cost is linear in the volume count, so anything reusing it at a
+    larger N will exhaust RAM rather than page. `margin_arms.Volumes` replaces it with a
+    bounded rotating pool for exactly that reason; found when it took this box to 1.2 GB
+    free at N = 581.
     """
 
     def __init__(self, pairs):
