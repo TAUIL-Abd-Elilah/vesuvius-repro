@@ -1,0 +1,87 @@
+{
+ "n_scored": 855,
+ "unmatched": {
+  "median_located": 0.7765,
+  "median_not_located": 0.918,
+  "gap": 0.1416,
+  "z": -11.792,
+  "p": 0.0
+ },
+ "sheet_fraction_medians": {
+  "located": 0.0764,
+  "not_located": 0.059
+ },
+ "strata": [
+  {
+   "stratum": 1,
+   "sheet_range": [
+    0.0,
+    0.0316
+   ],
+   "n_located": 30,
+   "n_not_located": 141,
+   "median_located": 0.821,
+   "median_not_located": 0.9199,
+   "gap": 0.0989,
+   "z": -3.123,
+   "p": 0.00179
+  },
+  {
+   "stratum": 2,
+   "sheet_range": [
+    0.0316,
+    0.051
+   ],
+   "n_located": 25,
+   "n_not_located": 146,
+   "median_located": 0.8231,
+   "median_not_located": 0.9198,
+   "gap": 0.0966,
+   "z": -4.101,
+   "p": 4.11e-05
+  },
+  {
+   "stratum": 3,
+   "sheet_range": [
+    0.051,
+    0.0703
+   ],
+   "n_located": 23,
+   "n_not_located": 148,
+   "median_located": 0.744,
+   "median_not_located": 0.9143,
+   "gap": 0.1703,
+   "z": -4.622,
+   "p": 3.8e-06
+  },
+  {
+   "stratum": 4,
+   "sheet_range": [
+    0.0703,
+    0.0917
+   ],
+   "n_located": 36,
+   "n_not_located": 135,
+   "median_located": 0.7352,
+   "median_not_located": 0.9138,
+   "gap": 0.1787,
+   "z": -6.695,
+   "p": 2.16e-11
+  },
+  {
+   "stratum": 5,
+   "sheet_range": [
+    0.0917,
+    0.194
+   ],
+   "n_located": 60,
+   "n_not_located": 111,
+   "median_located": 0.7954,
+   "median_not_located": 0.9249,
+   "gap": 0.1295,
+   "z": -7.91,
+   "p": 2.55e-15
+  }
+ ],
+ "reading": "if the gap collapses inside strata, the located signature is labelled sheet density; if it survives at similar size, density does not explain it"
+}
