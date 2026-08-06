@@ -1,0 +1,190 @@
+{
+ "n_volumes": 10,
+ "mean_background_fraction_removed": 0.02259,
+ "mean_relabelled_per_volume": 740172,
+ "mean_relabelled_over_sheet": 0.456,
+ "invariants": "class 1 unchanged; class 2 never reduced; only 0 -> 2",
+ "gate": "preregistration abandon condition 2: the transform must measurably move the margin class distribution on held-out volumes",
+ "rows": [
+  {
+   "sample": "sample_00772.tif",
+   "before": {
+    "0": 0.31891,
+    "1": 0.04633,
+    "2": 0.63476
+   },
+   "after": {
+    "0": 0.29965,
+    "1": 0.04633,
+    "2": 0.65403
+   },
+   "n_sheet": 1518056,
+   "n_relabelled": 631333,
+   "frac_of_volume": 0.019267,
+   "frac_of_sheet": 0.4159,
+   "seconds": 15.8
+  },
+  {
+   "sample": "sample_00745.tif",
+   "before": {
+    "0": 0.59055,
+    "1": 0.06171,
+    "2": 0.34773
+   },
+   "after": {
+    "0": 0.56114,
+    "1": 0.06171,
+    "2": 0.37715
+   },
+   "n_sheet": 2022177,
+   "n_relabelled": 963764,
+   "frac_of_volume": 0.029412,
+   "frac_of_sheet": 0.4766,
+   "seconds": 19.2
+  },
+  {
+   "sample": "sample_00579.tif",
+   "before": {
+    "0": 0.10496,
+    "1": 0.01845,
+    "2": 0.87659
+   },
+   "after": {
+    "0": 0.09725,
+    "1": 0.01845,
+    "2": 0.8843
+   },
+   "n_sheet": 604428,
+   "n_relabelled": 252621,
+   "frac_of_volume": 0.007709,
+   "frac_of_sheet": 0.418,
+   "seconds": 6.1
+  },
+  {
+   "sample": "sample_00467.tif",
+   "before": {
+    "0": 0.53663,
+    "1": 0.07378,
+    "2": 0.38959
+   },
+   "after": {
+    "0": 0.50399,
+    "1": 0.07378,
+    "2": 0.42223
+   },
+   "n_sheet": 2417655,
+   "n_relabelled": 1069676,
+   "frac_of_volume": 0.032644,
+   "frac_of_sheet": 0.4424,
+   "seconds": 20.7
+  },
+  {
+   "sample": "sample_00245.tif",
+   "before": {
+    "0": 0.23672,
+    "1": 0.06391,
+    "2": 0.69937
+   },
+   "after": {
+    "0": 0.20785,
+    "1": 0.06391,
+    "2": 0.72824
+   },
+   "n_sheet": 2094239,
+   "n_relabelled": 946028,
+   "frac_of_volume": 0.02887,
+   "frac_of_sheet": 0.4517,
+   "seconds": 17.4
+  },
+  {
+   "sample": "sample_00037.tif",
+   "before": {
+    "0": 0.17217,
+    "1": 0.03138,
+    "2": 0.79645
+   },
+   "after": {
+    "0": 0.15508,
+    "1": 0.03138,
+    "2": 0.81354
+   },
+   "n_sheet": 1028144,
+   "n_relabelled": 559850,
+   "frac_of_volume": 0.017085,
+   "frac_of_sheet": 0.5445,
+   "seconds": 16.1
+  },
+  {
+   "sample": "sample_00015.tif",
+   "before": {
+    "0": 0.18564,
+    "1": 0.03575,
+    "2": 0.77862
+   },
+   "after": {
+    "0": 0.17044,
+    "1": 0.03575,
+    "2": 0.79381
+   },
+   "n_sheet": 1171361,
+   "n_relabelled": 497847,
+   "frac_of_volume": 0.015193,
+   "frac_of_sheet": 0.425,
+   "seconds": 19.9
+  },
+  {
+   "sample": "sample_00280.tif",
+   "before": {
+    "0": 0.58805,
+    "1": 0.05803,
+    "2": 0.35392
+   },
+   "after": {
+    "0": 0.55934,
+    "1": 0.05803,
+    "2": 0.38264
+   },
+   "n_sheet": 1901422,
+   "n_relabelled": 941072,
+   "frac_of_volume": 0.028719,
+   "frac_of_sheet": 0.4949,
+   "seconds": 33.1
+  },
+  {
+   "sample": "sample_00159.tif",
+   "before": {
+    "0": 0.26127,
+    "1": 0.05673,
+    "2": 0.682
+   },
+   "after": {
+    "0": 0.23776,
+    "1": 0.05673,
+    "2": 0.70551
+   },
+   "n_sheet": 1858780,
+   "n_relabelled": 770344,
+   "frac_of_volume": 0.023509,
+   "frac_of_sheet": 0.4144,
+   "seconds": 31.2
+  },
+  {
+   "sample": "sample_00067.tif",
+   "before": {
+    "0": 0.40032,
+    "1": 0.04921,
+    "2": 0.55047
+   },
+   "after": {
+    "0": 0.37685,
+    "1": 0.04921,
+    "2": 0.57395
+   },
+   "n_sheet": 1612436,
+   "n_relabelled": 769188,
+   "frac_of_volume": 0.023474,
+   "frac_of_sheet": 0.477,
+   "seconds": 30.7
+  }
+ ]
+}
