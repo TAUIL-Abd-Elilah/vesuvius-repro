@@ -1,0 +1,151 @@
+{
+ "scroll": "PHerc0139",
+ "bbox": "13105:13489,657:1041,3181:3565",
+ "frac_ct_empty": 0.5617478688557943,
+ "interface_voxels": 224940,
+ "bins": [
+  "0-1",
+  "1-2",
+  "2-4",
+  "4-8",
+  "8-16",
+  "16-inf"
+ ],
+ "endpoint": "real sheet by distance from the scanned/unscanned interface; over-clipping shows as a deficit in the near bins while far bins stay equal",
+ "arms": {
+  "A_main": {
+   "0.05": {
+    "real_sheet": 7245235,
+    "phantom": 5152947,
+    "real_sheet_by_distance": {
+     "0-1": 73474,
+     "1-2": 118856,
+     "2-4": 257839,
+     "4-8": 762598,
+     "8-16": 2445624,
+     "16-inf": 3586844
+    },
+    "real_sheet_within_4vox": 450169
+   },
+   "0.1": {
+    "real_sheet": 6140614,
+    "phantom": 5131843,
+    "real_sheet_by_distance": {
+     "0-1": 61873,
+     "1-2": 100413,
+     "2-4": 215852,
+     "4-8": 636504,
+     "8-16": 2093299,
+     "16-inf": 3032673
+    },
+    "real_sheet_within_4vox": 378138
+   },
+   "0.2": {
+    "real_sheet": 5196474,
+    "phantom": 5114849,
+    "real_sheet_by_distance": {
+     "0-1": 52302,
+     "1-2": 85107,
+     "2-4": 180836,
+     "4-8": 530607,
+     "8-16": 1793981,
+     "16-inf": 2553641
+    },
+    "real_sheet_within_4vox": 318245
+   },
+   "0.3": {
+    "real_sheet": 4710653,
+    "phantom": 5106274,
+    "real_sheet_by_distance": {
+     "0-1": 46862,
+     "1-2": 76880,
+     "2-4": 161915,
+     "4-8": 476342,
+     "8-16": 1637300,
+     "16-inf": 2311354
+    },
+    "real_sheet_within_4vox": 285657
+   },
+   "0.5": {
+    "real_sheet": 4070960,
+    "phantom": 35108,
+    "real_sheet_by_distance": {
+     "0-1": 39242,
+     "1-2": 65319,
+     "2-4": 136413,
+     "4-8": 406847,
+     "8-16": 1421454,
+     "16-inf": 2001685
+    },
+    "real_sheet_within_4vox": 240974
+   }
+  },
+  "C_blendfix_maskinput": {
+   "0.05": {
+    "real_sheet": 7245235,
+    "phantom": 0,
+    "real_sheet_by_distance": {
+     "0-1": 73474,
+     "1-2": 118856,
+     "2-4": 257839,
+     "4-8": 762598,
+     "8-16": 2445624,
+     "16-inf": 3586844
+    },
+    "real_sheet_within_4vox": 450169
+   },
+   "0.1": {
+    "real_sheet": 6140613,
+    "phantom": 0,
+    "real_sheet_by_distance": {
+     "0-1": 61873,
+     "1-2": 100413,
+     "2-4": 215852,
+     "4-8": 636503,
+     "8-16": 2093299,
+     "16-inf": 3032673
+    },
+    "real_sheet_within_4vox": 378138
+   },
+   "0.2": {
+    "real_sheet": 5196474,
+    "phantom": 0,
+    "real_sheet_by_distance": {
+     "0-1": 52302,
+     "1-2": 85107,
+     "2-4": 180836,
+     "4-8": 530607,
+     "8-16": 1793981,
+     "16-inf": 2553641
+    },
+    "real_sheet_within_4vox": 318245
+   },
+   "0.3": {
+    "real_sheet": 4710652,
+    "phantom": 0,
+    "real_sheet_by_distance": {
+     "0-1": 46862,
+     "1-2": 76880,
+     "2-4": 161915,
+     "4-8": 476342,
+     "8-16": 1637300,
+     "16-inf": 2311353
+    },
+    "real_sheet_within_4vox": 285657
+   },
+   "0.5": {
+    "real_sheet": 4070960,
+    "phantom": 0,
+    "real_sheet_by_distance": {
+     "0-1": 39242,
+     "1-2": 65319,
+     "2-4": 136413,
+     "4-8": 406847,
+     "8-16": 1421454,
+     "16-inf": 2001685
+    },
+    "real_sheet_within_4vox": 240974
+   }
+  }
+ }
+}

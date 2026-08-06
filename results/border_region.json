@@ -1,0 +1,76 @@
+{
+ "near_voxels": 4,
+ "side": 384,
+ "probe": 128,
+ "criterion": "most real sheet within `near` voxels of the scan interface, with CT coverage away from both extremes and phantom present",
+ "candidates": [
+  {
+   "scroll": "PHerc0139",
+   "bbox": [
+    13105,
+    13489,
+    657,
+    1041,
+    3181,
+    3565
+   ],
+   "frac_ct_empty": 0.6752667427062988,
+   "interface_voxels": 21598,
+   "real_sheet_voxels": 149903,
+   "real_sheet_near_boundary": 15388,
+   "phantom_voxels": 14123,
+   "frac_real_sheet_near_boundary": 0.1027
+  },
+  {
+   "scroll": "PHerc0175A",
+   "bbox": [
+    5229,
+    5613,
+    4362,
+    4746,
+    6454,
+    6838
+   ],
+   "frac_ct_empty": 0.16490411758422852,
+   "interface_voxels": 19679,
+   "real_sheet_voxels": 189327,
+   "real_sheet_near_boundary": 11736,
+   "phantom_voxels": 3916,
+   "frac_real_sheet_near_boundary": 0.062
+  },
+  {
+   "scroll": "PHerc0139",
+   "bbox": [
+    6957,
+    7341,
+    4744,
+    5128,
+    2442,
+    2826
+   ],
+   "frac_ct_empty": 0.7889485359191895,
+   "interface_voxels": 27174,
+   "real_sheet_voxels": 35122,
+   "real_sheet_near_boundary": 9614,
+   "phantom_voxels": 377,
+   "frac_real_sheet_near_boundary": 0.2737
+  },
+  {
+   "scroll": "PHerc0175B",
+   "bbox": [
+    9667,
+    10051,
+    5355,
+    5739,
+    8296,
+    8680
+   ],
+   "frac_ct_empty": 0.6431732177734375,
+   "interface_voxels": 33851,
+   "real_sheet_voxels": 11230,
+   "real_sheet_near_boundary": 9235,
+   "phantom_voxels": 3599,
+   "frac_real_sheet_near_boundary": 0.8224
+  }
+ ]
+}

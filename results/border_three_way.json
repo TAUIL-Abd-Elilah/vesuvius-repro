@@ -1,0 +1,165 @@
+{
+  "note": "Three-way rerun for villa#1173 over a region whose CT is identically zero. Every predicted sheet voxel there is phantom by construction. Arm A is villa main, B adds Schurkai's blend normalization fix, C adds --mask_empty_input on top.",
+  "scroll": "PHerc0139",
+  "bbox": [
+    13105,
+    13489,
+    657,
+    1041,
+    3181,
+    3565
+  ],
+  "input": "https://vesuvius-challenge-open-data.s3.amazonaws.com/PHerc0139/volumes/20250728140407-9.362um-1.2m-113keV-masked.zarr/0",
+  "arms": {
+    "A_main": {
+      "worktree": "phantom-main",
+      "extra": []
+    },
+    "B_blendfix": {
+      "worktree": "phantom-schurkai",
+      "extra": []
+    },
+    "C_blendfix_maskinput": {
+      "worktree": "phantom-schurkai",
+      "extra": [
+        "--mask_empty_input"
+      ]
+    }
+  },
+  "results": [
+    {
+      "arm": "A_main",
+      "voxels": 56623104,
+      "frac_ct_empty": 0.5617478688557943,
+      "prob_max": 0.999924898147583,
+      "prob_max_on_empty": 0.9995505213737488,
+      "prob_mean_on_empty": 0.08094257861375809,
+      "logit_absmax_on_empty": 28.640625,
+      "phantom_by_threshold": {
+        "0.05": {
+          "sheet_voxels": 12398182,
+          "phantom_voxels": 5152947,
+          "real_sheet_voxels": 7245235,
+          "frac_of_region": 0.09100431866115993,
+          "frac_of_sheet": 0.4156211773629392,
+          "frac_of_scanned": 0.2919676717443618
+        },
+        "0.1": {
+          "sheet_voxels": 11272457,
+          "phantom_voxels": 5131843,
+          "real_sheet_voxels": 6140614,
+          "frac_of_region": 0.09063160860979999,
+          "frac_of_sheet": 0.455255052203792,
+          "frac_of_scanned": 0.24745377791898157
+        },
+        "0.2": {
+          "sheet_voxels": 10311323,
+          "phantom_voxels": 5114849,
+          "real_sheet_voxels": 5196474,
+          "frac_of_region": 0.09033148377029984,
+          "frac_of_sheet": 0.4960419724995522,
+          "frac_of_scanned": 0.20940692952818105
+        },
+        "0.3": {
+          "sheet_voxels": 9816927,
+          "phantom_voxels": 5106274,
+          "real_sheet_voxels": 4710653,
+          "frac_of_region": 0.09018004382098163,
+          "frac_of_sheet": 0.5201499410151466,
+          "frac_of_scanned": 0.18982936906885603
+        },
+        "0.5": {
+          "sheet_voxels": 4106068,
+          "phantom_voxels": 35108,
+          "real_sheet_voxels": 4070960,
+          "frac_of_region": 0.0006200295907479745,
+          "frac_of_sheet": 0.008550272426077699,
+          "frac_of_scanned": 0.16405109191964473
+        },
+        "0.7": {
+          "sheet_voxels": 3460030,
+          "phantom_voxels": 25369,
+          "real_sheet_voxels": 3434661,
+          "frac_of_region": 0.00044803266172055846,
+          "frac_of_sheet": 0.007332017352450701,
+          "frac_of_scanned": 0.1384095858037954
+        },
+        "0.9": {
+          "sheet_voxels": 2292072,
+          "phantom_voxels": 11876,
+          "real_sheet_voxels": 2280196,
+          "frac_of_region": 0.00020973770706741898,
+          "frac_of_sheet": 0.005181338108052452,
+          "frac_of_scanned": 0.09188708402706149
+        }
+      }
+    },
+    {
+      "arm": "C_blendfix_maskinput",
+      "voxels": 56623104,
+      "frac_ct_empty": 0.5617478688557943,
+      "prob_max": 0.999924898147583,
+      "prob_max_on_empty": 4.248354544728966e-18,
+      "prob_mean_on_empty": 4.248354544728966e-18,
+      "logit_absmax_on_empty": 40.0,
+      "phantom_by_threshold": {
+        "0.05": {
+          "sheet_voxels": 7245235,
+          "phantom_voxels": 0,
+          "real_sheet_voxels": 7245235,
+          "frac_of_region": 0.0,
+          "frac_of_sheet": 0.0,
+          "frac_of_scanned": 0.2919676717443618
+        },
+        "0.1": {
+          "sheet_voxels": 6140613,
+          "phantom_voxels": 0,
+          "real_sheet_voxels": 6140613,
+          "frac_of_region": 0.0,
+          "frac_of_sheet": 0.0,
+          "frac_of_scanned": 0.24745373762109313
+        },
+        "0.2": {
+          "sheet_voxels": 5196474,
+          "phantom_voxels": 0,
+          "real_sheet_voxels": 5196474,
+          "frac_of_region": 0.0,
+          "frac_of_sheet": 0.0,
+          "frac_of_scanned": 0.20940692952818105
+        },
+        "0.3": {
+          "sheet_voxels": 4710652,
+          "phantom_voxels": 0,
+          "real_sheet_voxels": 4710652,
+          "frac_of_region": 0.0,
+          "frac_of_sheet": 0.0,
+          "frac_of_scanned": 0.1898293287709676
+        },
+        "0.5": {
+          "sheet_voxels": 4070960,
+          "phantom_voxels": 0,
+          "real_sheet_voxels": 4070960,
+          "frac_of_region": 0.0,
+          "frac_of_sheet": 0.0,
+          "frac_of_scanned": 0.16405109191964473
+        },
+        "0.7": {
+          "sheet_voxels": 3434661,
+          "phantom_voxels": 0,
+          "real_sheet_voxels": 3434661,
+          "frac_of_region": 0.0,
+          "frac_of_sheet": 0.0,
+          "frac_of_scanned": 0.1384095858037954
+        },
+        "0.9": {
+          "sheet_voxels": 2280196,
+          "phantom_voxels": 0,
+          "real_sheet_voxels": 2280196,
+          "frac_of_region": 0.0,
+          "frac_of_sheet": 0.0,
+          "frac_of_scanned": 0.09188708402706149
+        }
+      }
+    }
+  ]
+}
