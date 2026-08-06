@@ -1,0 +1,188 @@
+{
+  "note": "Candidate regions where the published m7 prediction asserts sheet over identically-zero CT, for the three-way rerun in villa#1173. Fractions are over the probe cube at the block centre, not the whole bbox.",
+  "side": 384,
+  "probe": 128,
+  "seed": 0,
+  "candidates": [
+    {
+      "scroll": "PHerc0175A",
+      "bbox": [
+        6569,
+        6953,
+        3212,
+        3596,
+        6040,
+        6424
+      ],
+      "probe_frac_ct_empty": 1.0,
+      "probe_frac_sheet": 0.9022517204284668,
+      "probe_frac_phantom_of_sheet": 1.0,
+      "probe_phantom_voxels": 1892159
+    },
+    {
+      "scroll": "PHerc0268",
+      "bbox": [
+        4741,
+        5125,
+        10470,
+        10854,
+        3104,
+        3488
+      ],
+      "probe_frac_ct_empty": 1.0,
+      "probe_frac_sheet": 0.88690185546875,
+      "probe_frac_phantom_of_sheet": 1.0,
+      "probe_phantom_voxels": 1859968
+    },
+    {
+      "scroll": "PHerc0175A",
+      "bbox": [
+        11065,
+        11449,
+        7150,
+        7534,
+        6333,
+        6717
+      ],
+      "probe_frac_ct_empty": 1.0,
+      "probe_frac_sheet": 0.8817424774169922,
+      "probe_frac_phantom_of_sheet": 1.0,
+      "probe_phantom_voxels": 1849148
+    },
+    {
+      "scroll": "PHerc0175A",
+      "bbox": [
+        7157,
+        7541,
+        6478,
+        6862,
+        7591,
+        7975
+      ],
+      "probe_frac_ct_empty": 1.0,
+      "probe_frac_sheet": 0.8140869140625,
+      "probe_frac_phantom_of_sheet": 1.0,
+      "probe_phantom_voxels": 1707264
+    },
+    {
+      "scroll": "PHerc0268",
+      "bbox": [
+        11750,
+        12134,
+        7637,
+        8021,
+        10734,
+        11118
+      ],
+      "probe_frac_ct_empty": 1.0,
+      "probe_frac_sheet": 0.6833171844482422,
+      "probe_frac_phantom_of_sheet": 1.0,
+      "probe_phantom_voxels": 1433020
+    },
+    {
+      "scroll": "PHerc0139",
+      "bbox": [
+        17144,
+        17528,
+        2500,
+        2884,
+        4909,
+        5293
+      ],
+      "probe_frac_ct_empty": 1.0,
+      "probe_frac_sheet": 0.53125,
+      "probe_frac_phantom_of_sheet": 1.0,
+      "probe_phantom_voxels": 1114112
+    },
+    {
+      "scroll": "PHerc0268",
+      "bbox": [
+        8364,
+        8748,
+        8485,
+        8869,
+        9943,
+        10327
+      ],
+      "probe_frac_ct_empty": 1.0,
+      "probe_frac_sheet": 0.17303466796875,
+      "probe_frac_phantom_of_sheet": 1.0,
+      "probe_phantom_voxels": 362880
+    },
+    {
+      "scroll": "PHerc0175B",
+      "bbox": [
+        4909,
+        5293,
+        2209,
+        2593,
+        7306,
+        7690
+      ],
+      "probe_frac_ct_empty": 1.0,
+      "probe_frac_sheet": 0.1102294921875,
+      "probe_frac_phantom_of_sheet": 1.0,
+      "probe_phantom_voxels": 231168
+    },
+    {
+      "scroll": "PHerc0139",
+      "bbox": [
+        4677,
+        5061,
+        4454,
+        4838,
+        3886,
+        4270
+      ],
+      "probe_frac_ct_empty": 1.0,
+      "probe_frac_sheet": 0.0625,
+      "probe_frac_phantom_of_sheet": 1.0,
+      "probe_phantom_voxels": 131072
+    },
+    {
+      "scroll": "PHerc0175B",
+      "bbox": [
+        2331,
+        2715,
+        7937,
+        8321,
+        4156,
+        4540
+      ],
+      "probe_frac_ct_empty": 1.0,
+      "probe_frac_sheet": 0.051065921783447266,
+      "probe_frac_phantom_of_sheet": 1.0,
+      "probe_phantom_voxels": 107093
+    },
+    {
+      "scroll": "PHerc0139",
+      "bbox": [
+        5297,
+        5681,
+        3838,
+        4222,
+        4765,
+        5149
+      ],
+      "probe_frac_ct_empty": 1.0,
+      "probe_frac_sheet": 0.03216552734375,
+      "probe_frac_phantom_of_sheet": 1.0,
+      "probe_phantom_voxels": 67456
+    },
+    {
+      "scroll": "PHerc0175B",
+      "bbox": [
+        13195,
+        13579,
+        5878,
+        6262,
+        4717,
+        5101
+      ],
+      "probe_frac_ct_empty": 0.00013685226440429688,
+      "probe_frac_sheet": 0.36661243438720703,
+      "probe_frac_phantom_of_sheet": 7.80394411335489e-05,
+      "probe_phantom_voxels": 60
+    }
+  ]
+}
