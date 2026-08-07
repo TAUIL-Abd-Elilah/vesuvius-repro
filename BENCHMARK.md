@@ -3,6 +3,48 @@
 Scoring code: [`surface_bench.py`](surface_bench.py). Null controls: `--validate`, no model or
 GPU required.
 
+## ⛔ CORRECTION, 2026-08-07 — every m7 number below was produced with the WRONG NORMALIZATION
+
+**`vesuvius.predict` defaults to `--normalization instance_zscore`. m7's `plans.json` declares
+`normalization_schemes: ['CTNormalization']` with mean 87.544, std 47.744. The nnU-Net loading
+path never reads the plans**, so the checkpoint is fed per-volume z-scoring instead of the CT
+normalization it was trained on. `inference.py` sets `normalization_scheme='instance_zscore'` in
+the constructor and then takes `self.model_normalization_scheme or self.normalization_scheme`;
+`_checkpoint_normalization_scheme` only inspects the checkpoint, so for an nnU-Net
+`checkpoint_best.pth` the model scheme stays `None` and the default wins.
+
+**Found by @Jinhojeong** (villa#1364), on villa#193. Reproduced here independently — CT-normalized
+input with `--normalization none`, 4 volumes of this cohort:
+
+| | instance_zscore (**what produced every number below**) | CT-normalized |
+|---|---|---|
+| median recall | 0.803 | **0.940** |
+| median precision | 0.467 | **0.742** |
+
+**Consequences, stated plainly:**
+
+1. ⛔ **The m7 reference table is wrong.** recall 0.7740 / precision 0.4459 / lift 2.65 /
+   budget_recall 0.4176 all understate m7 substantially. **Do not quote them.**
+2. ⛔ **The two-population gap below is substantially an ARTIFACT of this default, not a
+   property of the model.** With plans normalization @Jinhojeong measures **0.914 vs 0.923**
+   across the same split, against the 0.777 / 0.918 reported here. The mechanism is intensity:
+   the located cohort's centred-cube mean is ~135 against a training fingerprint of 87.5 ± 47.7,
+   a full sigma out, while the non-located sit within half a sigma — and instance z-scoring
+   diverges from CT normalization exactly as a volume's own statistics leave that fingerprint.
+   **We eliminated leakage, label artifact, fused geometry and density and called the gap
+   unexplained. The cause was in the inference wrapper and we never questioned it.**
+3. ✅ **What survives:** the scoring code, the validated nulls, the budget-matched endpoint, the
+   seed-variance findings (those concern our own trained proxy, not m7), and the margin
+   conclusion — which holds on @Jinhojeong's correctly-normalized predictions and holds *more*
+   strongly. The label-placement negatives used labels and CT only, so they are unaffected.
+4. ⚠ **Anyone running an nnU-Net checkpoint through `vesuvius.predict` has this problem**, and
+   there is no flag for it: the CLI offers `instance_zscore`, `global_zscore`, `instance_minmax`
+   and `none`, and the `ct` scheme raises because `inference.py` never passes the intensity
+   properties. The workaround is to CT-normalize the input yourself and pass `--normalization none`.
+
+The reference numbers will be replaced once the cohort is re-scored under plans normalization.
+They are left visible rather than deleted so the size of the error stays checkable.
+
 ## ⚠ Read this before quoting any number
 
 **This is not a held-out benchmark.** m7's own `dataset.json` reports `numTraining: 786` with
@@ -27,8 +69,8 @@ inside Scroll1A. The published m7 model behaves like two different models across
 
 | population | n | median recall |
 |---|---|---|
-| locates on Scroll1A | 174 | **0.777** |
-| locates nowhere searched | 681 | **0.918** |
+| locates on Scroll1A | 174 | **0.777** ⛔ artifact — see correction at top |
+| locates nowhere searched | 681 | **0.918** ⛔ artifact — see correction at top |
 
 That gap has survived elimination of **leakage** (p=0.80), **label artifact**, **fused
 geometry** (Jinhojeong's independent 892-volume run, p=0.33) and **labelled-sheet density**
@@ -66,6 +108,9 @@ If the random arm does not land at 1.000, the scoring is broken and no number fr
 means anything. A benchmark whose own nulls are unknown cannot separate a result from a bug.
 
 ## m7 reference numbers
+
+⛔ **WRONG — produced under instance_zscore. See the correction at the top of this file.**
+
 
 60 volumes, all from the located (hard) population, full endpoint suite
 (`results/surface_bench_m7.json`):
