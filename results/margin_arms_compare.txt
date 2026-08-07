@@ -1,0 +1,17 @@
+seeds per arm: A=3, B=3
+
+endpoint                             A         B     delta         p  verdict
+PRIMARY recall @0.2             0.8009    0.7805   -0.0205  2.15e-05  B worse
+CO-PRIM recall @budget          0.0512    0.0860   +0.0348  9.32e-27  B better
+CO-PRIM loc error (vox)         1.5833    1.5833   +0.0000  3.88e-03  B worse
+secondary pred-pos frac         0.6621    0.6466   -0.0154  2.36e-28  B worse
+GUARDRAIL empty-CT FP           0.0000    0.0000   +0.0000  5.90e-01  not significant
+GUARDRAIL empty-CT @budget      0.0000    0.0000   +0.0000  1.37e-01  not significant
+precision @0.2                  0.1899    0.1977   +0.0079  1.62e-25  B better
+precision @budget               0.2647    0.2726   +0.0079  3.19e-06  B better
+
+GUARDRAIL (registered): B fails outright if empty-CT false positives rise by
+more than 2 points. Rise = +0.0000 -> not fired
+
+Registered magnitude floor: a median recall gain below 0.01 is reported as null
+regardless of p. Abandon condition 4 -- no extra seeds, no second margin width.

@@ -280,3 +280,53 @@ checkpoints is what makes that possible**: the co-primary will be recomputed fro
 
 **Do not read `cal_*` fields in any `results/margin_arms/*.json` produced before that
 re-score.** They are the broken cross-population version and are superseded.
+
+### Amendment 4 — 2026-08-07 — §6 named the wrong unit of analysis, and the data proved it
+
+**All six runs complete. The result is a null either way; this amendment changes the reason,
+not the verdict.**
+
+§6 fixed **"volume is the unit of analysis, never voxel"** before anything was known about how
+this harness behaves run to run. Running it revealed a third noise level that §6 did not
+anticipate: **the run itself.** Median recall for three seeds of the **identical** arm A
+configuration:
+
+| arm A seed | 0 | 1 | 2 |
+|---|---|---|---|
+| median recall | 0.6982 | 0.8415 | 0.8619 |
+
+**sd = 0.0892 — nine times the registered magnitude floor of 0.01.**
+
+**What that does to the registered test.** Pairing by volume treats the 174 volumes as
+independent replicates. They are not independent with respect to the dominant noise: a whole run
+sits high or low together, so a run-level offset enters every volume in the same direction and is
+counted 174 times. The registered analysis therefore reports:
+
+> PRIMARY recall @0.2 — A 0.8009, B 0.7805, **delta −0.0205, p = 2.15e-05, "B worse"**
+
+while the seed-level paired differences are **+0.020, −0.055, +0.009**: mean **−0.0087**, sd
+0.0406, **95% CI −0.074 to +0.056**, which spans zero. A significant effect cannot reverse sign
+across seeds. The volume-paired p is an artifact of the wrong unit.
+
+**⚠ Why this is not motivated reanalysis.** The registered test found arm B significantly
+**worse**. Correcting the unit does **not** rescue arm B — it moves the result from "B is
+significantly worse" to "B is indistinguishable". **Both are nulls for H1.** The correction
+removes a false significance claim that ran *against* the hypothesis, which is the opposite of
+what a result-shopping analyst would do.
+
+**Verdict under the registered rule: NULL.** The magnitude floor is 0.01 and the seed-level
+effect is −0.0087 with a CI spanning zero. Abandon condition 4 applies: no extra seeds, no
+second margin width, no new metric.
+
+**Guardrail: did not fire.** Empty-CT false positives moved +0.0000 (p=0.59), so arm B's
+relabelling did not teach the model to predict into nothing. That part of the design worked.
+
+**⚠ For anyone reusing this harness — the correct statement of its power.** When run-level
+variance dominates, **the seed is the unit of analysis, not the volume**, and three seeds give
+essentially no power (sem 0.023 against a target effect of 0.01). Volume-level pairing is only
+valid once run-level variance is driven below the effect size. This is recorded in
+`BENCHMARK.md` as the harness's minimum detectable effect, and it is the single most useful
+thing these six runs produced.
+
+**On the `cal_*` co-primary:** still the broken cross-population version (amendment 3) in these
+files. The re-score from checkpoints supersedes it and is running.
