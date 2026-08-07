@@ -118,23 +118,30 @@ means anything. A benchmark whose own nulls are unknown cannot separate a result
 
 ## m7 reference numbers
 
-⛔ **WRONG — produced under instance_zscore. See the correction at the top of this file.**
+**Use the CT-normalized column.** 60 volumes, all located, full endpoint suite. Both columns are
+the same code and the same volumes; only the input normalization differs
+(`results/surface_bench_m7_ctnorm.json` and the superseded `surface_bench_m7.json`).
 
+| | ⛔ instance_zscore (villa default) | ✅ **CT normalization (what m7 was trained on)** |
+|---|---|---|
+| recall @0.2 | 0.7740 | **0.9109** |
+| precision | 0.4459 | **0.6680** |
+| **precision lift** | 2.65× | **3.75×** |
+| predicted-positive fraction | 0.3006 | 0.2495 |
+| **recall at matched 0.12 budget** | 0.4176 | **0.5730** |
 
-60 volumes, all from the located (hard) population, full endpoint suite
-(`results/surface_bench_m7.json`):
+**m7 is a much better model than this benchmark originally reported** — 3.75× better than chance
+against a ceiling near 6, recovering **57%** of labelled sheet at a matched spend, while
+predicting *less* (0.2495 against 0.3006). The wrong normalization was making it both blinder and
+more liberal.
 
-| | value |
-|---|---|
-| recall @0.2 | 0.7740 |
-| precision | 0.4459 |
-| **precision lift** | **2.65×** |
-| predicted-positive fraction | 0.3006 |
-| **recall at matched 0.12 budget** | **0.4176** |
+⭐ **Independently corroborated.** @Jinhojeong reached **0.914 recall / 0.678 precision** on the
+same cohort by a separate implementation and a separate checkpoint fetch; this run gives
+**0.9109 / 0.6680**. Two paths agreeing to three decimals is the reason these numbers can be
+trusted where the previous ones could not.
 
-So on the population it struggles with, m7 is 2.65× better than chance against a ceiling near
-6, and at a matched spend recovers **42%** of the labelled sheet. Recall-only numbers for all
-**855** scored volumes, both populations, are in `results/m7_recall/`.
+Recall-only numbers for all **855** scored volumes in `results/m7_recall/` are **still from the
+broken path** and have not been regenerated.
 
 ## Resolution: what difference this benchmark can actually see
 
