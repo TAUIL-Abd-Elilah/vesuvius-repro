@@ -25,10 +25,11 @@ our own record as though it were settled. It is n=1, and this session produced t
 separate cases where a small sample gave the wrong answer with an unpredictable sign. So
 it gets run at scale before anything is built on it.
 
-The comparison is NOT a Dice benchmark. The Kaggle label has an `ignore` region that must
-be excluded, and m7 and the remaining scored labels need not encode identical objects.
-Dice is reported only for continuity with the earlier probe. The primary question is
-recall: OF THE VOXELS THE LABEL CALLS SHEET, WHAT FRACTION DOES M7 FIND?
+The comparison is NOT a Dice benchmark. m7 and the Kaggle labels measure different objects
+- m7 predicts a band several times thicker than the labelled sheet - so Dice is
+meaningless here and is reported only for continuity with the earlier probe. The question
+is recall: OF THE VOXELS THE LABEL CALLS SHEET, WHAT FRACTION DOES M7 FIND? That is
+well-defined regardless of how much extra the model predicts.
 
 Resumable: one JSON per sample in results/m7_recall/, existing ones are skipped.
 
@@ -45,7 +46,6 @@ import json
 import os
 import shutil
 import subprocess
-import sys
 import time
 import warnings
 from pathlib import Path
@@ -53,11 +53,32 @@ from pathlib import Path
 import numpy as np
 
 warnings.filterwarnings("ignore")
-HERE = Path(__file__).resolve().parent
-PY = os.environ.get("VESUVIUS_PYTHON", sys.executable)
-MODEL = os.environ.get(
-    "VESUVIUS_MODEL_PATH", "hf://scrollprize/surface_m7_nnunet")
-PREDICT_SCRIPT = os.environ.get("VESUVIUS_PREDICT_SCRIPT")
+
+# ⚠ FIXED 2026-08-07. This named the `blogging` env, which is torch 2.4.1 and can no longer
+# import villa at all -- `torch.compiler.disable(reason=...)` rejects the keyword there. As
+# published, this script could not run. It now uses the `vesuvius` env, which needs two shims
+# of its own because that env has zarr 3 (see villa#1360):
+#
+#   * `zarr.Blosc` is a zarr-2 API removed in zarr 3, and villa's inference.py calls it. On
+#     zarr 2.18.3 `zarr.Blosc is numcodecs.Blosc` is True, so redirecting is a no-op there.
+#   * villa's open_zarr passes a v2-only `compressor=` without naming a format, so zarr 3
+#     defaults to v3 and raises. Pinning zarr_format=2 reproduces the zarr-2 behaviour these
+#     results were originally produced under.
+PY = r"C:/Users/PC/miniconda3/envs/vesuvius/python.exe"
+SHIM = (
+    "import sys, runpy, zarr, numcodecs, torch\n"
+    "if not hasattr(zarr, 'Blosc'): zarr.Blosc = numcodecs.Blosc\n"
+    "_zopen = zarr.open\n"
+    "def _zopen2(*a, **k):\n"
+    "    if k.get('compressor') is not None and 'zarr_format' not in k:\n"
+    "        k['zarr_format'] = 2\n"
+    "    return _zopen(*a, **k)\n"
+    "zarr.open = _zopen2\n"
+    "_o = torch.compiler.disable\n"
+    "def _d(fn=None, *, recursive=True, reason=None): return _o(fn, recursive=recursive)\n"
+    "torch.compiler.disable = _d\n"
+)
+MODEL = r"D:/Competition/Vesuvius progress prizes/model_m7"
 THRESH = 0.2  # the published m7 threshold, from the artifact filenames (th0.2)
 
 
@@ -89,32 +110,31 @@ def run_one(ip: str, lp: str, work: Path, size: int, trim: int) -> dict | None:
     env = {**os.environ, "nnUNet_compile": "0", "TORCHDYNAMO_DISABLE": "1",
            "PYTHONIOENCODING": "utf-8"}
 
-    predict_entry = ([PY, PREDICT_SCRIPT] if PREDICT_SCRIPT else
-                     [PY, "-m", "vesuvius.models.run.inference"])
-    r = subprocess.run(predict_entry + ["--model_path", MODEL,
+    # ⚠ DO NOT TRUST THE RETURN CODE of either stage. villa's inference.main() and
+    # blending.main() catch their own exceptions, print "--- ... Failed ---", and exit 0
+    # (villa#1360). Checked directly: exit code 0 with an empty output directory. So verify
+    # the artefact, not the status.
+    r = subprocess.run([PY, "-c", SHIM + "runpy.run_path(r'run_gpu_roi.py', "
+                        "run_name='__main__')",
+                        "--model_path", MODEL,
                         "--input_dir", str(zpath), "--output_dir", str(work / "logits"),
                         "--device", "cuda", "--disable_tta", "--batch_size", "1",
                         "--num_workers", "2", "--bbox", bbox],
                        env=env, capture_output=True, text=True,
                        encoding="utf-8", errors="replace")
-    if r.returncode != 0:
+    logits = work / "logits"
+    if not logits.exists() or not any(logits.iterdir()):
         return {"sample": os.path.basename(ip), "status": "predict_failed",
-                "tail": (r.stderr or "")[-400:]}
+                "rc": r.returncode, "tail": ((r.stdout or "") + (r.stderr or ""))[-400:]}
 
-    blend = (
-        "import sys, torch\n"
-        "_o=torch.compiler.disable\n"
-        "def d(fn=None,*,recursive=True,reason=None): return _o(fn,recursive=recursive)\n"
-        "torch.compiler.disable=d\n"
-        "from vesuvius.models.run import blending\n"
-        f"sys.argv=['b',r'{work / 'logits'}',r'{work / 'merged.zarr'}']\n"
-        "blending.main()\n"
-    )
+    blend = (SHIM + "from vesuvius.models.run import blending\n"
+             f"sys.argv=['b',r'{work / 'logits'}',r'{work / 'merged.zarr'}']\n"
+             "blending.main()\n")
     r = subprocess.run([PY, "-c", blend], env=env, capture_output=True, text=True,
                        encoding="utf-8", errors="replace")
-    if r.returncode != 0:
+    if not (work / "merged.zarr").exists():
         return {"sample": os.path.basename(ip), "status": "blend_failed",
-                "tail": (r.stderr or "")[-400:]}
+                "rc": r.returncode, "tail": ((r.stdout or "") + (r.stderr or ""))[-400:]}
 
     a = zarr.open(str(work / "merged.zarr"), mode="r")
     sl = slice(off + trim, off + size - trim)
