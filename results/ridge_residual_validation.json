@@ -1,0 +1,272 @@
+{
+ "recovery": [
+  {
+   "tilt": 0,
+   "applied": -2.0,
+   "measured_magnitude": 2.3751139640808105,
+   "error": 0.3771494813743175
+  },
+  {
+   "tilt": 0,
+   "applied": -1.0,
+   "measured_magnitude": 1.3750516176223755,
+   "error": 0.37777831564475406
+  },
+  {
+   "tilt": 0,
+   "applied": -0.5,
+   "measured_magnitude": 0.875205397605896,
+   "error": 0.3780649979853514
+  },
+  {
+   "tilt": 0,
+   "applied": 0.0,
+   "measured_magnitude": 0.37805232405662537,
+   "error": 0.3779815860628908
+  },
+  {
+   "tilt": 0,
+   "applied": 0.5,
+   "measured_magnitude": 0.124648317694664,
+   "error": 0.3780102971546846
+  },
+  {
+   "tilt": 0,
+   "applied": 1.0,
+   "measured_magnitude": 0.6246410608291626,
+   "error": 0.3779945594328993
+  },
+  {
+   "tilt": 0,
+   "applied": 2.0,
+   "measured_magnitude": 1.1397629976272583,
+   "error": 1.9988483304900413
+  },
+  {
+   "tilt": 1,
+   "applied": -2.0,
+   "measured_magnitude": 2.185239553451538,
+   "error": 0.16930173687359043
+  },
+  {
+   "tilt": 1,
+   "applied": -1.0,
+   "measured_magnitude": 0.9899743795394897,
+   "error": 0.1716555074707775
+  },
+  {
+   "tilt": 1,
+   "applied": -0.5,
+   "measured_magnitude": 0.4905211180448532,
+   "error": 0.1703296950973026
+  },
+  {
+   "tilt": 1,
+   "applied": 0.0,
+   "measured_magnitude": 0.1710590422153473,
+   "error": 0.1710087390945085
+  },
+  {
+   "tilt": 1,
+   "applied": 0.5,
+   "measured_magnitude": 0.5112223327159882,
+   "error": 0.1705371724212626
+  },
+  {
+   "tilt": 1,
+   "applied": 1.0,
+   "measured_magnitude": 1.0100650191307068,
+   "error": 0.1702161833990507
+  },
+  {
+   "tilt": 1,
+   "applied": 2.0,
+   "measured_magnitude": 2.187431812286377,
+   "error": 0.16699237739298284
+  },
+  {
+   "tilt": 2,
+   "applied": -2.0,
+   "measured_magnitude": 2.1770318746566772,
+   "error": 0.15931897065738176
+  },
+  {
+   "tilt": 2,
+   "applied": -1.0,
+   "measured_magnitude": 1.0014132261276245,
+   "error": 0.1556708477891985
+  },
+  {
+   "tilt": 2,
+   "applied": -0.5,
+   "measured_magnitude": 0.5032823085784912,
+   "error": 0.15656572733238427
+  },
+  {
+   "tilt": 2,
+   "applied": 0.0,
+   "measured_magnitude": 0.15694661438465118,
+   "error": 0.15678569604664724
+  },
+  {
+   "tilt": 2,
+   "applied": 0.5,
+   "measured_magnitude": 0.4976607710123062,
+   "error": 0.15598100224812364
+  },
+  {
+   "tilt": 2,
+   "applied": 1.0,
+   "measured_magnitude": 0.9967430531978607,
+   "error": 0.1579460790705371
+  },
+  {
+   "tilt": 2,
+   "applied": 2.0,
+   "measured_magnitude": 2.179558277130127,
+   "error": 0.16187618977795526
+  },
+  {
+   "tilt": 3,
+   "applied": -2.0,
+   "measured_magnitude": 2.176547884941101,
+   "error": 0.15156608568977037
+  },
+  {
+   "tilt": 3,
+   "applied": -1.0,
+   "measured_magnitude": 1.0002619624137878,
+   "error": 0.14479070676204137
+  },
+  {
+   "tilt": 3,
+   "applied": -0.5,
+   "measured_magnitude": 0.5013706088066101,
+   "error": 0.14281717712403233
+  },
+  {
+   "tilt": 3,
+   "applied": 0.0,
+   "measured_magnitude": 0.1402035802602768,
+   "error": 0.14009402698874635
+  },
+  {
+   "tilt": 3,
+   "applied": 0.5,
+   "measured_magnitude": 0.49791204929351807,
+   "error": 0.13861992692589026
+  },
+  {
+   "tilt": 3,
+   "applied": 1.0,
+   "measured_magnitude": 0.9961165189743042,
+   "error": 0.14163630598540222
+  },
+  {
+   "tilt": 3,
+   "applied": 2.0,
+   "measured_magnitude": 2.166304588317871,
+   "error": 0.15484411349446622
+  }
+ ],
+ "window": [
+  {
+   "tilt": 0,
+   "half": 3.0,
+   "measured": 0.6246410608291626,
+   "residual": 0.3779945594328993
+  },
+  {
+   "tilt": 0,
+   "half": 4.0,
+   "measured": 0.6246410608291626,
+   "residual": 0.3779945594328993
+  },
+  {
+   "tilt": 0,
+   "half": 6.0,
+   "measured": 0.6246410608291626,
+   "residual": 0.3779945594328993
+  },
+  {
+   "tilt": 0,
+   "half": 8.0,
+   "measured": 0.6246410608291626,
+   "residual": 0.3779945594328993
+  },
+  {
+   "tilt": 1,
+   "half": 3.0,
+   "measured": 1.0100650191307068,
+   "residual": 0.1702161833990507
+  },
+  {
+   "tilt": 1,
+   "half": 4.0,
+   "measured": 1.0100650191307068,
+   "residual": 0.1702161833990507
+  },
+  {
+   "tilt": 1,
+   "half": 6.0,
+   "measured": 1.0100650191307068,
+   "residual": 0.1702161833990507
+  },
+  {
+   "tilt": 1,
+   "half": 8.0,
+   "measured": 1.0100650191307068,
+   "residual": 0.1702161833990507
+  },
+  {
+   "tilt": 2,
+   "half": 3.0,
+   "measured": 0.9967430531978607,
+   "residual": 0.1579460790705371
+  },
+  {
+   "tilt": 2,
+   "half": 4.0,
+   "measured": 0.9967430531978607,
+   "residual": 0.1579460790705371
+  },
+  {
+   "tilt": 2,
+   "half": 6.0,
+   "measured": 0.9967430531978607,
+   "residual": 0.1579460790705371
+  },
+  {
+   "tilt": 2,
+   "half": 8.0,
+   "measured": 0.9967430531978607,
+   "residual": 0.1579460790705371
+  },
+  {
+   "tilt": 3,
+   "half": 3.0,
+   "measured": 0.9961165189743042,
+   "residual": 0.14163630598540222
+  },
+  {
+   "tilt": 3,
+   "half": 4.0,
+   "measured": 0.9961165189743042,
+   "residual": 0.14163630598540222
+  },
+  {
+   "tilt": 3,
+   "half": 6.0,
+   "measured": 0.9961165189743042,
+   "residual": 0.14163630598540222
+  },
+  {
+   "tilt": 3,
+   "half": 8.0,
+   "measured": 0.9961165189743042,
+   "residual": 0.14163630598540222
+  }
+ ],
+ "gate_passed": true,
+ "note": "synthetic ground truth; the earlier real-CT self-displacement gate was circular and returned 0.000 by algebra"
+}
