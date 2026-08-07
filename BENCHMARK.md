@@ -82,6 +82,57 @@ So on the population it struggles with, m7 is 2.65× better than chance against 
 6, and at a matched spend recovers **42%** of the labelled sheet. Recall-only numbers for all
 **855** scored volumes, both populations, are in `results/m7_recall/`.
 
+## Resolution: what difference this benchmark can actually see
+
+Two different questions, with very different answers. Conflating them will make you believe a
+result that isn't there.
+
+### Comparing two FIXED prediction sets — significance is nearly free
+
+Paired per volume over the 60 cached m7 volumes, comparing m7 against itself at a slightly
+shifted threshold:
+
+| shifted threshold | median Δrecall | Wilcoxon p |
+|---|---|---|
+| 0.205 | −0.0025 | 1.6e-11 |
+| 0.210 | −0.0050 | 1.6e-11 |
+| 0.220 | −0.0100 | 1.6e-11 |
+| 0.300 | −0.0469 | 1.6e-11 |
+
+**p is identical at every effect size, including a difference of a quarter of one percent.**
+Raising a threshold lowers recall on essentially every volume, so the paired sign test is
+unanimous 60/60 and p sits at its floor for that n. Wilcoxon here is measuring *consistency of
+sign*, not size of effect.
+
+⚠ **So do not report a p-value as evidence that a change matters.** On this benchmark any
+consistent change is "significant". **Report the magnitude and judge it against a
+pre-committed floor.** That is why `PREREGISTER_margin.md` fixed a magnitude floor of 0.01
+median recall *regardless of p* before any arm ran — and it is the single most important thing
+to carry over into your own comparison.
+
+### Testing an intervention by RETRAINING — the floor is much higher
+
+Training-run variance dwarfs the effects people want to measure. Two seeds of the **same** arm,
+identical configuration, 200 epochs each:
+
+| | median recall @0.2 | pred-positive |
+|---|---|---|
+| arm A seed 0 | 0.6982 | 0.5617 |
+| arm A seed 1 | 0.8415 | 0.6775 |
+
+**A spread of 0.143 between two runs of the identical setup**, with the operating point swinging
+0.56 → 0.68. For comparison, the A-vs-B difference at seed 0 was +0.020 — **seven times smaller
+than the noise between two runs of one arm.**
+
+**Consequence, stated plainly: a from-scratch proxy trained this way cannot resolve label-level
+interventions at the effect sizes anyone cares about.** Three seeds is enough to reveal that,
+not enough to average it away. If you intend to test a training-data change here, either budget
+far more seeds, fix the sources of run-to-run variance first, or evaluate the change on a fixed
+model instead. This is a limitation of the *harness*, not of the scoring — the fixed-model
+resolution above is excellent.
+
+(Three-seed numbers replace the two-seed spread above when the runs complete.)
+
 ## What is already known not to work
 
 Published so nobody spends a week re-deriving them. All are preregistered or controlled.
