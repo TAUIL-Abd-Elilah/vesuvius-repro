@@ -244,3 +244,39 @@ under the registered rule.
 **What this does mean:** the expected outcome is now a null, and it will be reported as one.
 Any positive arm result must be read against a motivating premise that has already failed its
 control on the production model, and that caveat belongs in the write-up whatever the arms say.
+
+### Amendment 3 — 2026-08-07 — amendment 1's budget calibration crosses a population boundary
+
+**Recorded on arm A seed 0 alone, before any arm B run existed.** Amendment 1 added a
+co-primary — recall at a matched predicted-positive budget of 0.12, with the threshold chosen
+**on the val set**. As implemented that is wrong, and arm A seed 0 shows it:
+
+| | recall | precision | pred-positive |
+|---|---|---|---|
+| registered primary, threshold 0.2 | 0.6982 | 0.1989 | 0.5617 |
+| matched budget, threshold 0.507 | **0.0361** | 0.2832 | **0.0217** |
+
+**The budget was 0.12 and the achieved spend on test was 0.0217.** The co-primary is therefore
+measuring nothing, and its recall of 0.036 must not be read as a result.
+
+**Cause, and it is structural rather than a bug.** §4 splits by provenance: **test is the 174
+volumes that locate on Scroll1A** and **val is drawn from the 681 that locate nowhere**. Those
+are precisely the two populations whose recall differs 0.777 / 0.918. A threshold calibrated on
+the easy population does not transfer to the hard one, because the models' probability
+distributions differ across exactly that boundary. Amendment 1 calibrated across the split that
+this whole study exists to study.
+
+**Fix, and why it needs no retraining.** Take the threshold **per volume, on the volume being
+scored**, as the `1 - 0.12` quantile of p over that volume's scored region. This spends the
+budget exactly by construction, so no transfer is required. It remains **arm-invariant** — the
+scored mask comes from the unmodified labels — which is the property the co-primary needs.
+`surface_bench.py`, written after amendment 1, already does it this way.
+
+**The six runs continue unchanged.** The registered primary (recall at 0.2) is computed
+correctly and the arms remain comparable to each other on it, so stopping would destroy valid
+work to fix an endpoint that can be repaired afterwards. **Amendment 1's decision to save
+checkpoints is what makes that possible**: the co-primary will be recomputed from the saved
+`.pt` files with the per-volume threshold once the runs finish, at the cost of evaluation only.
+
+**Do not read `cal_*` fields in any `results/margin_arms/*.json` produced before that
+re-score.** They are the broken cross-population version and are superseded.
