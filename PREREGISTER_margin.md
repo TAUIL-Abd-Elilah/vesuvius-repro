@@ -181,10 +181,16 @@ and a "gain" for arm B could be pure bias shift. So:
 > the threshold whose predicted-positive fraction equals **0.12** — the sheet base rate in the
 > scored region, fixed here in advance. That threshold is then applied to the test set.
 
-This calibration is **label-free**: it reads only the predicted positive fraction, so it is
-identical in procedure for both arms and cannot be influenced by arm B's relabelling. It is the
-same control §6's magnitude floor and July's headroom normalisation exist to provide, applied
-properly rather than after the fact.
+It is the same control §6's magnitude floor and July's headroom normalisation exist to provide,
+applied properly rather than after the fact.
+
+> **Clarification, same day, written before the calibration was implemented.** Above I called
+> this calibration "label-free". That was imprecise and is corrected here rather than by editing
+> it. Measuring a predicted-positive fraction *in the scored region* requires the scored mask,
+> which does require labels. The property the argument actually needs — and has — is that the
+> mask comes from the **unmodified** published labels (`EVAL_LABELS`), exactly as every other
+> endpoint here does, so it is **identical for both arms and arm B's relabelling cannot reach
+> it**. Arm-invariant, not label-free. The registered target of 0.12 is unchanged.
 
 **Explicitly unchanged:** the hypothesis, the two arms, the margin width, the provenance split
 and its file, the registered primary (recall at threshold 0.2, class 2 excluded), the
@@ -195,3 +201,46 @@ kill condition, 3 seeds, Wilcoxon paired on volumes, and the 0.01 magnitude floo
 at 3 seeds — it forbids going fishing once the registered analysis has come back empty. No arm
 comparison has been run. This is a repair to the instrument before the experiment, recorded
 before the fact, not a search for a result after one.
+
+### Amendment 2 — 2026-08-07 — the motivating premise fails a control on m7. The arms still run.
+
+**Recorded while the arms were training and before any A/B comparison existed.**
+
+`m7_margin_fp.py` asked §1's question of the published model over 60 held-out volumes: are m7's
+scored false positives concentrated in the asserted margin? The headline said yes — median
+enrichment **3.10**, 98% of volumes above the null, **26% of m7's scored false positives inside
+the margin**.
+
+**The control says that is proximity, not the label boundary.** Enrichment by Euclidean shell
+from the labelled sheet:
+
+| shell (vox) | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| median enrichment | 3.103 | 1.851 | 1.012 | 0.588 | 0.306 |
+| ratio to previous | — | 0.597 | 0.547 | 0.581 | 0.520 |
+
+The ratios are near-constant: a clean geometric decay with **no kink at shell 1**. H1 predicts
+an *excess* at shell 1, because the CT sheet is supposed to stop just past the label. Fitting
+shells 2–5 per volume and extrapolating back to shell 1 gives observed/predicted **0.755**
+(median), with only **10%** of volumes showing any excess, Wilcoxon **p = 3.2e-09** — shell 1 is
+significantly **below** the trend, not above it.
+
+Two further points, both against H1:
+
+- **Direction is not special either.** The normal-restricted margin enriches at **3.104**, the
+  full Euclidean shell 1 at **3.103**. If the across-sheet direction carried the effect, the
+  normal margin should beat its containing shell. It does not.
+- What survives is descriptive and worth keeping: **m7's errors are boundary errors.** Enriched
+  within 2 voxels of labelled sheet, at the null by 3, and *depleted* beyond (0.59, 0.31). m7
+  does not hallucinate sheet in open space; it makes sheets slightly too fat.
+
+**The arms are NOT abandoned, and this is deliberate.** §7 lists four abandon conditions and
+"the motivating observation weakened" is not among them. Stopping a preregistered experiment
+because the prior turned against it is precisely the behaviour preregistration exists to
+prevent, and the registered question — does relabelling the margin help — remains a real
+empirical question that this control does not answer. The arms run to 3 seeds and are published
+under the registered rule.
+
+**What this does mean:** the expected outcome is now a null, and it will be reported as one.
+Any positive arm result must be read against a motivating premise that has already failed its
+control on the production model, and that caveat belongs in the write-up whatever the arms say.

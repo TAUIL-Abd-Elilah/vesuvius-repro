@@ -21,7 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 RESULTS = ROOT / "results" / "margin_arms"
 PY = sys.executable
-EPOCHS, ITERS, BATCH = 80, 60, 2
+EPOCHS, ITERS, BATCH = 200, 60, 2
 
 
 def main() -> None:

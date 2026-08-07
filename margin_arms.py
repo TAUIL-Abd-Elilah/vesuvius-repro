@@ -14,6 +14,9 @@ locate on Scroll1A:
 
   primary     recall over class-1 voxels, class 2 excluded, sigmoid(l1-l0) > 0.2
               -- the rule bench_m7_recall.py applies to the published model today
+  co-primary  recall at a MATCHED PREDICTED-POSITIVE BUDGET (amendment 1). The threshold is
+              picked per run on the val set to spend 0.12, so a bias shift cannot masquerade
+              as discrimination. Both arms' numbers are reported at both thresholds.
   co-primary  surface localisation error: |offset| from a predicted-sheet voxel to the CT
               ridge along the across-sheet normal. Label-free and thickness-free.
   secondary   predicted positive fraction over the scored region
@@ -50,6 +53,9 @@ EVAL_LABELS = ROOT / "data" / "kaggle" / "labels"
 
 CROP = 128
 THRESH = 0.2          # the published m7 threshold, as bench_m7_recall.py uses it
+CAL_TARGET = 0.12     # amendment 1 co-primary: matched predicted-positive budget on val,
+                      # 0.12 = the sheet base rate in the scored region, fixed in advance
+N_CAL = 20            # val volumes used to pick the threshold (of the 100 reserved)
 TRIM = 32             # drop the volume boundary before scoring, as the benchmark does
 STRIDE = 96           # 320 = 128 + 3 windows at stride 96, so every voxel is covered
 POOL_SIZE = 64        # volume pairs held decompressed; ~4 GB, see Volumes
@@ -128,18 +134,23 @@ class Volumes:
 
 
 def class_weights(vols: Volumes, max_volumes: int = 24) -> np.ndarray:
-    """Inverse-frequency weights, from the arm's OWN labels.
+    """Inverse-SQUARE-ROOT-frequency weights, from the arm's OWN labels.
 
     Arm B moves ~44% of a sheet volume out of background and into ignore, so its class
     frequencies genuinely differ. Freezing arm A's weights onto arm B would be a second,
     unregistered intervention; letting each arm weight its own label distribution is what
     'train on these labels' means. Both weight vectors are recorded in the result file.
+
+    ⚠ SQUARE ROOT, per amendment 1 (PREREGISTER_margin.md, 2026-08-07). Plain inverse
+    frequency put a 7.5x ratio on class 1 over class 0 and collapsed the model: arm A seed 0
+    predicted 0.817 of the scored region as sheet against a 0.118 base rate, reaching a
+    precision of 1.48x base rate. The square root takes that ratio to ~2.7x.
     """
     counts = np.zeros(3, dtype=np.float64)
     for lb in vols.lab[:max_volumes]:
         counts += np.bincount(np.asarray(lb).ravel(), minlength=3)[:3]
     freq = counts / counts.sum()
-    w = 1.0 / np.maximum(freq, 1e-6)
+    w = 1.0 / np.sqrt(np.maximum(freq, 1e-6))
     w = w / w.mean()
     print(f"  class frequencies {np.round(freq, 4).tolist()} -> "
           f"weights {np.round(w, 3).tolist()}", flush=True)
@@ -199,40 +210,88 @@ def localisation_error(ct: np.ndarray, pred: np.ndarray, sl: tuple, rng) -> floa
     return float(np.median(np.abs(ts[np.argmax(prof, axis=1)])))
 
 
-def score_volume(model, name: str, device, rng) -> dict:
-    """Every endpoint for one test volume. Reads EVAL_LABELS, never the arm's labels."""
+def _probs(model, name: str, device):
+    """sigmoid(l1 - l0) over the trimmed volume, plus the CT and unmodified labels."""
     ct = np.asarray(tifffile.imread(str(IMAGES / f"{name}.tif")))
     gt = np.asarray(tifffile.imread(str(EVAL_LABELS / f"{name}.tif")))
     if ct.shape != gt.shape:
-        return {"sample": name, "status": "shape_mismatch"}
-
+        return None
     logits = predict_volume(model, ct, device)
     sl = tuple(slice(TRIM, s - TRIM) for s in ct.shape)
     l0, l1 = logits[0][sl], logits[1][sl]
-    p = 1.0 / (1.0 + np.exp(-(l1 - l0)))
-    g = gt[sl]
+    return ct, gt, sl, 1.0 / (1.0 + np.exp(-(l1 - l0)))
 
+
+def calibrate_threshold(model, val_names: list[str], device,
+                        target: float = CAL_TARGET) -> dict:
+    """Threshold whose predicted-positive fraction on VAL equals `target`.
+
+    Amendment 1. Arm B changes the training label frequencies, so the arms land on different
+    operating points by construction, and recall at one fixed threshold confounds
+    discrimination with calibration -- a "gain" for B could be nothing but a bias shift. This
+    picks each run its own threshold so both arms spend the SAME predicted-positive budget,
+    and any remaining recall difference is discrimination.
+
+    Arm-invariant, not label-free: the scored mask comes from the unmodified published labels,
+    exactly as every other endpoint here does, so arm B's relabelling cannot reach it. Per
+    volume take the (1 - target) quantile of p over the scored region, then take the median
+    across volumes -- pooling the probabilities themselves would be ~300M floats per volume.
+    """
+    ths = []
+    for nm in val_names:
+        got = _probs(model, nm, device)
+        if got is None:
+            continue
+        _, gt, sl, p = got
+        scored = gt[sl] != 2
+        if scored.sum() < 1000:
+            continue
+        ths.append(float(np.quantile(p[scored], 1.0 - target)))
+    if not ths:
+        return {"threshold": THRESH, "n_val_used": 0, "note": "calibration failed"}
+    return {"threshold": float(np.median(ths)), "n_val_used": len(ths),
+            "target_pred_positive": target,
+            "threshold_spread_q10_q90": [round(float(np.quantile(ths, 0.10)), 4),
+                                         round(float(np.quantile(ths, 0.90)), 4)]}
+
+
+def _metrics(ct, sl, p, g, thresh: float, rng) -> dict:
     sheet, ignore = g == 1, g == 2
     scored = ~ignore                       # class 2 is ~59% of a volume; it is not background
-    if sheet.sum() == 0:
-        return {"sample": name, "status": "no_sheet"}
-    pred = p > THRESH
-
+    pred = p > thresh
     tp = float((pred & sheet).sum())
     fn = float((~pred & sheet).sum())
     fp = float((pred & scored & ~sheet).sum())
-    empty = ct[sl] == 0
     n_pred = float((pred & scored).sum())
-
     return {
-        "sample": name, "status": "ok",
         "recall": tp / max(tp + fn, 1.0),
         "precision": tp / max(tp + fp, 1.0),
         "pred_positive_fraction": n_pred / max(float(scored.sum()), 1.0),
         "loc_error": localisation_error(ct, pred & scored, sl, rng),
-        "pred_on_empty_ct": float((pred & empty).sum()) / max(n_pred, 1.0),
-        "n_sheet": int(sheet.sum()),
+        "pred_on_empty_ct": float((pred & (ct[sl] == 0)).sum()) / max(n_pred, 1.0),
     }
+
+
+def score_volume(model, name: str, device, rng, cal_thresh: float) -> dict:
+    """Every endpoint for one test volume, at BOTH thresholds.
+
+    `recall` etc. are the registered primary at THRESH = 0.2, the rule bench_m7_recall.py
+    applies to m7 today. The `cal_` copies are amendment 1's co-primary at the matched
+    predicted-positive budget. Both are reported; neither replaces the other. Reads
+    EVAL_LABELS, never the arm's labels.
+    """
+    got = _probs(model, name, device)
+    if got is None:
+        return {"sample": name, "status": "shape_mismatch"}
+    ct, gt, sl, p = got
+    g = gt[sl]
+    if (g == 1).sum() == 0:
+        return {"sample": name, "status": "no_sheet"}
+
+    out = {"sample": name, "status": "ok", "n_sheet": int((g == 1).sum())}
+    out.update(_metrics(ct, sl, p, g, THRESH, rng))
+    out.update({f"cal_{k}": v for k, v in _metrics(ct, sl, p, g, cal_thresh, rng).items()})
+    return out
 
 
 def train(arm: str, seed: int, epochs: int, iters: int, batch: int,
@@ -286,10 +345,20 @@ def train(arm: str, seed: int, epochs: int, iters: int, batch: int,
     train_min = round((time.time() - t0) / 60, 1)
 
     model.eval()
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    ckpt = RESULTS / f"{arm}_seed{seed}.pt"
+    torch.save(model.state_dict(), ckpt)     # amendment 1: never pay a retrain for a threshold
+    print(f"  checkpoint -> {ckpt}", flush=True)
+
+    t0 = time.time()
+    cal = calibrate_threshold(model, sp["val"][:N_CAL], device)
+    print(f"  calibrated threshold {cal['threshold']:.4f} on {cal['n_val_used']} val volumes "
+          f"(target pred-positive {CAL_TARGET})  {time.time()-t0:.0f}s", flush=True)
+
     erng = np.random.default_rng(0)          # evaluation sampling is seed-independent
     rows, t0 = [], time.time()
     for k, nm in enumerate(te_names):
-        rows.append(score_volume(model, nm, device, erng))
+        rows.append(score_volume(model, nm, device, erng, cal["threshold"]))
         if k % 20 == 0:
             print(f"  eval [{k}/{len(te_names)}] {time.time()-t0:.0f}s", flush=True)
     ok = [r for r in rows if r.get("status") == "ok"]
@@ -306,19 +375,25 @@ def train(arm: str, seed: int, epochs: int, iters: int, batch: int,
         "class_frequencies": [round(f, 5) for f in freq],
         "class_weights": [round(float(v), 4) for v in w_np],
         "train_minutes": train_min, "eval_minutes": round((time.time() - t0) / 60, 1),
+        "calibration": cal, "checkpoint": ckpt.name,
         "median_recall": med("recall"), "median_precision": med("precision"),
         "median_pred_positive_fraction": med("pred_positive_fraction"),
         "median_loc_error": med("loc_error"),
         "median_pred_on_empty_ct": med("pred_on_empty_ct"),
+        "cal_median_recall": med("cal_recall"), "cal_median_precision": med("cal_precision"),
+        "cal_median_pred_positive_fraction": med("cal_pred_positive_fraction"),
+        "cal_median_loc_error": med("cal_loc_error"),
+        "cal_median_pred_on_empty_ct": med("cal_pred_on_empty_ct"),
         "rows": rows,
     }
-    RESULTS.mkdir(parents=True, exist_ok=True)
     out = RESULTS / f"{arm}_seed{seed}.json"
     out.write_text(json.dumps(rep, indent=1))
     print(f"  -> {out}")
-    print(f"  median recall {rep['median_recall']}  prec {rep['median_precision']}  "
-          f"loc {rep['median_loc_error']}  empty-CT {rep['median_pred_on_empty_ct']}",
-          flush=True)
+    print(f"  registered (th {THRESH}): recall {rep['median_recall']}  "
+          f"prec {rep['median_precision']}  predpos {rep['median_pred_positive_fraction']}")
+    print(f"  matched budget (th {cal['threshold']:.3f}): recall {rep['cal_median_recall']}  "
+          f"prec {rep['cal_median_precision']}  predpos "
+          f"{rep['cal_median_pred_positive_fraction']}", flush=True)
     return rep
 
 
@@ -346,11 +421,14 @@ def compare() -> None:
         return {k: float(np.mean(v)) for k, v in acc.items()}
 
     print(f"\n{'endpoint':<28}{'A':>10}{'B':>10}{'delta':>10}{'p':>10}  verdict")
-    for key, name, floor in (("recall", "PRIMARY median recall", 0.01),
+    for key, name, floor in (("recall", "PRIMARY recall @0.2", 0.01),
+                             ("cal_recall", "CO-PRIM recall @budget", 0.01),
                              ("loc_error", "CO-PRIM loc error (vox)", None),
                              ("pred_positive_fraction", "secondary pred-pos frac", None),
                              ("pred_on_empty_ct", "GUARDRAIL empty-CT FP", None),
-                             ("precision", "precision", None)):
+                             ("cal_pred_on_empty_ct", "GUARDRAIL empty-CT @budget", None),
+                             ("precision", "precision @0.2", None),
+                             ("cal_precision", "precision @budget", None)):
         a, b = by_volume("A", key), by_volume("B", key)
         common = sorted(set(a) & set(b))
         if len(common) < 10:
@@ -388,7 +466,7 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--arm", choices=["A", "B"])
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--epochs", type=int, default=60)
+    ap.add_argument("--epochs", type=int, default=200)
     ap.add_argument("--iters", type=int, default=60)
     ap.add_argument("--batch", type=int, default=2)
     ap.add_argument("--n-train", type=int, default=0, help="0 = all 581")

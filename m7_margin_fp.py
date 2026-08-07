@@ -47,6 +47,7 @@ IMAGES = ROOT / "data" / "kaggle" / "images"
 LABELS = ROOT / "data" / "kaggle" / "labels"
 MARGIN = ROOT / "data" / "kaggle" / "labels_margin"
 SPLIT = ROOT / "vesuvius-repro" / "results" / "margin_split.json"
+PRED_CACHE = ROOT / "results" / "m7_pred_cache"
 
 # ⚠ NOT the blogging env. That env is torch 2.4.1 and can no longer import villa at all --
 # `torch.compiler.disable(reason=...)` raises there. bench_m7_recall.py still points at it
@@ -91,6 +92,45 @@ def margin_mask(name: str) -> tuple[np.ndarray, np.ndarray]:
     lab = np.asarray(tifffile.imread(str(LABELS / f"{name}.tif")))
     lm = np.asarray(tifffile.imread(str(MARGIN / f"{name}.tif")))
     return lab, (lm == 2) & (lab == 0)
+
+
+def distance_profile(lab: np.ndarray, pred: np.ndarray, max_d: int = 5) -> dict:
+    """⚠ THE CONTROL THAT DECIDES WHETHER THE MARGIN RESULT MEANS ANYTHING.
+
+    Enrichment above 1 in the margin is not by itself evidence for the label-boundary story.
+    m7 over-predicts around sheets, so ANY near-sheet region will be enriched in false
+    positives whether or not the label boundary is misplaced. Proximity alone would produce
+    the headline number.
+
+    So report enrichment as a function of distance from the labelled sheet, in one-voxel
+    shells. The two stories make different predictions and the shapes are not subtle:
+
+      label boundary misplaced by ~half a voxel  ->  a STEP: shell 1 far above shell 2,
+                                                     then flat, because the true sheet ends
+      generic near-sheet over-prediction         ->  SMOOTH DECAY across shells 1,2,3,4
+
+    Euclidean, not restricted to the across-sheet normal: this is deliberately the weaker,
+    more conservative geometry. If shell 1 does not stand out even here, the normal-restricted
+    version standing out would be an artifact of the normal estimate rather than of the CT.
+    """
+    from scipy.ndimage import distance_transform_edt
+
+    sheet, ignore = lab == 1, lab == 2
+    scored = ~ignore
+    d = distance_transform_edt(~sheet)
+    fp = pred & scored & ~sheet
+    n_fp, n_ns = float(fp.sum()), float((scored & ~sheet).sum())
+    if n_fp == 0 or n_ns == 0:
+        return {}
+    out = {}
+    for k in range(1, max_d + 1):
+        shell = (d > k - 1) & (d <= k) & scored & ~sheet
+        n_shell = float(shell.sum())
+        if n_shell < 100:
+            out[f"shell_{k}"] = None
+            continue
+        out[f"shell_{k}"] = round((float((fp & shell).sum()) / n_fp) / (n_shell / n_ns), 3)
+    return out
 
 
 def analyse(lab: np.ndarray, margin: np.ndarray, pred: np.ndarray) -> dict:
@@ -224,9 +264,16 @@ def main() -> None:
         p, (lo, hi) = got
         lab, margin = margin_mask(nm)
         sl = (slice(lo, hi),) * 3
-        r = analyse(lab[sl], margin[sl], p > THRESH)
+        pred = p > THRESH
+        r = analyse(lab[sl], margin[sl], pred)
+        r["shells"] = distance_profile(lab[sl], pred)
         r["sample"] = nm
         rows.append(r)
+        # Cache the probabilities: ~14 MB per volume as float16, and it means any later
+        # question about thresholds or geometry costs no GPU at all. Not saving these is
+        # what made the arms' first configuration cost a full retrain.
+        PRED_CACHE.mkdir(parents=True, exist_ok=True)
+        np.save(PRED_CACHE / f"{nm}.npy", p.astype(np.float16))
         if r["status"] == "ok":
             print(f"  [{k+1}/{len(names)}] {nm}  enrichment {r['enrichment']:>7.2f}  "
                   f"fp in margin {r['fp_share_in_margin']:.4f}  {time.time()-t0:.0f}s",
@@ -244,6 +291,15 @@ def main() -> None:
         "reading": ("enrichment 1.0 = m7's false positives ignore the margin and bet 2's "
                     "premise does not describe this model; >> 1 = the benchmark is counting "
                     "the asserted margin against m7"),
+        "shell_enrichment_median": {
+            f"shell_{k}": (round(float(np.median(s)), 3) if (s := [
+                r["shells"][f"shell_{k}"] for r in ok
+                if r.get("shells", {}).get(f"shell_{k}") is not None]) else None)
+            for k in range(1, 6)},
+        "shell_reading": ("THE CONTROL. A step at shell 1 with shells 2+ far lower supports a "
+                          "misplaced label boundary. Smooth decay across shells 1-4 means m7 "
+                          "simply over-predicts near sheet and the margin is not special, "
+                          "which would sink the headline number."),
         "rows": rows,
     }
     Path(a.out).write_text(json.dumps(out, indent=1))
