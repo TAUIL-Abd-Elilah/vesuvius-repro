@@ -155,4 +155,57 @@ editing the text above.*
 
 ## Amendments
 
-*(none yet)*
+### Amendment 1 — 2026-08-07 — GATE ZERO FAILED. Bet 4 is closed under abandon condition 1.
+
+100 volumes, components ≥100 voxels, closest approach by boundary KD-tree
+(`results/dt_gate.json`):
+
+| gate | measured | required | |
+|---|---|---|---|
+| 1 — median close pairs per volume | **1.0** | ≥ 5 | **FAIL** |
+| 2 — volumes with ≥ 1 close pair | **57.0%** | ≥ 60% | **FAIL** |
+
+Median **7** components per volume, mean **1.37** close pairs, max 8. **Closed unamended.** The
+thresholds are not being moved, and the probe on 10 volumes that showed the same thing was not
+treated as the gate — the registered 100 were run.
+
+**The densely-packed regime this bet is about barely exists in this dataset.** With a median of
+one close pair per volume and 43% of volumes containing none, a merger rate cannot be estimated
+per volume, and the primary endpoint has nothing to measure.
+
+**⚠ Why, and it is the same root cause that closed bet 3.** These volumes carry a median of 7
+labelled components but almost no *close* ones. That is the signature of labels that trace pieces
+of **one** surface — fragmented by the crop and by annotation gaps — rather than labels that
+capture **adjacent wraps**. The neighbouring sheet, a few voxels away, is simply not labelled. So
+the configuration the hypothesis is about is present in the CT and absent from the ground truth.
+
+Bet 3 died because resolvability sampled at labelled voxels conditions on annotatability. Bet 4
+dies because merging measured between labelled components conditions on both sheets having been
+annotated. **Both are the same defect seen from different angles: this label set does not contain
+the failure modes the open problems page cares about.**
+
+⭐ **That is the finding worth keeping from bets 2, 3 and 4 together.** Three independent
+measurements, three different quantities, one conclusion:
+
+| measurement | result |
+|---|---|
+| label placement (bet 2 follow-up) | centres already on the CT ridge, signed offset **+0.008 vox** |
+| sheet resolvability (bet 3 gate) | median CNR **272**, only **2.9%** below 50 |
+| adjacent-wrap proximity (bet 4 gate) | median **1** close pair per volume, 43% have none |
+
+**The 892-volume public label set is drawn overwhelmingly from high-contrast, well-separated,
+correctly-placed sheet.** It supports recall and precision studies. It does **not** support
+studies of compressed regions, adjacent-wrap merging, or scan-limited areas — the failures the
+team names — because those regions are systematically absent from the labels rather than merely
+rare in them. That is a concrete, evidenced statement of the page's own *"densely labeled 3D
+training data is the bottleneck"* and *"labels ... avoid ambiguous regions"*, and it explains why
+a model trained on this set should not be expected to generalise into exactly the regions that
+matter.
+
+**What a continuation would need**, and it is not an amendment to this bet: labels that include
+adjacent wraps. Candidates are @Jinhojeong's incompleteness candidates, VC3D-traced multi-wrap
+segments, or synthetic phantoms with known separation. Any of those is a different study with a
+different sampling frame and needs its own preregistration.
+
+**Elapsed: under two hours from registration to closure.** Which is what gate zero is for, and
+the second time today.
