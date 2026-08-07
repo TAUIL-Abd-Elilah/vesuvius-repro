@@ -1,0 +1,615 @@
+{
+ "n_volumes": 100,
+ "half": 5.0,
+ "shoulder_frac": 0.7,
+ "median": 264.5526,
+ "q25": 243.3488,
+ "q75": 302.6965,
+ "iqr_ratio_q75_over_q25": 1.2439,
+ "spearman_vs_sheet_fraction": 0.1898,
+ "gate1_spread_ge_1.5": false,
+ "gate2_not_density_proxy_abs_rho_le_0.7": true,
+ "gate_passed": false,
+ "rows": [
+  {
+   "sample": "sample_00716",
+   "median_resolvability": 271.0605,
+   "sheet_fraction": 0.08577,
+   "n": 500
+  },
+  {
+   "sample": "sample_00535",
+   "median_resolvability": 290.1028,
+   "sheet_fraction": 0.09103,
+   "n": 500
+  },
+  {
+   "sample": "sample_00775",
+   "median_resolvability": 240.3019,
+   "sheet_fraction": 0.06679,
+   "n": 500
+  },
+  {
+   "sample": "sample_00831",
+   "median_resolvability": 233.4242,
+   "sheet_fraction": 0.16127,
+   "n": 500
+  },
+  {
+   "sample": "sample_00665",
+   "median_resolvability": 222.8716,
+   "sheet_fraction": 0.13992,
+   "n": 500
+  },
+  {
+   "sample": "sample_00209",
+   "median_resolvability": 394.7929,
+   "sheet_fraction": 0.19104,
+   "n": 500
+  },
+  {
+   "sample": "sample_00915",
+   "median_resolvability": 231.4533,
+   "sheet_fraction": 0.08179,
+   "n": 500
+  },
+  {
+   "sample": "sample_00569",
+   "median_resolvability": 250.5712,
+   "sheet_fraction": 0.14273,
+   "n": 500
+  },
+  {
+   "sample": "sample_00418",
+   "median_resolvability": 254.7259,
+   "sheet_fraction": 0.08836,
+   "n": 500
+  },
+  {
+   "sample": "sample_00047",
+   "median_resolvability": 298.4941,
+   "sheet_fraction": 0.07083,
+   "n": 500
+  },
+  {
+   "sample": "sample_00737",
+   "median_resolvability": 250.1892,
+   "sheet_fraction": 0.10518,
+   "n": 500
+  },
+  {
+   "sample": "sample_00204",
+   "median_resolvability": 451.5014,
+   "sheet_fraction": 0.13229,
+   "n": 500
+  },
+  {
+   "sample": "sample_00167",
+   "median_resolvability": 354.0715,
+   "sheet_fraction": 0.2139,
+   "n": 500
+  },
+  {
+   "sample": "sample_00777",
+   "median_resolvability": 256.3595,
+   "sheet_fraction": 0.13191,
+   "n": 500
+  },
+  {
+   "sample": "sample_00323",
+   "median_resolvability": 449.6184,
+   "sheet_fraction": 0.24676,
+   "n": 500
+  },
+  {
+   "sample": "sample_00621",
+   "median_resolvability": 246.9169,
+   "sheet_fraction": 0.07089,
+   "n": 500
+  },
+  {
+   "sample": "sample_00003",
+   "median_resolvability": 230.1508,
+   "sheet_fraction": 0.17553,
+   "n": 500
+  },
+  {
+   "sample": "sample_00251",
+   "median_resolvability": 417.0658,
+   "sheet_fraction": 0.14013,
+   "n": 500
+  },
+  {
+   "sample": "sample_00147",
+   "median_resolvability": 331.735,
+   "sheet_fraction": 0.19263,
+   "n": 500
+  },
+  {
+   "sample": "sample_00669",
+   "median_resolvability": 215.9524,
+   "sheet_fraction": 0.13377,
+   "n": 500
+  },
+  {
+   "sample": "sample_00054",
+   "median_resolvability": 266.6967,
+   "sheet_fraction": 0.13059,
+   "n": 500
+  },
+  {
+   "sample": "sample_00593",
+   "median_resolvability": 250.1923,
+   "sheet_fraction": 0.13158,
+   "n": 500
+  },
+  {
+   "sample": "sample_00850",
+   "median_resolvability": 315.3036,
+   "sheet_fraction": 0.19781,
+   "n": 500
+  },
+  {
+   "sample": "sample_00537",
+   "median_resolvability": 264.4111,
+   "sheet_fraction": 0.09835,
+   "n": 500
+  },
+  {
+   "sample": "sample_00836",
+   "median_resolvability": 236.7285,
+   "sheet_fraction": 0.15842,
+   "n": 500
+  },
+  {
+   "sample": "sample_00738",
+   "median_resolvability": 285.4008,
+   "sheet_fraction": 0.14843,
+   "n": 500
+  },
+  {
+   "sample": "sample_00389",
+   "median_resolvability": 283.2881,
+   "sheet_fraction": 0.08475,
+   "n": 500
+  },
+  {
+   "sample": "sample_00239",
+   "median_resolvability": 478.4705,
+   "sheet_fraction": 0.12104,
+   "n": 500
+  },
+  {
+   "sample": "sample_00400",
+   "median_resolvability": 252.0286,
+   "sheet_fraction": 0.16822,
+   "n": 500
+  },
+  {
+   "sample": "sample_00394",
+   "median_resolvability": 272.8146,
+   "sheet_fraction": 0.08234,
+   "n": 500
+  },
+  {
+   "sample": "sample_00363",
+   "median_resolvability": 271.7289,
+   "sheet_fraction": 0.07301,
+   "n": 500
+  },
+  {
+   "sample": "sample_00165",
+   "median_resolvability": 445.1161,
+   "sheet_fraction": 0.18905,
+   "n": 500
+  },
+  {
+   "sample": "sample_00085",
+   "median_resolvability": 280.0831,
+   "sheet_fraction": 0.10017,
+   "n": 500
+  },
+  {
+   "sample": "sample_00037",
+   "median_resolvability": 221.6948,
+   "sheet_fraction": 0.15415,
+   "n": 500
+  },
+  {
+   "sample": "sample_00884",
+   "median_resolvability": 214.7277,
+   "sheet_fraction": 0.11326,
+   "n": 500
+  },
+  {
+   "sample": "sample_00829",
+   "median_resolvability": 230.7552,
+   "sheet_fraction": 0.15478,
+   "n": 500
+  },
+  {
+   "sample": "sample_00153",
+   "median_resolvability": 250.4366,
+   "sheet_fraction": 0.21094,
+   "n": 500
+  },
+  {
+   "sample": "sample_00463",
+   "median_resolvability": 244.6125,
+   "sheet_fraction": 0.11403,
+   "n": 500
+  },
+  {
+   "sample": "sample_00128",
+   "median_resolvability": 225.3545,
+   "sheet_fraction": 0.16023,
+   "n": 500
+  },
+  {
+   "sample": "sample_00306",
+   "median_resolvability": 437.092,
+   "sheet_fraction": 0.15879,
+   "n": 500
+  },
+  {
+   "sample": "sample_00432",
+   "median_resolvability": 346.2453,
+   "sheet_fraction": 0.19263,
+   "n": 500
+  },
+  {
+   "sample": "sample_00658",
+   "median_resolvability": 276.221,
+   "sheet_fraction": 0.11381,
+   "n": 500
+  },
+  {
+   "sample": "sample_00827",
+   "median_resolvability": 262.1623,
+   "sheet_fraction": 0.15736,
+   "n": 500
+  },
+  {
+   "sample": "sample_00746",
+   "median_resolvability": 291.6327,
+   "sheet_fraction": 0.12222,
+   "n": 500
+  },
+  {
+   "sample": "sample_00107",
+   "median_resolvability": 271.5807,
+   "sheet_fraction": 0.12015,
+   "n": 500
+  },
+  {
+   "sample": "sample_00202",
+   "median_resolvability": 386.8774,
+   "sheet_fraction": 0.18419,
+   "n": 500
+  },
+  {
+   "sample": "sample_00910",
+   "median_resolvability": 240.279,
+   "sheet_fraction": 0.08287,
+   "n": 500
+  },
+  {
+   "sample": "sample_00082",
+   "median_resolvability": 227.8251,
+   "sheet_fraction": 0.15147,
+   "n": 500
+  },
+  {
+   "sample": "sample_00436",
+   "median_resolvability": 270.2476,
+   "sheet_fraction": 0.11438,
+   "n": 500
+  },
+  {
+   "sample": "sample_00460",
+   "median_resolvability": 226.42,
+   "sheet_fraction": 0.15965,
+   "n": 500
+  },
+  {
+   "sample": "sample_00823",
+   "median_resolvability": 483.2768,
+   "sheet_fraction": 0.09765,
+   "n": 500
+  },
+  {
+   "sample": "sample_00453",
+   "median_resolvability": 239.9202,
+   "sheet_fraction": 0.12818,
+   "n": 500
+  },
+  {
+   "sample": "sample_00259",
+   "median_resolvability": 415.2134,
+   "sheet_fraction": 0.0934,
+   "n": 500
+  },
+  {
+   "sample": "sample_00376",
+   "median_resolvability": 240.4932,
+   "sheet_fraction": 0.06431,
+   "n": 500
+  },
+  {
+   "sample": "sample_00815",
+   "median_resolvability": 212.5299,
+   "sheet_fraction": 0.07516,
+   "n": 500
+  },
+  {
+   "sample": "sample_00215",
+   "median_resolvability": 397.4411,
+   "sheet_fraction": 0.16063,
+   "n": 500
+  },
+  {
+   "sample": "sample_00359",
+   "median_resolvability": 249.575,
+   "sheet_fraction": 0.0716,
+   "n": 500
+  },
+  {
+   "sample": "sample_00760",
+   "median_resolvability": 285.3766,
+   "sheet_fraction": 0.10058,
+   "n": 500
+  },
+  {
+   "sample": "sample_00598",
+   "median_resolvability": 243.9412,
+   "sheet_fraction": 0.10443,
+   "n": 500
+  },
+  {
+   "sample": "sample_00875",
+   "median_resolvability": 245.5662,
+   "sheet_fraction": 0.12683,
+   "n": 500
+  },
+  {
+   "sample": "sample_00102",
+   "median_resolvability": 278.0688,
+   "sheet_fraction": 0.17764,
+   "n": 500
+  },
+  {
+   "sample": "sample_00494",
+   "median_resolvability": 276.8049,
+   "sheet_fraction": 0.13297,
+   "n": 500
+  },
+  {
+   "sample": "sample_00702",
+   "median_resolvability": 338.7429,
+   "sheet_fraction": 0.13208,
+   "n": 500
+  },
+  {
+   "sample": "sample_00502",
+   "median_resolvability": 249.3914,
+   "sheet_fraction": 0.07564,
+   "n": 500
+  },
+  {
+   "sample": "sample_00674",
+   "median_resolvability": 236.6473,
+   "sheet_fraction": 0.10215,
+   "n": 500
+  },
+  {
+   "sample": "sample_00075",
+   "median_resolvability": 347.8564,
+   "sheet_fraction": 0.15181,
+   "n": 500
+  },
+  {
+   "sample": "sample_00458",
+   "median_resolvability": 256.3782,
+   "sheet_fraction": 0.17186,
+   "n": 500
+  },
+  {
+   "sample": "sample_00050",
+   "median_resolvability": 260.0545,
+   "sheet_fraction": 0.16347,
+   "n": 500
+  },
+  {
+   "sample": "sample_00395",
+   "median_resolvability": 246.5386,
+   "sheet_fraction": 0.0599,
+   "n": 500
+  },
+  {
+   "sample": "sample_00379",
+   "median_resolvability": 318.9538,
+   "sheet_fraction": 0.08178,
+   "n": 500
+  },
+  {
+   "sample": "sample_00371",
+   "median_resolvability": 256.5039,
+   "sheet_fraction": 0.07951,
+   "n": 500
+  },
+  {
+   "sample": "sample_00465",
+   "median_resolvability": 287.8261,
+   "sheet_fraction": 0.08771,
+   "n": 500
+  },
+  {
+   "sample": "sample_00615",
+   "median_resolvability": 248.4747,
+   "sheet_fraction": 0.12497,
+   "n": 500
+  },
+  {
+   "sample": "sample_00280",
+   "median_resolvability": 429.887,
+   "sheet_fraction": 0.08981,
+   "n": 500
+  },
+  {
+   "sample": "sample_00268",
+   "median_resolvability": 378.477,
+   "sheet_fraction": 0.1997,
+   "n": 500
+  },
+  {
+   "sample": "sample_00412",
+   "median_resolvability": 241.7291,
+   "sheet_fraction": 0.09676,
+   "n": 500
+  },
+  {
+   "sample": "sample_00009",
+   "median_resolvability": 243.4283,
+   "sheet_fraction": 0.17375,
+   "n": 500
+  },
+  {
+   "sample": "sample_00883",
+   "median_resolvability": 243.1105,
+   "sheet_fraction": 0.1871,
+   "n": 500
+  },
+  {
+   "sample": "sample_00349",
+   "median_resolvability": 242.1044,
+   "sheet_fraction": 0.08329,
+   "n": 500
+  },
+  {
+   "sample": "sample_00393",
+   "median_resolvability": 274.1106,
+   "sheet_fraction": 0.06916,
+   "n": 500
+  },
+  {
+   "sample": "sample_00201",
+   "median_resolvability": 397.206,
+   "sheet_fraction": 0.16815,
+   "n": 500
+  },
+  {
+   "sample": "sample_00464",
+   "median_resolvability": 292.5542,
+   "sheet_fraction": 0.07176,
+   "n": 500
+  },
+  {
+   "sample": "sample_00223",
+   "median_resolvability": 405.2724,
+   "sheet_fraction": 0.23747,
+   "n": 500
+  },
+  {
+   "sample": "sample_00366",
+   "median_resolvability": 233.2346,
+   "sheet_fraction": 0.08729,
+   "n": 500
+  },
+  {
+   "sample": "sample_00871",
+   "median_resolvability": 393.1006,
+   "sheet_fraction": 0.14137,
+   "n": 500
+  },
+  {
+   "sample": "sample_00599",
+   "median_resolvability": 233.8059,
+   "sheet_fraction": 0.10236,
+   "n": 500
+  },
+  {
+   "sample": "sample_00150",
+   "median_resolvability": 208.1792,
+   "sheet_fraction": 0.15578,
+   "n": 500
+  },
+  {
+   "sample": "sample_00899",
+   "median_resolvability": 250.8581,
+   "sheet_fraction": 0.08536,
+   "n": 500
+  },
+  {
+   "sample": "sample_00575",
+   "median_resolvability": 272.4431,
+   "sheet_fraction": 0.15462,
+   "n": 500
+  },
+  {
+   "sample": "sample_00301",
+   "median_resolvability": 489.9742,
+   "sheet_fraction": 0.17204,
+   "n": 500
+  },
+  {
+   "sample": "sample_00735",
+   "median_resolvability": 252.5983,
+   "sheet_fraction": 0.15651,
+   "n": 500
+  },
+  {
+   "sample": "sample_00357",
+   "median_resolvability": 264.6941,
+   "sheet_fraction": 0.08643,
+   "n": 500
+  },
+  {
+   "sample": "sample_00732",
+   "median_resolvability": 287.2728,
+   "sheet_fraction": 0.0816,
+   "n": 500
+  },
+  {
+   "sample": "sample_00108",
+   "median_resolvability": 280.8684,
+   "sheet_fraction": 0.09226,
+   "n": 500
+  },
+  {
+   "sample": "sample_00091",
+   "median_resolvability": 284.2165,
+   "sheet_fraction": 0.14198,
+   "n": 500
+  },
+  {
+   "sample": "sample_00211",
+   "median_resolvability": 378.3111,
+   "sheet_fraction": 0.22412,
+   "n": 500
+  },
+  {
+   "sample": "sample_00096",
+   "median_resolvability": 254.2917,
+   "sheet_fraction": 0.08608,
+   "n": 500
+  },
+  {
+   "sample": "sample_00100",
+   "median_resolvability": 233.6652,
+   "sheet_fraction": 0.19372,
+   "n": 500
+  },
+  {
+   "sample": "sample_00878",
+   "median_resolvability": 251.0091,
+   "sheet_fraction": 0.09814,
+   "n": 500
+  },
+  {
+   "sample": "sample_00070",
+   "median_resolvability": 279.896,
+   "sheet_fraction": 0.13561,
+   "n": 500
+  }
+ ]
+}

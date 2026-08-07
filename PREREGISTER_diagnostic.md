@@ -159,4 +159,53 @@ editing the text above.*
 
 ## Amendments
 
-*(none yet)*
+### Amendment 1 — 2026-08-07 — GATE ZERO FAILED. Bet 3 is closed under abandon condition 1.
+
+Run on 100 volumes, 500 labelled sheet voxels each (`results/resolvability_gate.json`):
+
+| gate | measured | required | |
+|---|---|---|---|
+| 1 — per-volume spread | **q75/q25 = 1.244** | ≥ 1.5 | **FAIL** |
+| 2 — not a density proxy | Spearman = **+0.190** | \|ρ\| ≤ 0.7 | PASS |
+
+**Closed unamended, per abandon condition 1.** The threshold is not being moved.
+
+**⚠ A defect in this preregistration, recorded because it is mine.** §5 gates on the spread of
+**per-volume medians**, while §6's primary endpoint stratifies **voxels**. Those are different
+scales and I registered the wrong one. The post-mortem measurement is unambiguous: within a
+volume the q75/q25 ratio of voxel-level resolvability is **2.551**, which would have passed
+comfortably. So the gate as written tested a quantity the study does not depend on.
+
+**That does not rescue the bet, and here is why it matters more than the gate.**
+
+Voxel-level CNR over 9,600 sampled labelled voxels: median **271.8**, q05 **66.4**, and only
+**2.9%** below 50, **0.4%** below 20. **The scan resolves the sheet essentially everywhere a
+label exists.**
+
+That is a selection effect built into the design, not a tuning problem. Resolvability was
+sampled *at labelled sheet voxels*, and a labelled voxel is by construction a place where a
+human could see a sheet well enough to annotate it. **Sampling there conditions on
+annotatability, so it cannot find scan-limited regions — they are exactly the regions the
+annotator skipped.** This is the same shape as the "labels avoid ambiguous regions" complaint on
+the open problems page, arriving from the other direction.
+
+**The fundamental obstacle, which closes the line rather than the run.** To identify a
+scan-limited region you must know a sheet is present *despite* the scan being too poor to
+resolve it. That knowledge cannot come from the scan, and it cannot come from the labels, since
+labels are absent for precisely that reason. It requires an external source of "a sheet is here"
+— @Jinhojeong's incompleteness candidates, a neighbouring-wrap geometric prior, or a
+higher-resolution scan of the same region. **We have none of those, so the attribution H1
+proposes is not identifiable with the data available to us.**
+
+**Any continuation needs a NEW preregistration, not an amendment to this one**, because it would
+change the sampling frame, the gate and the identifying assumption — that is a different study,
+and folding it in here would let a failed design quietly become a successful one.
+
+**What survives and is worth keeping:** `resolvability.py`, its CNR measure, the second-difference
+noise estimator, and the finding that labelled sheet in this set sits at a median CNR of ~272
+with under 3% below 50. That last number is a useful fact about the label set on its own — it
+says the 892-volume labels are drawn overwhelmingly from high-contrast sheet, which bears
+directly on how far a model trained on them should be expected to generalise to compressed or
+hazed regions.
+
+**Elapsed: one afternoon.** Which is the point of gate zero.
