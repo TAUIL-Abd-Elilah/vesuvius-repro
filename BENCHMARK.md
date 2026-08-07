@@ -72,10 +72,19 @@ inside Scroll1A. The published m7 model behaves like two different models across
 | locates on Scroll1A | 174 | **0.777** ⛔ artifact — see correction at top |
 | locates nowhere searched | 681 | **0.918** ⛔ artifact — see correction at top |
 
-That gap has survived elimination of **leakage** (p=0.80), **label artifact**, **fused
-geometry** (Jinhojeong's independent 892-volume run, p=0.33) and **labelled-sheet density**
-(survives quintile matching). It is unexplained. A single pooled score hides it entirely, so
-every endpoint is reported per population as well as pooled.
+⛔ **EXPLAINED, AND NOT BY THE MODEL — see the correction at the top.** The gap survived
+elimination of **leakage** (p=0.80), **label artifact**, **fused geometry** (Jinhojeong's
+independent 892-volume run, p=0.33) and **labelled-sheet density** (quintile matching), and was
+reported here as unexplained. It was the `instance_zscore` inference default. Under the plans
+normalization the two populations sit at **0.914 and 0.923** — the gap very largely closes.
+
+The reason the split *looked* like two populations is that it is nearly a proxy for intensity:
+the located cohort's centred-cube mean is ~135 against m7's training fingerprint of 87.5 ± 47.7,
+while the non-located sit within half a sigma of it, and per-volume z-scoring departs from CT
+normalization exactly as a volume's statistics leave that fingerprint.
+
+**Reporting per population is still right** — a pooled score would have hidden the artifact too,
+and that is how it was found. But do not describe this as a property of m7.
 
 ## Endpoints
 
