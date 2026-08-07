@@ -1,0 +1,222 @@
+{
+ "n_volumes": 30,
+ "per_volume_points": 600,
+ "metric_noise_floor_synthetic": 0.164,
+ "median_signed_offset": 0.0077,
+ "q10_signed": -0.1709,
+ "q90_signed": 0.1427,
+ "median_abs_offset": 1.0556,
+ "reading": "SIGNED is the placement number and it is flat: annotation centres already sit on the CT ridge, so global label snapping has nothing to correct. The |offset| scatter is NOT interpreted -- it is either per-point misplacement or the metric's real-data precision on curved multi-sheet CT, and telling those apart needs a repeatability control.",
+ "rows": [
+  {
+   "sample": "sample_00222",
+   "located": true,
+   "n_runs": 253,
+   "median_signed": 0.0297,
+   "median_abs": 1.2287
+  },
+  {
+   "sample": "sample_00865",
+   "located": true,
+   "n_runs": 259,
+   "median_signed": -0.1672,
+   "median_abs": 1.2253
+  },
+  {
+   "sample": "sample_00409",
+   "located": false,
+   "n_runs": 311,
+   "median_signed": 0.0151,
+   "median_abs": 0.9902
+  },
+  {
+   "sample": "sample_00413",
+   "located": false,
+   "n_runs": 349,
+   "median_signed": 0.1414,
+   "median_abs": 0.8549
+  },
+  {
+   "sample": "sample_00866",
+   "located": true,
+   "n_runs": 325,
+   "median_signed": 0.0549,
+   "median_abs": 0.9781
+  },
+  {
+   "sample": "sample_00070",
+   "located": false,
+   "n_runs": 297,
+   "median_signed": 0.1068,
+   "median_abs": 0.9819
+  },
+  {
+   "sample": "sample_00851",
+   "located": false,
+   "n_runs": 315,
+   "median_signed": -0.0905,
+   "median_abs": 0.9405
+  },
+  {
+   "sample": "sample_00713",
+   "located": false,
+   "n_runs": 287,
+   "median_signed": 0.1219,
+   "median_abs": 0.9669
+  },
+  {
+   "sample": "sample_00491",
+   "located": false,
+   "n_runs": 325,
+   "median_signed": 0.2693,
+   "median_abs": 1.056
+  },
+  {
+   "sample": "sample_00027",
+   "located": false,
+   "n_runs": 323,
+   "median_signed": -0.0711,
+   "median_abs": 1.0074
+  },
+  {
+   "sample": "sample_00452",
+   "located": false,
+   "n_runs": 311,
+   "median_signed": 0.083,
+   "median_abs": 0.8406
+  },
+  {
+   "sample": "sample_00504",
+   "located": false,
+   "n_runs": 255,
+   "median_signed": -0.1117,
+   "median_abs": 1.3316
+  },
+  {
+   "sample": "sample_00323",
+   "located": true,
+   "n_runs": 284,
+   "median_signed": -0.0959,
+   "median_abs": 1.1722
+  },
+  {
+   "sample": "sample_00336",
+   "located": true,
+   "n_runs": 391,
+   "median_signed": -0.3383,
+   "median_abs": 1.0613
+  },
+  {
+   "sample": "sample_00134",
+   "located": false,
+   "n_runs": 408,
+   "median_signed": -0.0167,
+   "median_abs": 1.0275
+  },
+  {
+   "sample": "sample_00784",
+   "located": false,
+   "n_runs": 284,
+   "median_signed": 0.044,
+   "median_abs": 0.9917
+  },
+  {
+   "sample": "sample_00549",
+   "located": false,
+   "n_runs": 331,
+   "median_signed": 0.0007,
+   "median_abs": 1.008
+  },
+  {
+   "sample": "sample_00074",
+   "located": false,
+   "n_runs": 284,
+   "median_signed": 0.2444,
+   "median_abs": 1.0779
+  },
+  {
+   "sample": "sample_00819",
+   "located": false,
+   "n_runs": 330,
+   "median_signed": -0.5278,
+   "median_abs": 1.0737
+  },
+  {
+   "sample": "sample_00703",
+   "located": false,
+   "n_runs": 325,
+   "median_signed": 0.1145,
+   "median_abs": 1.0553
+  },
+  {
+   "sample": "sample_00018",
+   "located": false,
+   "n_runs": 379,
+   "median_signed": -0.0466,
+   "median_abs": 0.9902
+  },
+  {
+   "sample": "sample_00313",
+   "located": true,
+   "n_runs": 273,
+   "median_signed": -0.2038,
+   "median_abs": 1.1408
+  },
+  {
+   "sample": "sample_00220",
+   "located": true,
+   "n_runs": 303,
+   "median_signed": -0.0086,
+   "median_abs": 1.2046
+  },
+  {
+   "sample": "sample_00521",
+   "located": false,
+   "n_runs": 310,
+   "median_signed": 0.0204,
+   "median_abs": 1.1462
+  },
+  {
+   "sample": "sample_00393",
+   "located": false,
+   "n_runs": 315,
+   "median_signed": 0.0148,
+   "median_abs": 1.1139
+  },
+  {
+   "sample": "sample_00212",
+   "located": true,
+   "n_runs": 304,
+   "median_signed": 0.0961,
+   "median_abs": 1.0293
+  },
+  {
+   "sample": "sample_00334",
+   "located": true,
+   "n_runs": 282,
+   "median_signed": 0.1539,
+   "median_abs": 1.167
+  },
+  {
+   "sample": "sample_00005",
+   "located": false,
+   "n_runs": 324,
+   "median_signed": -0.1122,
+   "median_abs": 1.0843
+  },
+  {
+   "sample": "sample_00590",
+   "located": false,
+   "n_runs": 294,
+   "median_signed": -0.0565,
+   "median_abs": 1.1142
+  },
+  {
+   "sample": "sample_00902",
+   "located": false,
+   "n_runs": 303,
+   "median_signed": -0.0228,
+   "median_abs": 1.0131
+  }
+ ]
+}
