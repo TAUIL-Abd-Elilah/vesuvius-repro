@@ -1,0 +1,176 @@
+{
+ "n_volumes": 8,
+ "low": 0.1,
+ "delta": 1.0,
+ "sigma": 1.0,
+ "median_recall_at_0.2": 0.8354,
+ "median_precision_at_0.2": 0.5102,
+ "median_hessian_gain": 0.0136,
+ "median_random_gain": 0.013,
+ "median_hessian_minus_random": 0.0008,
+ "frac_volumes_hessian_beats_random": 0.75,
+ "reading": "gain = precision of NMS-then-threshold minus the best precision any GLOBAL threshold reaches at the same recall. The random-direction arm is the control: if hessian does not clearly beat random, the geometry adds nothing and any gain is an artifact of thinning per se.",
+ "rows": [
+  {
+   "sample": "sample_00161",
+   "recall_at_0.2": 0.647114058655366,
+   "precision_at_0.2": 0.46705342807213635,
+   "base_rate": 0.22399794291704933,
+   "hessian": {
+    "thresh": 0.8,
+    "recall": 0.15200692203128188,
+    "precision": 0.6375680468492246,
+    "threshold_only_precision_at_same_recall": 0.5939379764506392,
+    "gain": 0.04363007039858546
+   },
+   "random": {
+    "thresh": 0.8,
+    "recall": 0.15192334636949784,
+    "precision": 0.6192265304077748,
+    "threshold_only_precision_at_same_recall": 0.5939379764506392,
+    "gain": 0.025288553957135584
+   }
+  },
+  {
+   "sample": "sample_00162",
+   "recall_at_0.2": 0.8354964286923259,
+   "precision_at_0.2": 0.4769426387267823,
+   "base_rate": 0.17566195079253324,
+   "hessian": {
+    "thresh": 0.95,
+    "recall": 0.13553366507565756,
+    "precision": 0.7129273504273504,
+    "threshold_only_precision_at_same_recall": 0.7404387045235163,
+    "gain": -0.027511354096165896
+   },
+   "random": {
+    "thresh": 0.95,
+    "recall": 0.13465353237872787,
+    "precision": 0.7127396523920444,
+    "threshold_only_precision_at_same_recall": 0.7404387045235163,
+    "gain": -0.027699052131471946
+   }
+  },
+  {
+   "sample": "sample_00163",
+   "recall_at_0.2": 0.7984745455082668,
+   "precision_at_0.2": 0.4676832780773386,
+   "base_rate": 0.1989335930775916,
+   "hessian": {
+    "thresh": 0.95,
+    "recall": 0.06320041534234086,
+    "precision": 0.6609720566812343,
+    "threshold_only_precision_at_same_recall": 0.6527332762626881,
+    "gain": 0.008238780418546199
+   },
+   "random": {
+    "thresh": 0.95,
+    "recall": 0.0601824298371132,
+    "precision": 0.6596345130696276,
+    "threshold_only_precision_at_same_recall": 0.6527332762626881,
+    "gain": 0.006901236806939548
+   }
+  },
+  {
+   "sample": "sample_00164",
+   "recall_at_0.2": 0.8074144926746909,
+   "precision_at_0.2": 0.4372267321403555,
+   "base_rate": 0.14275197563396919,
+   "hessian": {
+    "thresh": 0.95,
+    "recall": 0.12832906704427863,
+    "precision": 0.6340077022686377,
+    "threshold_only_precision_at_same_recall": 0.6495100113399793,
+    "gain": -0.015502309071341647
+   },
+   "random": {
+    "thresh": 0.95,
+    "recall": 0.1260245901639344,
+    "precision": 0.6339120608177522,
+    "threshold_only_precision_at_same_recall": 0.6495100113399793,
+    "gain": -0.015597950522227122
+   }
+  },
+  {
+   "sample": "sample_00165",
+   "recall_at_0.2": 0.8353274255082822,
+   "precision_at_0.2": 0.5434882506117222,
+   "base_rate": 0.18622868256270164,
+   "hessian": {
+    "thresh": 0.95,
+    "recall": 0.12166779349978268,
+    "precision": 0.8666953343367018,
+    "threshold_only_precision_at_same_recall": 0.8381407784461926,
+    "gain": 0.028554555890509148
+   },
+   "random": {
+    "thresh": 0.95,
+    "recall": 0.11709808277394118,
+    "precision": 0.8651324591918651,
+    "threshold_only_precision_at_same_recall": 0.8381407784461926,
+    "gain": 0.026991680745672486
+   }
+  },
+  {
+   "sample": "sample_00166",
+   "recall_at_0.2": 0.8786009388280938,
+   "precision_at_0.2": 0.5910171230488789,
+   "base_rate": 0.20240751375439547,
+   "hessian": {
+    "thresh": 0.95,
+    "recall": 0.1700315410700271,
+    "precision": 0.9002555940601822,
+    "threshold_only_precision_at_same_recall": 0.9003260787138849,
+    "gain": -7.048465370274037e-05
+   },
+   "random": {
+    "thresh": 0.95,
+    "recall": 0.1649642386459552,
+    "precision": 0.8968265468772642,
+    "threshold_only_precision_at_same_recall": 0.9003260787138849,
+    "gain": -0.003499531836620773
+   }
+  },
+  {
+   "sample": "sample_00167",
+   "recall_at_0.2": 0.9327937495613933,
+   "precision_at_0.2": 0.6221244529732513,
+   "base_rate": 0.23125943317122255,
+   "hessian": {
+    "thresh": 0.98,
+    "recall": 0.07437600879552739,
+    "precision": 0.9931282211463377,
+    "threshold_only_precision_at_same_recall": 0.9740676496097138,
+    "gain": 0.019060571536623883
+   },
+   "random": {
+    "thresh": 0.98,
+    "recall": 0.07046948466630798,
+    "precision": 0.9932410154962084,
+    "threshold_only_precision_at_same_recall": 0.9740676496097138,
+    "gain": 0.019173365886494542
+   }
+  },
+  {
+   "sample": "sample_00168",
+   "recall_at_0.2": 0.9334353896597398,
+   "precision_at_0.2": 0.6391385475441765,
+   "base_rate": 0.15072214276597207,
+   "hessian": {
+    "thresh": 0.98,
+    "recall": 0.32360541115671076,
+    "precision": 0.9208193024189811,
+    "threshold_only_precision_at_same_recall": 0.9018603746677902,
+    "gain": 0.0189589277511909
+   },
+   "random": {
+    "thresh": 0.98,
+    "recall": 0.3047467048835038,
+    "precision": 0.9221090670170828,
+    "threshold_only_precision_at_same_recall": 0.9018603746677902,
+    "gain": 0.020248692349292607
+   }
+  }
+ ],
+ "wilcoxon_hessian_vs_random_p": 0.109375
+}
