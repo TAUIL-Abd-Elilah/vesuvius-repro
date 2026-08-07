@@ -124,14 +124,36 @@ identical configuration, 200 epochs each:
 0.56 → 0.68. For comparison, the A-vs-B difference at seed 0 was +0.020 — **seven times smaller
 than the noise between two runs of one arm.**
 
-**Consequence, stated plainly: a from-scratch proxy trained this way cannot resolve label-level
-interventions at the effect sizes anyone cares about.** Three seeds is enough to reveal that,
-not enough to average it away. If you intend to test a training-data change here, either budget
-far more seeds, fix the sources of run-to-run variance first, or evaluate the change on a fixed
-model instead. This is a limitation of the *harness*, not of the scoring — the fixed-model
-resolution above is excellent.
+Across all three seeds of arm A: **sd 0.0892, range 0.1637** — nine times the 0.01 magnitude
+floor that study had registered.
 
-(Three-seed numbers replace the two-seed spread above when the runs complete.)
+**⚠ And the unit of analysis matters more than the seed count.** Pairing by *volume* treats the
+174 volumes as independent replicates. They are not, with respect to run-level noise: a whole run
+sits high or low together, so one offset is counted 174 times. That produced
+
+> primary recall @0.2 — A 0.8009, B 0.7805, delta −0.0205, **p = 2.15e-05**
+
+from seed-level differences of **+0.020, −0.055, +0.009** (mean −0.0087, 95% CI −0.074…+0.056).
+An effect cannot be significant and also reverse sign across seeds. **When run-level variance
+dominates, the seed is the unit of analysis, not the volume.**
+
+### ⭐ The fix: score at a matched predicted-positive budget, not a fixed threshold
+
+Most of that variance is *calibration*, not capability — pred-positive swung 0.56 → 0.73 across
+seeds of one arm. Scoring each volume at the threshold that spends a fixed budget removes it:
+
+| arm A across seeds | recall @0.2 | `budget_recall` |
+|---|---|---|
+| values | 0.6982, 0.8415, 0.8619 | 0.1752, 0.1785, 0.1828 |
+| **sd** | **0.0892** | **0.0038** |
+
+**A 23× reduction in run-to-run noise, from the same six runs.** This is the single most
+practical thing to take from this file: **if you are testing a training-data intervention here,
+report `budget_recall`.** At a fixed threshold, calibration variance will swamp your effect —
+it swamped ours, and it did so while producing a p-value of 2e-05 in the wrong direction.
+
+⚠ **Even so, three seeds gives sem ≈ 0.023 on the primary.** Reducing the noise 23× makes the
+endpoint usable; it does not make n=3 sufficient. Budget seeds against the effect you expect.
 
 ## What is already known not to work
 
