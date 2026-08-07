@@ -109,6 +109,15 @@ python surface_bench.py --validate
 python surface_bench.py --pred <dir of sample_XXXXX.npy probability volumes>
 ```
 
+The 892-volume set is **not vendored here** — it is the public Kaggle data. Point at it with:
+
+```
+VESUVIUS_DATA=/path/to/kaggle python surface_bench.py --validate
+```
+
+expecting `images/` and `labels/` beneath that directory. Without it the script exits 2 with
+the paths it looked in, rather than failing later on an individual sample.
+
 Predictions are float probability volumes in `[0,1]`, named to match the sample. They may be
 full-size or a centred crop — the label is centre-cropped to match, so a model predicting only
 an interior region is scored fairly on that region.

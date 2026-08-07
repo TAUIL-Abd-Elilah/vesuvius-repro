@@ -42,15 +42,38 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import sys
 from pathlib import Path
 
 import numpy as np
 import tifffile
 
 ROOT = Path(__file__).resolve().parent
-IMAGES = ROOT / "data" / "kaggle" / "images"
-LABELS = ROOT / "data" / "kaggle" / "labels"
-OVERLAP = ROOT / "vesuvius-repro" / "results" / "overlap" / "overlap_report.json"
+
+
+def _find(*rel: str) -> Path:
+    """Resolve a path that sits in a different place in the repo than in the working tree.
+
+    This file is developed alongside `vesuvius-repro/` and shipped inside it, so
+    `results/overlap/overlap_report.json` is one directory up in one layout and adjacent in the
+    other. Hardcoding either breaks the other, and it breaks for a cloner rather than for us,
+    which is the worst way round. An env var wins if set, so the data can live anywhere.
+    """
+    for base in (ROOT, ROOT / "vesuvius-repro", ROOT.parent):
+        p = base.joinpath(*rel)
+        if p.exists():
+            return p
+    return ROOT.joinpath(*rel)          # non-existent: callers report a clear error
+
+
+# Volumes are the public 892-volume Kaggle set and are NOT in this repo. Point these anywhere
+# with VESUVIUS_DATA=/path/to/kaggle (expects images/ and labels/ beneath it).
+_DATA = Path(os.environ.get("VESUVIUS_DATA", "")) if os.environ.get("VESUVIUS_DATA") \
+    else _find("data", "kaggle")
+IMAGES = _DATA / "images"
+LABELS = _DATA / "labels"
+OVERLAP = _find("results", "overlap", "overlap_report.json")
 
 THRESH = 0.2       # the published m7 operating point, from its artifact filenames (th0.2)
 BUDGET = 0.12      # matched predicted-positive budget: the sheet base rate in scored regions
@@ -192,6 +215,17 @@ def main() -> None:
     ap.add_argument("--validate", action="store_true")
     ap.add_argument("--out", default=str(ROOT / "results" / "surface_bench.json"))
     a = ap.parse_args()
+
+    # Preflight. The volumes are the public Kaggle set and are deliberately not vendored here,
+    # so a fresh clone will not have them. Say so once, clearly, instead of failing later with
+    # a FileNotFoundError on some individual sample.
+    missing = [str(p) for p in (LABELS, OVERLAP) if not p.exists()]
+    if missing:
+        print("cannot run: missing\n  " + "\n  ".join(missing), file=sys.stderr)
+        print("\nthe 892-volume set is not in this repo. point at it with:\n"
+              "  VESUVIUS_DATA=/path/to/kaggle   (expects images/ and labels/ beneath)",
+              file=sys.stderr)
+        raise SystemExit(2)
 
     if a.validate:
         validate()
