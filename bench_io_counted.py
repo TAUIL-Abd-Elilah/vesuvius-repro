@@ -31,6 +31,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -118,7 +119,8 @@ def main() -> None:
     ap.add_argument("--x", type=int, default=3400)
     ap.add_argument("--reps", type=int, default=2)
     ap.add_argument("--work", default="outputs/io_counted")
-    ap.add_argument("--cache-dir", default="C:/Users/PC/AppData/Local/Temp/claude/vesuv_iocache")
+    ap.add_argument("--cache-dir",
+                    default=str(Path(tempfile.gettempdir()) / "vesuv_iocache"))
     ap.add_argument("--out", default=str(ROOT / "results" / "io_counted.json"))
     a = ap.parse_args()
 
