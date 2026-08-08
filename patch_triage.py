@@ -282,7 +282,7 @@ def _lift(y, s, frac: float) -> float:
 def do_evaluate(out_path: str) -> None:
     files = sorted(CACHE.glob("slab_*.json"))
     if len(files) < 5:
-        raise SystemExit(f"only {len(files)} slabs cached — run `extract` first")
+        raise SystemExit(f"only {len(files)} slabs cached - run `extract` first")
     data = {}
     for f in files:
         rows = json.loads(f.read_text())
@@ -354,10 +354,10 @@ def do_evaluate(out_path: str) -> None:
         res.append(r); raw.append(arrs)
 
     full = res[0]
-    print(f"\n  ⭐ REGISTERED FLOOR: lift@10% >= 2.00x   ->   got {full['lift10']:.2f}x   "
+    print(f"\n  ** REGISTERED FLOOR: lift@10% >= 2.00x   ->   got {full['lift10']:.2f}x   "
           f"{'PASS' if full['lift10'] >= 2.0 else 'FAIL'}")
     if full["lift10"] < 2.0:
-        print("  ⛔ graph position is real but too weak to ship as a triage tool. Say so.")
+        print("  !! graph position is real but too weak to ship as a triage tool. Say so.")
 
     ps = per_slab(*raw[0])
     print("\n  ROBUSTNESS (not the registered primary): rank WITHIN each held-out slab")
