@@ -65,11 +65,14 @@ FEATURES — each a distinct hypothesis about what forks a winding, all defined 
 
   python patch_triage.py extract --slabs 2-42     # cached per slab, ~1 pass over the archives
   python patch_triage.py evaluate
+  python patch_triage.py rank path/to/tifxyz_patches --out ranking.csv --budget 0.10
 """
 
 from __future__ import annotations
 
 import argparse
+import csv
+import hashlib
 import io
 import json
 import sys
@@ -84,6 +87,7 @@ from scipy.spatial import cKDTree
 ROOT = Path(__file__).resolve().parent
 WILL = ROOT / "_will"
 CACHE = ROOT / "results" / "triage_feats"
+MODEL = ROOT / "results" / "patch_triage_model.json"
 SLAB = 250.0
 PTS_TREE = 4000    # points kept per patch for its KD-tree (dense -> accurate min distance)
 PTS_QUERY = 800    # points used to QUERY another patch's tree
@@ -242,6 +246,249 @@ def features_for(recs) -> list[dict]:
     return out
 
 
+def load_tifxyz_directory(path: Path, seed: int = 0, max_patches: int = 5000):
+    """Load a review batch made of patch directories containing x/y/z TIFFs."""
+    root = path.resolve()
+    if not root.is_dir():
+        raise SystemExit(f"not a directory: {path}")
+    parents = sorted(
+        {p.parent for p in root.rglob("x.tif") if (p.parent / "y.tif").is_file()
+         and (p.parent / "z.tif").is_file()},
+        key=lambda p: p.as_posix(),
+    )
+    if not parents:
+        raise SystemExit(
+            f"no tifxyz patches under {path} (expected PATCH/x.tif, y.tif, z.tif)"
+        )
+    if len(parents) > max_patches:
+        raise SystemExit(
+            f"found {len(parents)} patches, above --max-patches {max_patches}; "
+            "rank one review batch/z-slab at a time"
+        )
+    rng = np.random.default_rng(seed)
+    recs, skipped = [], []
+    for parent in parents:
+        relative = parent.relative_to(root).as_posix()
+        patch = parent.name if relative == "." else relative
+        try:
+            xs = np.asarray(tifffile.imread(parent / "x.tif"))
+            ys = np.asarray(tifffile.imread(parent / "y.tif"))
+            zs = np.asarray(tifffile.imread(parent / "z.tif"))
+            if not (xs.shape == ys.shape == zs.shape) or xs.ndim != 2:
+                raise ValueError(
+                    f"coordinate shapes must be equal 2-D arrays, got "
+                    f"{xs.shape}, {ys.shape}, {zs.shape}"
+                )
+            P = np.stack([zs, ys, xs], axis=-1).astype(np.float64)
+            V = (xs > 0) & (ys > 0) & (zs > 0)
+            if V.sum() < 400:
+                raise ValueError(f"only {int(V.sum())} valid nodes; need at least 400")
+            ok = V[2:, 1:-1] & V[:-2, 1:-1] & V[1:-1, 2:] & V[1:-1, :-2]
+            if ok.sum() < 100:
+                raise ValueError(
+                    f"only {int(ok.sum())} central-difference nodes; need at least 100"
+                )
+            Pu = (0.5 * (P[2:, 1:-1] - P[:-2, 1:-1]))[ok]
+            Pv = (0.5 * (P[1:-1, 2:] - P[1:-1, :-2]))[ok]
+            nrm = np.cross(Pu, Pv)
+            length = np.linalg.norm(nrm, axis=1)
+            nrm = nrm[length > 1e-9] / length[length > 1e-9, None]
+            if len(nrm) < 50:
+                raise ValueError(f"only {len(nrm)} valid normals; need at least 50")
+            nrm = nrm * np.sign(nrm @ nrm[0])[:, None]
+            mean_normal = nrm.mean(0)
+            mean_normal /= max(np.linalg.norm(mean_normal), 1e-9)
+            spread = float(np.sqrt(np.mean(
+                np.arccos(np.clip(nrm @ mean_normal, -1, 1)) ** 2
+            )))
+            pts = P[V]
+            slab = int(float(pts[:, 0].mean()) // SLAB)
+            meta_path = parent / "meta.json"
+            if meta_path.is_file():
+                try:
+                    bbox = json.loads(meta_path.read_text(encoding="utf-8"))["bbox"]
+                    slab = int((0.5 * (bbox[0][2] + bbox[1][2])) // SLAB)
+                except (KeyError, IndexError, TypeError, ValueError,
+                        json.JSONDecodeError):
+                    pass
+            if len(pts) > PTS_TREE:
+                pts = pts[rng.choice(len(pts), PTS_TREE, replace=False)]
+            pts = pts.astype(np.float32)
+            qs = pts if len(pts) <= PTS_QUERY else pts[
+                rng.choice(len(pts), PTS_QUERY, replace=False)
+            ]
+            recs.append({
+                "patch": patch, "label": "unknown", "pts": pts, "qs": qs,
+                "lo": pts.min(0), "hi": pts.max(0), "centroid": pts.mean(0),
+                "normal": mean_normal, "normal_spread": spread,
+                "size": float(np.linalg.norm(pts.std(0))), "slab": slab,
+            })
+        except Exception as exc:
+            skipped.append({"patch": patch, "reason": str(exc)})
+    if not recs:
+        raise SystemExit(f"all {len(parents)} tifxyz patches were invalid")
+    return recs, skipped
+
+
+def load_cached_training(cache_dir: Path = CACHE):
+    """Return the fixed labelled feature matrix used by the held-out study."""
+    files = sorted(cache_dir.glob("slab_*.json"))
+    if len(files) < 5:
+        raise SystemExit(f"only {len(files)} slabs cached - run `extract` first")
+    rows = []
+    for path in files:
+        rows.extend(json.loads(path.read_text(encoding="utf-8")))
+    X = np.array([[row[name] for name in FEATURES] for row in rows], dtype=float)
+    y = np.array([row["label"] == "bad" for row in rows], dtype=float)
+    return files, X, y
+
+
+def fit_deployment_model(cache_dir: Path = CACHE) -> dict:
+    """Fit the fixed all-nine-feature model on every labelled training slab."""
+    files, X, y = load_cached_training(cache_dir)
+    mu = X.mean(0)
+    sd = X.std(0) + 1e-9
+    weights = _fit_logreg((X - mu) / sd, y)
+    # BLAS reduction order can move the final bit across thread counts. Fifteen
+    # decimal places retain far more precision than ranking needs and make the
+    # tracked JSON byte-stable across single- and multi-threaded rebuilds.
+    mu = np.round(mu, 15)
+    sd = np.round(sd, 15)
+    weights = np.round(weights, 15)
+    source_hash = hashlib.sha256()
+    for path in files:
+        source_hash.update(path.name.encode("utf-8"))
+        source_hash.update(b"\0")
+        with path.open("rb") as handle:
+            while block := handle.read(1 << 20):
+                source_hash.update(block)
+    return {
+        "tool": "patch_triage deployment model",
+        "serialization_decimals": 15,
+        "features": FEATURES,
+        "training": {
+            "n_slabs": len(files), "n_patches": int(len(y)),
+            "bad_rate": float(y.mean()),
+            "cache_manifest_sha256": source_hash.hexdigest(),
+        },
+        "standardization_mean": mu.tolist(),
+        "standardization_sd": sd.tolist(),
+        "weights_intercept_then_features": weights.tolist(),
+        "validation": {
+            "source": "results/patch_triage.json",
+            "mean_per_slab_lift10": 2.34503899036176,
+            "slabs_at_or_above_2x": 37,
+            "n_validation_slabs": 41,
+        },
+    }
+
+
+def load_deployment_model(path: Path) -> dict:
+    if not path.is_file():
+        raise SystemExit(
+            f"deployment model not found: {path}; rebuild with `patch_triage.py fit-model`"
+        )
+    model = json.loads(path.read_text(encoding="utf-8"))
+    if model.get("features") != FEATURES:
+        raise SystemExit(f"model feature schema does not match this script: {path}")
+    for key, length in (("standardization_mean", len(FEATURES)),
+                        ("standardization_sd", len(FEATURES)),
+                        ("weights_intercept_then_features", len(FEATURES) + 1)):
+        if len(model.get(key, [])) != length:
+            raise SystemExit(f"model field {key} has the wrong length: {path}")
+    return model
+
+
+def do_fit_model(cache_dir: str, out_path: str) -> None:
+    model = fit_deployment_model(Path(cache_dir))
+    destination = Path(out_path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(model, indent=2) + "\n", encoding="utf-8")
+    print(f"wrote {destination}")
+
+
+def do_rank(input_dir: str, out_path: str, budget: float, seed: int,
+            max_patches: int, model_path: str) -> None:
+    """Load the fixed model artifact and rank a tifxyz review batch."""
+    if not (0.0 < budget <= 1.0):
+        raise SystemExit("--budget must be in (0, 1]")
+    model_file = Path(model_path)
+    model = load_deployment_model(model_file)
+    model_digest = hashlib.sha256(model_file.read_bytes()).hexdigest()
+    mu = np.asarray(model["standardization_mean"], dtype=float)
+    sd = np.asarray(model["standardization_sd"], dtype=float)
+    weights = np.asarray(model["weights_intercept_then_features"], dtype=float)
+
+    recs, skipped = load_tifxyz_directory(
+        Path(input_dir), seed=seed, max_patches=max_patches
+    )
+    groups = defaultdict(list)
+    for record in recs:
+        groups[int(record["slab"])].append(record)
+
+    ranked = []
+    for slab in sorted(groups):
+        features = features_for(groups[slab])
+        X = np.array([[row[name] for name in FEATURES] for row in features], float)
+        scores = _score(weights, (X - mu) / sd)
+        names = np.array([row["patch"] for row in features], dtype=object)
+        order = np.lexsort((names, -scores))
+        k = max(1, int(round(budget * len(features))))
+        for rank0, index in enumerate(order):
+            row = features[int(index)]
+            ranked.append({
+                "slab": slab,
+                "rank_within_slab": rank0 + 1,
+                "n_in_slab": len(features),
+                "selected": rank0 < k,
+                "score": float(scores[int(index)]),
+                **{name: float(row[name]) for name in FEATURES},
+                "patch": row["patch"],
+            })
+
+    destination = Path(out_path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    columns = ["patch", "slab", "rank_within_slab", "n_in_slab", "selected",
+               "score", *FEATURES]
+    with destination.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=columns)
+        writer.writeheader()
+        writer.writerows(ranked)
+
+    metadata = {
+        "tool": "patch_triage rank",
+        "input": str(input_dir),
+        "output": str(destination),
+        "seed": int(seed),
+        "budget": float(budget),
+        "ranking_scope": "within each 250-voxel z slab; scores are not cross-slab calibrated",
+        "n_input_directories": len(recs) + len(skipped),
+        "n_ranked": len(ranked),
+        "n_skipped": len(skipped),
+        "skipped": skipped,
+        "training": {
+            "model_path": str(model_path), "model_sha256": model_digest,
+            "features": FEATURES,
+            **model["training"], "validation": model.get("validation"),
+        },
+        "limitations": [
+            "Predicts Will Stevens' recorded rejection decision, not validated geometric wrongness.",
+            "Held-out mean per-slab lift@10% was 2.345x; 4 of 41 slabs missed the 2.0x floor.",
+            "The five added features did not materially outperform patch_graph's original four.",
+        ],
+    }
+    metadata_path = destination.with_suffix(destination.suffix + ".json")
+    metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+    selected = sum(bool(row["selected"]) for row in ranked)
+    print(f"ranked {len(ranked)} patches in {len(groups)} slab(s); "
+          f"selected {selected} at budget {budget:.1%}")
+    if skipped:
+        print(f"skipped {len(skipped)} invalid patches; details: {metadata_path}")
+    print(f"wrote {destination}")
+    print(f"wrote {metadata_path}")
+    print("scope: predicts a recorded human rejection decision, not geometric wrongness")
+
+
 def do_extract(slabs: list[int], seed: int) -> None:
     CACHE.mkdir(parents=True, exist_ok=True)
     for s in slabs:
@@ -279,8 +526,8 @@ def _lift(y, s, frac: float) -> float:
     return float(y[top].mean() / max(y.mean(), 1e-9))
 
 
-def do_evaluate(out_path: str) -> None:
-    files = sorted(CACHE.glob("slab_*.json"))
+def do_evaluate(out_path: str, cache_dir: Path = CACHE) -> None:
+    files = sorted(cache_dir.glob("slab_*.json"))
     if len(files) < 5:
         raise SystemExit(f"only {len(files)} slabs cached - run `extract` first")
     data = {}
@@ -379,6 +626,148 @@ def do_evaluate(out_path: str) -> None:
     print(f"\nwrote {out_path}")
 
 
+def _held_out_all_feature_scores(cache_dir: Path):
+    files = sorted(cache_dir.glob("slab_*.json"))
+    if len(files) < 5:
+        raise SystemExit(f"only {len(files)} slabs cached - run `extract` first")
+    data = {}
+    for path in files:
+        rows = json.loads(path.read_text(encoding="utf-8"))
+        slab = int(path.stem.split("_")[1])
+        X = np.array([[row[name] for name in FEATURES] for row in rows], float)
+        y = np.array([row["label"] == "bad" for row in rows], float)
+        data[slab] = (X, y)
+    scored = {}
+    slabs = sorted(data)
+    for held in slabs:
+        X_train = np.concatenate([data[s][0] for s in slabs if s != held])
+        y_train = np.concatenate([data[s][1] for s in slabs if s != held])
+        mu, sd = X_train.mean(0), X_train.std(0) + 1e-9
+        weights = _fit_logreg((X_train - mu) / sd, y_train)
+        scored[held] = (
+            _score(weights, (data[held][0] - mu) / sd), data[held][1]
+        )
+    return scored
+
+
+def _write_lift_svg(path: Path, curve: list[dict]) -> None:
+    width, height = 840, 520
+    left, right, top, bottom = 82, 30, 70, 72
+    plot_w, plot_h = width - left - right, height - top - bottom
+    ymax = max(3.0, 1.05 * max(
+        max(row["mean_per_slab_lift"], row["patch_weighted_lift"])
+        for row in curve
+    ))
+
+    def px(fraction):
+        return left + (float(fraction) / 0.50) * plot_w
+
+    def py(value):
+        return top + plot_h - (float(value) / ymax) * plot_h
+
+    def points(key):
+        return " ".join(f"{px(r['budget']):.1f},{py(r[key]):.1f}" for r in curve)
+
+    ticks = []
+    for percent in range(0, 51, 10):
+        x = px(percent / 100)
+        ticks.append(
+            f'<line x1="{x:.1f}" y1="{top}" x2="{x:.1f}" y2="{top+plot_h}" '
+            'stroke="#e7e2d8" stroke-width="1"/>'
+            f'<text x="{x:.1f}" y="{top+plot_h+27}" text-anchor="middle" '
+            f'class="tick">{percent}%</text>'
+        )
+    y_tick = 0.0
+    while y_tick <= ymax + 1e-9:
+        y = py(y_tick)
+        y_label = f"{y_tick:.1f}".rstrip("0").rstrip(".")
+        ticks.append(
+            f'<line x1="{left}" y1="{y:.1f}" x2="{left+plot_w}" y2="{y:.1f}" '
+            'stroke="#e7e2d8" stroke-width="1"/>'
+            f'<text x="{left-14}" y="{y+5:.1f}" text-anchor="end" '
+            f'class="tick">{y_label}x</text>'
+        )
+        y_tick += 0.5
+    row10 = min(curve, key=lambda row: abs(row["budget"] - 0.10))
+    x10, y10 = px(row10["budget"]), py(row10["mean_per_slab_lift"])
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+<style>
+  .title {{ font: 700 24px Arial, sans-serif; fill: #22201d; }}
+  .sub {{ font: 14px Arial, sans-serif; fill: #615b52; }}
+  .tick {{ font: 12px Arial, sans-serif; fill: #615b52; }}
+  .axis {{ font: 600 13px Arial, sans-serif; fill: #39352f; }}
+  .legend {{ font: 13px Arial, sans-serif; fill: #39352f; }}
+</style>
+<rect width="100%" height="100%" fill="#faf8f3"/>
+<text x="{left}" y="32" class="title">Patch triage lift on held-out Scroll 4 slabs</text>
+<text x="{left}" y="54" class="sub">Leave-one-slab-out; rank within each slab; 56,835 patches across 41 slabs</text>
+{''.join(ticks)}
+<line x1="{left}" y1="{py(1):.1f}" x2="{left+plot_w}" y2="{py(1):.1f}" stroke="#8b857c" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="{points('patch_weighted_lift')}" fill="none" stroke="#174f72" stroke-width="4" stroke-linejoin="round"/>
+<polyline points="{points('mean_per_slab_lift')}" fill="none" stroke="#d35d38" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="{x10:.1f}" cy="{y10:.1f}" r="6" fill="#d35d38" stroke="#faf8f3" stroke-width="2"/>
+<text x="{x10+13:.1f}" y="{y10-10:.1f}" class="axis">10%: {row10['mean_per_slab_lift']:.2f}x mean</text>
+<line x1="{left}" y1="{top+plot_h}" x2="{left+plot_w}" y2="{top+plot_h}" stroke="#39352f" stroke-width="2"/>
+<line x1="{left}" y1="{top}" x2="{left}" y2="{top+plot_h}" stroke="#39352f" stroke-width="2"/>
+<text x="{left+plot_w/2:.1f}" y="{height-20}" text-anchor="middle" class="axis">Fraction of each slab sent to review</text>
+<text x="22" y="{top+plot_h/2:.1f}" text-anchor="middle" transform="rotate(-90 22 {top+plot_h/2:.1f})" class="axis">Precision lift over random review</text>
+<line x1="{left+plot_w-245}" y1="{top+19}" x2="{left+plot_w-210}" y2="{top+19}" stroke="#174f72" stroke-width="4"/>
+<text x="{left+plot_w-200}" y="{top+24}" class="legend">patch-weighted</text>
+<line x1="{left+plot_w-245}" y1="{top+43}" x2="{left+plot_w-210}" y2="{top+43}" stroke="#d35d38" stroke-width="3"/>
+<text x="{left+plot_w-200}" y="{top+48}" class="legend">mean slab</text>
+<text x="{left+plot_w-245}" y="{top+72}" class="sub">Target: recorded human rejection decision</text>
+</svg>
+'''
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(svg, encoding="utf-8")
+
+
+def do_curve(cache_dir: str, out_path: str, svg_path: str) -> None:
+    scored = _held_out_all_feature_scores(Path(cache_dir))
+    curve = []
+    for percent in range(1, 51):
+        budget = percent / 100.0
+        rows, selected_bad = [], 0.0
+        total_bad = sum(float(y.sum()) for _, y in scored.values())
+        total_selected = 0
+        total_patches = sum(len(y) for _, y in scored.values())
+        for slab in sorted(scored):
+            scores, y = scored[slab]
+            k = max(1, int(round(float(budget) * len(y))))
+            top = np.argsort(-scores)[:k]
+            lift = float(y[top].mean() / max(y.mean(), 1e-9))
+            rows.append((len(y), lift))
+            selected_bad += float(y[top].sum())
+            total_selected += k
+        sizes = np.array([row[0] for row in rows], float)
+        lifts = np.array([row[1] for row in rows], float)
+        curve.append({
+            "budget": float(budget),
+            "actual_patch_fraction": float(total_selected / total_patches),
+            "mean_per_slab_lift": float(lifts.mean()),
+            "median_per_slab_lift": float(np.median(lifts)),
+            "patch_weighted_lift": float(np.average(lifts, weights=sizes)),
+            "bad_patch_recall": float(selected_bad / total_bad),
+        })
+    result = {
+        "tool": "patch_triage lift curve",
+        "protocol": "leave one slab out; rank within held-out slab",
+        "n_slabs": len(scored),
+        "n_patches": int(sum(len(y) for _, y in scored.values())),
+        "features": FEATURES,
+        "curve": curve,
+    }
+    destination = Path(out_path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    _write_lift_svg(Path(svg_path), curve)
+    row10 = next(row for row in curve if row["budget"] == 0.10)
+    print(f"10% mean per-slab lift {row10['mean_per_slab_lift']:.3f}x; "
+          f"patch-weighted {row10['patch_weighted_lift']:.3f}x")
+    print(f"wrote {destination}")
+    print(f"wrote {svg_path}")
+
+
 def main() -> None:
     # The report below contains non-cp1252 characters and this is a Windows box: without this
     # the run computes every number and then dies in a print, writing no output file.
@@ -394,12 +783,38 @@ def main() -> None:
     e.add_argument("--seed", type=int, default=0)
     v = sub.add_parser("evaluate")
     v.add_argument("--out", default=str(ROOT / "results" / "patch_triage.json"))
+    v.add_argument("--cache-dir", default=str(CACHE))
+    r = sub.add_parser(
+        "rank", help="rank a tifxyz review batch within each 250-voxel z slab"
+    )
+    r.add_argument("input_dir", help="directory containing PATCH/x.tif, y.tif, z.tif")
+    r.add_argument("--out", default="patch_triage_ranking.csv")
+    r.add_argument("--budget", type=float, default=0.10)
+    r.add_argument("--seed", type=int, default=0)
+    r.add_argument("--model", default=str(MODEL))
+    r.add_argument(
+        "--max-patches", type=int, default=5000,
+        help="memory guard for the relational pair search (default: 5000)",
+    )
+    f = sub.add_parser("fit-model", help="rebuild the tracked deployment model")
+    f.add_argument("--cache-dir", default=str(CACHE))
+    f.add_argument("--out", default=str(MODEL))
+    c = sub.add_parser("curve", help="regenerate the held-out per-slab lift curve")
+    c.add_argument("--cache-dir", default=str(CACHE))
+    c.add_argument("--out", default=str(ROOT / "results" / "patch_triage_curve.json"))
+    c.add_argument("--svg", default=str(ROOT / "results" / "patch_triage_lift.svg"))
     a = ap.parse_args()
     if a.cmd == "extract":
         lo, hi = (a.slabs.split("-") + [a.slabs])[:2]
         do_extract(list(range(int(lo), int(hi) + 1)), a.seed)
+    elif a.cmd == "evaluate":
+        do_evaluate(a.out, Path(a.cache_dir))
+    elif a.cmd == "rank":
+        do_rank(a.input_dir, a.out, a.budget, a.seed, a.max_patches, a.model)
+    elif a.cmd == "fit-model":
+        do_fit_model(a.cache_dir, a.out)
     else:
-        do_evaluate(a.out)
+        do_curve(a.cache_dir, a.out, a.svg)
 
 
 if __name__ == "__main__":

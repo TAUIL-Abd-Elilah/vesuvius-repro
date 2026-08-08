@@ -6,6 +6,7 @@ import compileall
 import json
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
@@ -52,7 +53,30 @@ def main() -> None:
     assert "regional spot-checks            : 36" in proc.stdout
     assert "artifacts with regional match   : 41/41" in proc.stdout
 
-    print("smoke test passed: 41/41 m7 artifacts have a regional match across 36 scrolls")
+    triage = json.loads(
+        (HERE / "results" / "patch_triage.json").read_text(encoding="utf-8")
+    )
+    model = json.loads(
+        (HERE / "results" / "patch_triage_model.json").read_text(encoding="utf-8")
+    )
+    curve = json.loads(
+        (HERE / "results" / "patch_triage_curve.json").read_text(encoding="utf-8")
+    )
+    assert model["features"] == triage["features"]
+    assert model["training"]["n_slabs"] == triage["n_slabs"] == 41
+    assert model["training"]["n_patches"] == triage["n_patches"] == 56835
+    row10 = next(row for row in curve["curve"] if row["budget"] == 0.10)
+    robust = triage["per_slab_robustness"]
+    assert abs(row10["mean_per_slab_lift"] - robust["mean"]) < 1e-12
+    assert abs(row10["median_per_slab_lift"] - robust["median"]) < 1e-12
+    assert abs(row10["patch_weighted_lift"] - robust["patch_weighted"]) < 1e-12
+    ET.parse(HERE / "results" / "patch_triage_lift.svg")
+    rank_help = subprocess.run(
+        [sys.executable, str(HERE / "patch_triage.py"), "rank", "--help"],
+        check=True, capture_output=True, text=True, encoding="utf-8")
+    assert "PATCH/x.tif, y.tif, z.tif" in rank_help.stdout
+
+    print("smoke test passed: 41/41 m7 artifacts match; patch-triage artifacts agree")
 
 
 if __name__ == "__main__":

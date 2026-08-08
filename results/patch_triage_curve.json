@@ -1,0 +1,419 @@
+{
+  "tool": "patch_triage lift curve",
+  "protocol": "leave one slab out; rank within held-out slab",
+  "n_slabs": 41,
+  "n_patches": 56835,
+  "features": [
+    "degree",
+    "clustering",
+    "local_cut",
+    "neigh_spread",
+    "frac_same",
+    "normal_spread",
+    "nb_normal_angle",
+    "nb_degree_med",
+    "log_size"
+  ],
+  "curve": [
+    {
+      "budget": 0.01,
+      "actual_patch_fraction": 0.009993841822820445,
+      "mean_per_slab_lift": 3.1914570750583766,
+      "median_per_slab_lift": 3.2333333333333334,
+      "patch_weighted_lift": 3.2401735996283443,
+      "bad_patch_recall": 0.03214520008746993
+    },
+    {
+      "budget": 0.02,
+      "actual_patch_fraction": 0.02002287322952406,
+      "mean_per_slab_lift": 3.0112913296503137,
+      "median_per_slab_lift": 3.073415412676699,
+      "patch_weighted_lift": 3.0573218092580845,
+      "bad_patch_recall": 0.06079160288650776
+    },
+    {
+      "budget": 0.03,
+      "actual_patch_fraction": 0.029999120260402922,
+      "mean_per_slab_lift": 2.939641208267573,
+      "median_per_slab_lift": 2.9877982152613365,
+      "patch_weighted_lift": 2.987060209540464,
+      "bad_patch_recall": 0.08900065602449159
+    },
+    {
+      "budget": 0.04,
+      "actual_patch_fraction": 0.03997536729128178,
+      "mean_per_slab_lift": 2.7850244687641603,
+      "median_per_slab_lift": 2.7621904761904763,
+      "patch_weighted_lift": 2.8225241968160173,
+      "bad_patch_recall": 0.11228952547561775
+    },
+    {
+      "budget": 0.05,
+      "actual_patch_fraction": 0.05002199348992698,
+      "mean_per_slab_lift": 2.690103892782503,
+      "median_per_slab_lift": 2.7212030075187967,
+      "patch_weighted_lift": 2.733443509013833,
+      "bad_patch_recall": 0.13623441941832495
+    },
+    {
+      "budget": 0.06,
+      "actual_patch_fraction": 0.06001583531274743,
+      "mean_per_slab_lift": 2.623488936061714,
+      "median_per_slab_lift": 2.607066970960888,
+      "patch_weighted_lift": 2.6662177712119832,
+      "bad_patch_recall": 0.15963262628471464
+    },
+    {
+      "budget": 0.07,
+      "actual_patch_fraction": 0.07004486671945104,
+      "mean_per_slab_lift": 2.5534648530021737,
+      "median_per_slab_lift": 2.560969898795431,
+      "patch_weighted_lift": 2.587717105079085,
+      "bad_patch_recall": 0.18084408484583425
+    },
+    {
+      "budget": 0.08,
+      "actual_patch_fraction": 0.08000351895838832,
+      "mean_per_slab_lift": 2.475476314832015,
+      "median_per_slab_lift": 2.446549660949342,
+      "patch_weighted_lift": 2.508442573756876,
+      "bad_patch_recall": 0.2001968073474743
+    },
+    {
+      "budget": 0.09,
+      "actual_patch_fraction": 0.08997976598926717,
+      "mean_per_slab_lift": 2.4022172727900415,
+      "median_per_slab_lift": 2.3468795355587804,
+      "patch_weighted_lift": 2.4272571899291044,
+      "bad_patch_recall": 0.2179094686201618
+    },
+    {
+      "budget": 0.1,
+      "actual_patch_fraction": 0.0999912026040292,
+      "mean_per_slab_lift": 2.34503899036176,
+      "median_per_slab_lift": 2.299371840049027,
+      "patch_weighted_lift": 2.3699612135627492,
+      "bad_patch_recall": 0.23649682921495735
+    },
+    {
+      "budget": 0.11,
+      "actual_patch_fraction": 0.11002023401073283,
+      "mean_per_slab_lift": 2.289655422864421,
+      "median_per_slab_lift": 2.2869885925036453,
+      "patch_weighted_lift": 2.31628927636097,
+      "bad_patch_recall": 0.25442816531817186
+    },
+    {
+      "budget": 0.12,
+      "actual_patch_fraction": 0.1199612914577285,
+      "mean_per_slab_lift": 2.2314155637525563,
+      "median_per_slab_lift": 2.2218648537414447,
+      "patch_weighted_lift": 2.2541799160642975,
+      "bad_patch_recall": 0.27006341570085285
+    },
+    {
+      "budget": 0.13,
+      "actual_patch_fraction": 0.1300255124483153,
+      "mean_per_slab_lift": 2.187889711559877,
+      "median_per_slab_lift": 2.1762466224514863,
+      "patch_weighted_lift": 2.2154433175719985,
+      "bad_patch_recall": 0.2876667395582768
+    },
+    {
+      "budget": 0.14,
+      "actual_patch_fraction": 0.14001935427113574,
+      "mean_per_slab_lift": 2.15845493460931,
+      "median_per_slab_lift": 2.1496292577431064,
+      "patch_weighted_lift": 2.1797708186727442,
+      "bad_patch_recall": 0.3048327137546468
+    },
+    {
+      "budget": 0.15,
+      "actual_patch_fraction": 0.149978006510073,
+      "mean_per_slab_lift": 2.1108541729112096,
+      "median_per_slab_lift": 2.121887031531751,
+      "patch_weighted_lift": 2.134701068324992,
+      "bad_patch_recall": 0.31992127706101026
+    },
+    {
+      "budget": 0.16,
+      "actual_patch_fraction": 0.16002463270871822,
+      "mean_per_slab_lift": 2.0803830240483068,
+      "median_per_slab_lift": 2.0919421487603302,
+      "patch_weighted_lift": 2.1064857967169366,
+      "bad_patch_recall": 0.33686857642685325
+    },
+    {
+      "budget": 0.17,
+      "actual_patch_fraction": 0.1699480953637723,
+      "mean_per_slab_lift": 2.0428407831138524,
+      "median_per_slab_lift": 2.059929141896355,
+      "patch_weighted_lift": 2.066917005298569,
+      "bad_patch_recall": 0.3510824404111087
+    },
+    {
+      "budget": 0.18,
+      "actual_patch_fraction": 0.18004750593824229,
+      "mean_per_slab_lift": 2.0032720177897896,
+      "median_per_slab_lift": 2.022947925860547,
+      "patch_weighted_lift": 2.0289939433795063,
+      "bad_patch_recall": 0.3651869669801006
+    },
+    {
+      "budget": 0.19,
+      "actual_patch_fraction": 0.1900413477610627,
+      "mean_per_slab_lift": 1.974552700628034,
+      "median_per_slab_lift": 2.010233918128655,
+      "patch_weighted_lift": 1.9994340359993947,
+      "bad_patch_recall": 0.37983818062541
+    },
+    {
+      "budget": 0.2,
+      "actual_patch_fraction": 0.20003518958388317,
+      "mean_per_slab_lift": 1.951576648567475,
+      "median_per_slab_lift": 1.973684210526316,
+      "patch_weighted_lift": 1.9749085046409023,
+      "bad_patch_recall": 0.39503608134703694
+    },
+    {
+      "budget": 0.21,
+      "actual_patch_fraction": 0.21001143661476204,
+      "mean_per_slab_lift": 1.9286234033882863,
+      "median_per_slab_lift": 1.9377033559542625,
+      "patch_weighted_lift": 1.9505499266769977,
+      "bad_patch_recall": 0.4097966324076099
+    },
+    {
+      "budget": 0.22,
+      "actual_patch_fraction": 0.2199700888536993,
+      "mean_per_slab_lift": 1.9000064143517346,
+      "median_per_slab_lift": 1.897075055187638,
+      "patch_weighted_lift": 1.921113169977633,
+      "bad_patch_recall": 0.42269844740870327
+    },
+    {
+      "budget": 0.23,
+      "actual_patch_fraction": 0.23005190463622768,
+      "mean_per_slab_lift": 1.8703273757800447,
+      "median_per_slab_lift": 1.8735943527866699,
+      "patch_weighted_lift": 1.887868584095996,
+      "bad_patch_recall": 0.4345068882571616
+    },
+    {
+      "budget": 0.24,
+      "actual_patch_fraction": 0.23997536729128177,
+      "mean_per_slab_lift": 1.8377795356097242,
+      "median_per_slab_lift": 1.8337170700364103,
+      "patch_weighted_lift": 1.8559213202682254,
+      "bad_patch_recall": 0.4456593046140389
+    },
+    {
+      "budget": 0.25,
+      "actual_patch_fraction": 0.25005718307381014,
+      "mean_per_slab_lift": 1.8122250283903503,
+      "median_per_slab_lift": 1.808997844827586,
+      "patch_weighted_lift": 1.8288351785872319,
+      "bad_patch_recall": 0.45768642029302425
+    },
+    {
+      "budget": 0.26,
+      "actual_patch_fraction": 0.2600158353127474,
+      "mean_per_slab_lift": 1.7777761140878185,
+      "median_per_slab_lift": 1.7856267764383027,
+      "patch_weighted_lift": 1.793243454793271,
+      "bad_patch_recall": 0.46654275092936803
+    },
+    {
+      "budget": 0.27,
+      "actual_patch_fraction": 0.2699568927597431,
+      "mean_per_slab_lift": 1.7484245429259155,
+      "median_per_slab_lift": 1.7436612372622962,
+      "patch_weighted_lift": 1.7632657392661577,
+      "bad_patch_recall": 0.4762737808878198
+    },
+    {
+      "budget": 0.28,
+      "actual_patch_fraction": 0.27998592416644674,
+      "mean_per_slab_lift": 1.7283857858746965,
+      "median_per_slab_lift": 1.7211465117643605,
+      "patch_weighted_lift": 1.742701254469337,
+      "bad_patch_recall": 0.48808222173627813
+    },
+    {
+      "budget": 0.29,
+      "actual_patch_fraction": 0.28997976598926717,
+      "mean_per_slab_lift": 1.7088701265290627,
+      "median_per_slab_lift": 1.7113398634872792,
+      "patch_weighted_lift": 1.7234835702138391,
+      "bad_patch_recall": 0.5
+    },
+    {
+      "budget": 0.3,
+      "actual_patch_fraction": 0.3000087973959708,
+      "mean_per_slab_lift": 1.6955402679286704,
+      "median_per_slab_lift": 1.7080237862495926,
+      "patch_weighted_lift": 1.7088390137032081,
+      "bad_patch_recall": 0.5129018150010933
+    },
+    {
+      "budget": 0.31,
+      "actual_patch_fraction": 0.3099498548429665,
+      "mean_per_slab_lift": 1.680969701548105,
+      "median_per_slab_lift": 1.698789226587596,
+      "patch_weighted_lift": 1.695687889800929,
+      "bad_patch_recall": 0.5259129674174503
+    },
+    {
+      "budget": 0.32,
+      "actual_patch_fraction": 0.3199788862496701,
+      "mean_per_slab_lift": 1.6569812381520643,
+      "median_per_slab_lift": 1.6626105795269903,
+      "patch_weighted_lift": 1.6716518637528839,
+      "bad_patch_recall": 0.535425322545375
+    },
+    {
+      "budget": 0.33,
+      "actual_patch_fraction": 0.3300079176563737,
+      "mean_per_slab_lift": 1.6398060753771722,
+      "median_per_slab_lift": 1.6537140791613953,
+      "patch_weighted_lift": 1.6529326301610479,
+      "bad_patch_recall": 0.5459217144106713
+    },
+    {
+      "budget": 0.34,
+      "actual_patch_fraction": 0.3400193542711357,
+      "mean_per_slab_lift": 1.6202350173924531,
+      "median_per_slab_lift": 1.6375432525951557,
+      "patch_weighted_lift": 1.6343148926356426,
+      "bad_patch_recall": 0.5560900940301772
+    },
+    {
+      "budget": 0.35,
+      "actual_patch_fraction": 0.35004838567783936,
+      "mean_per_slab_lift": 1.6041421490872536,
+      "median_per_slab_lift": 1.6183389867600393,
+      "patch_weighted_lift": 1.6162440479236708,
+      "bad_patch_recall": 0.5661491362344194
+    },
+    {
+      "budget": 0.36,
+      "actual_patch_fraction": 0.3599542535409519,
+      "mean_per_slab_lift": 1.5859178498597035,
+      "median_per_slab_lift": 1.5966647866713413,
+      "patch_weighted_lift": 1.5981813539043612,
+      "bad_patch_recall": 0.5757708287776077
+    },
+    {
+      "budget": 0.37,
+      "actual_patch_fraction": 0.3700184745315387,
+      "mean_per_slab_lift": 1.571384155236496,
+      "median_per_slab_lift": 1.5934400935707442,
+      "patch_weighted_lift": 1.583221730601649,
+      "bad_patch_recall": 0.586485895473431
+    },
+    {
+      "budget": 0.38,
+      "actual_patch_fraction": 0.3799067476027096,
+      "mean_per_slab_lift": 1.5588729014588896,
+      "median_per_slab_lift": 1.5715237403100777,
+      "patch_weighted_lift": 1.570005428347081,
+      "bad_patch_recall": 0.5969822873387273
+    },
+    {
+      "budget": 0.39,
+      "actual_patch_fraction": 0.38998856338523796,
+      "mean_per_slab_lift": 1.5435764618426582,
+      "median_per_slab_lift": 1.5507415666702062,
+      "patch_weighted_lift": 1.5551292848007698,
+      "bad_patch_recall": 0.6069319921277061
+    },
+    {
+      "budget": 0.4,
+      "actual_patch_fraction": 0.4000175947919416,
+      "mean_per_slab_lift": 1.5246257448049478,
+      "median_per_slab_lift": 1.5286052165858983,
+      "patch_weighted_lift": 1.536671878507307,
+      "bad_patch_recall": 0.6152416356877324
+    },
+    {
+      "budget": 0.41,
+      "actual_patch_fraction": 0.4100290314067036,
+      "mean_per_slab_lift": 1.508432788587118,
+      "median_per_slab_lift": 1.5216659317753638,
+      "patch_weighted_lift": 1.5202265970649953,
+      "bad_patch_recall": 0.6239886289088126
+    },
+    {
+      "budget": 0.42,
+      "actual_patch_fraction": 0.42000527843758245,
+      "mean_per_slab_lift": 1.4911001633978098,
+      "median_per_slab_lift": 1.5138375481624908,
+      "patch_weighted_lift": 1.5026847994218244,
+      "bad_patch_recall": 0.6317515853925213
+    },
+    {
+      "budget": 0.43,
+      "actual_patch_fraction": 0.42992874109263657,
+      "mean_per_slab_lift": 1.4773245954940972,
+      "median_per_slab_lift": 1.4969635627530364,
+      "patch_weighted_lift": 1.489464352758023,
+      "bad_patch_recall": 0.641045265689919
+    },
+    {
+      "budget": 0.44,
+      "actual_patch_fraction": 0.43999296208322336,
+      "mean_per_slab_lift": 1.4617351433051002,
+      "median_per_slab_lift": 1.476943366480718,
+      "patch_weighted_lift": 1.473581685907997,
+      "bad_patch_recall": 0.6490268970041548
+    },
+    {
+      "budget": 0.45,
+      "actual_patch_fraction": 0.4500043986979854,
+      "mean_per_slab_lift": 1.4491648862825057,
+      "median_per_slab_lift": 1.4677488791121096,
+      "patch_weighted_lift": 1.4605203170674907,
+      "bad_patch_recall": 0.6578832276404986
+    },
+    {
+      "budget": 0.46,
+      "actual_patch_fraction": 0.4599630509369227,
+      "mean_per_slab_lift": 1.435346986933669,
+      "median_per_slab_lift": 1.461988812567023,
+      "patch_weighted_lift": 1.4479916516819527,
+      "bad_patch_recall": 0.6667395582768423
+    },
+    {
+      "budget": 0.47,
+      "actual_patch_fraction": 0.47004486671945106,
+      "mean_per_slab_lift": 1.4210022222600844,
+      "median_per_slab_lift": 1.4304998227578871,
+      "patch_weighted_lift": 1.432769440419274,
+      "bad_patch_recall": 0.674283839930024
+    },
+    {
+      "budget": 0.48,
+      "actual_patch_fraction": 0.48000351895838833,
+      "mean_per_slab_lift": 1.4056995862220607,
+      "median_per_slab_lift": 1.4289102250840833,
+      "patch_weighted_lift": 1.4176498774034285,
+      "bad_patch_recall": 0.6812814345068883
+    },
+    {
+      "budget": 0.49,
+      "actual_patch_fraction": 0.4900325503650919,
+      "mean_per_slab_lift": 1.3939652625509824,
+      "median_per_slab_lift": 1.4083921348904802,
+      "patch_weighted_lift": 1.4046033870023127,
+      "bad_patch_recall": 0.689044390990597
+    },
+    {
+      "budget": 0.5,
+      "actual_patch_fraction": 0.5000263921879123,
+      "mean_per_slab_lift": 1.3833296781560684,
+      "median_per_slab_lift": 1.4007625272331155,
+      "patch_weighted_lift": 1.3938272164349281,
+      "bad_patch_recall": 0.6976820467964138
+    }
+  ]
+}

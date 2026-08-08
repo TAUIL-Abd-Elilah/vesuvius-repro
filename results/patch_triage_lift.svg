@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="520" viewBox="0 0 840 520">
+<style>
+  .title { font: 700 24px Arial, sans-serif; fill: #22201d; }
+  .sub { font: 14px Arial, sans-serif; fill: #615b52; }
+  .tick { font: 12px Arial, sans-serif; fill: #615b52; }
+  .axis { font: 600 13px Arial, sans-serif; fill: #39352f; }
+  .legend { font: 13px Arial, sans-serif; fill: #39352f; }
+</style>
+<rect width="100%" height="100%" fill="#faf8f3"/>
+<text x="82" y="32" class="title">Patch triage lift on held-out Scroll 4 slabs</text>
+<text x="82" y="54" class="sub">Leave-one-slab-out; rank within each slab; 56,835 patches across 41 slabs</text>
+<line x1="82.0" y1="70" x2="82.0" y2="448" stroke="#e7e2d8" stroke-width="1"/><text x="82.0" y="475" text-anchor="middle" class="tick">0%</text><line x1="227.6" y1="70" x2="227.6" y2="448" stroke="#e7e2d8" stroke-width="1"/><text x="227.6" y="475" text-anchor="middle" class="tick">10%</text><line x1="373.2" y1="70" x2="373.2" y2="448" stroke="#e7e2d8" stroke-width="1"/><text x="373.2" y="475" text-anchor="middle" class="tick">20%</text><line x1="518.8" y1="70" x2="518.8" y2="448" stroke="#e7e2d8" stroke-width="1"/><text x="518.8" y="475" text-anchor="middle" class="tick">30%</text><line x1="664.4" y1="70" x2="664.4" y2="448" stroke="#e7e2d8" stroke-width="1"/><text x="664.4" y="475" text-anchor="middle" class="tick">40%</text><line x1="810.0" y1="70" x2="810.0" y2="448" stroke="#e7e2d8" stroke-width="1"/><text x="810.0" y="475" text-anchor="middle" class="tick">50%</text><line x1="82" y1="448.0" x2="810" y2="448.0" stroke="#e7e2d8" stroke-width="1"/><text x="68" y="453.0" text-anchor="end" class="tick">0x</text><line x1="82" y1="392.4" x2="810" y2="392.4" stroke="#e7e2d8" stroke-width="1"/><text x="68" y="397.4" text-anchor="end" class="tick">0.5x</text><line x1="82" y1="336.9" x2="810" y2="336.9" stroke="#e7e2d8" stroke-width="1"/><text x="68" y="341.9" text-anchor="end" class="tick">1x</text><line x1="82" y1="281.3" x2="810" y2="281.3" stroke="#e7e2d8" stroke-width="1"/><text x="68" y="286.3" text-anchor="end" class="tick">1.5x</text><line x1="82" y1="225.8" x2="810" y2="225.8" stroke="#e7e2d8" stroke-width="1"/><text x="68" y="230.8" text-anchor="end" class="tick">2x</text><line x1="82" y1="170.2" x2="810" y2="170.2" stroke="#e7e2d8" stroke-width="1"/><text x="68" y="175.2" text-anchor="end" class="tick">2.5x</text><line x1="82" y1="114.7" x2="810" y2="114.7" stroke="#e7e2d8" stroke-width="1"/><text x="68" y="119.7" text-anchor="end" class="tick">3x</text>
+<line x1="82" y1="336.9" x2="810" y2="336.9" stroke="#8b857c" stroke-width="2" stroke-dasharray="7 6"/>
+<polyline points="96.6,88.0 111.1,108.3 125.7,116.1 140.2,134.4 154.8,144.3 169.4,151.8 183.9,160.5 198.5,169.3 213.0,178.3 227.6,184.7 242.2,190.6 256.7,197.5 271.3,201.9 285.8,205.8 300.4,210.8 315.0,214.0 329.5,218.4 344.1,222.6 358.6,225.9 373.2,228.6 387.8,231.3 402.3,234.6 416.9,238.2 431.4,241.8 446.0,244.8 460.6,248.8 475.1,252.1 489.7,254.4 504.2,256.5 518.8,258.1 533.4,259.6 547.9,262.3 562.5,264.4 577.0,266.4 591.6,268.4 606.2,270.4 620.7,272.1 635.3,273.6 649.8,275.2 664.4,277.3 679.0,279.1 693.5,281.0 708.1,282.5 722.6,284.3 737.2,285.7 751.8,287.1 766.3,288.8 780.9,290.5 795.4,291.9 810.0,293.1" fill="none" stroke="#174f72" stroke-width="4" stroke-linejoin="round"/>
+<polyline points="96.6,93.4 111.1,113.4 125.7,121.4 140.2,138.6 154.8,149.1 169.4,156.5 183.9,164.3 198.5,173.0 213.0,181.1 227.6,187.5 242.2,193.6 256.7,200.1 271.3,204.9 285.8,208.2 300.4,213.5 315.0,216.9 329.5,221.0 344.1,225.4 358.6,228.6 373.2,231.2 387.8,233.7 402.3,236.9 416.9,240.2 431.4,243.8 446.0,246.7 460.6,250.5 475.1,253.7 489.7,256.0 504.2,258.1 518.8,259.6 533.4,261.2 547.9,263.9 562.5,265.8 577.0,268.0 591.6,269.8 606.2,271.8 620.7,273.4 635.3,274.8 649.8,276.5 664.4,278.6 679.0,280.4 693.5,282.3 708.1,283.9 722.6,285.6 737.2,287.0 751.8,288.5 766.3,290.1 780.9,291.8 795.4,293.1 810.0,294.3" fill="none" stroke="#d35d38" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="227.6" cy="187.5" r="6" fill="#d35d38" stroke="#faf8f3" stroke-width="2"/>
+<text x="240.6" y="177.5" class="axis">10%: 2.35x mean</text>
+<line x1="82" y1="448" x2="810" y2="448" stroke="#39352f" stroke-width="2"/>
+<line x1="82" y1="70" x2="82" y2="448" stroke="#39352f" stroke-width="2"/>
+<text x="446.0" y="500" text-anchor="middle" class="axis">Fraction of each slab sent to review</text>
+<text x="22" y="259.0" text-anchor="middle" transform="rotate(-90 22 259.0)" class="axis">Precision lift over random review</text>
+<line x1="565" y1="89" x2="600" y2="89" stroke="#174f72" stroke-width="4"/>
+<text x="610" y="94" class="legend">patch-weighted</text>
+<line x1="565" y1="113" x2="600" y2="113" stroke="#d35d38" stroke-width="3"/>
+<text x="610" y="118" class="legend">mean slab</text>
+<text x="565" y="142" class="sub">Target: recorded human rejection decision</text>
+</svg>

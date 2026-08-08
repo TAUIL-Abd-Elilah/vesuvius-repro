@@ -1,0 +1,61 @@
+{
+  "tool": "patch_triage deployment model",
+  "serialization_decimals": 15,
+  "features": [
+    "degree",
+    "clustering",
+    "local_cut",
+    "neigh_spread",
+    "frac_same",
+    "normal_spread",
+    "nb_normal_angle",
+    "nb_degree_med",
+    "log_size"
+  ],
+  "training": {
+    "n_slabs": 41,
+    "n_patches": 56835,
+    "bad_rate": 0.16092196709773907,
+    "cache_manifest_sha256": "cd046c3a14d7ef37bd4aab0a6cab9e79cae91ffdaf116c964d24571f623a7cfa"
+  },
+  "standardization_mean": [
+    5.025072578516759,
+    0.57827146353996,
+    0.178456714155073,
+    1.991556173109689,
+    0.120982600694728,
+    0.437768725102176,
+    0.339293502364063,
+    5.423735374329198,
+    4.468118370504826
+  ],
+  "standardization_sd": [
+    2.160553414914788,
+    0.240973590996929,
+    0.248795572445867,
+    0.423284342720388,
+    0.075423558439587,
+    0.207365945756201,
+    0.215708584096552,
+    1.729736615799254,
+    0.302569297491632
+  ],
+  "weights_intercept_then_features": [
+    -1.782179962045138,
+    0.441025738780454,
+    -0.063630289962546,
+    0.072785279081449,
+    -0.264908618834194,
+    0.006733029000713,
+    -0.068942453718351,
+    -0.055782337440415,
+    0.155852018738857,
+    -0.013468245535781
+  ],
+  "validation": {
+    "source": "results/patch_triage.json",
+    "mean_per_slab_lift10": 2.34503899036176,
+    "slabs_at_or_above_2x": 37,
+    "n_validation_slabs": 41
+  }
+}
