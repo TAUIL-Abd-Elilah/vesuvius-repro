@@ -25,9 +25,10 @@ input with `--normalization none`, 4 volumes of this cohort:
 
 1. ⛔ **The m7 reference table is wrong.** recall 0.7740 / precision 0.4459 / lift 2.65 /
    budget_recall 0.4176 all understate m7 substantially. **Do not quote them.**
-2. ⛔ **The two-population gap below is substantially an ARTIFACT of this default, not a
-   property of the model.** With plans normalization @Jinhojeong measures **0.914 vs 0.923**
-   across the same split, against the 0.777 / 0.918 reported here. The mechanism is intensity:
+2. ⛔ **The two-population RECALL gap below was an ARTIFACT of this default, not a property of
+   the model.** On the full 892 under plans normalization the split reads **0.9140 vs 0.9201**
+   — a gap of 0.006 against the 0.141 reported here. (An earlier 60-volume draw gave 0.914 vs
+   0.923; the full-population figures supersede it.) The mechanism is intensity:
    the located cohort's centred-cube mean is ~135 against a training fingerprint of 87.5 ± 47.7,
    a full sigma out, while the non-located sit within half a sigma — and instance z-scoring
    diverges from CT normalization exactly as a volume's own statistics leave that fingerprint.
@@ -65,26 +66,47 @@ that, and its precision figures are marked `precision_INVALID` in `results/m7_re
 ## The point of the benchmark: there are two populations, not one
 
 @Jinhojeong's normalized-cross-correlation table (villa#191) locates **189 of the 892** volumes
-inside Scroll1A. The published m7 model behaves like two different models across that line:
+inside Scroll1A. Under the wrong normalization the published m7 model looked like two different
+models across that line. **It is not. The recall gap was the normalization.**
 
-| population | n | median recall |
-|---|---|---|
-| locates on Scroll1A | 174 | **0.777** ⛔ artifact — see correction at top |
-| locates nowhere searched | 681 | **0.918** ⛔ artifact — see correction at top |
+⭐ **FULL POPULATION, 2026-08-08.** @Jinhojeong re-scored **all 892** under the CTNormalization
+constants m7's own `plans.json` declares, at this benchmark's geometry
+([villa#193](https://github.com/ScrollPrize/villa/issues/193#issuecomment-5223464638); rows,
+runner and finalizer in his diagnostic repo at `ae64423`, `results/shell892` and
+`scripts/shell892`). These supersede every m7 figure this file carried before:
 
-⛔ **EXPLAINED, AND NOT BY THE MODEL — see the correction at the top.** The gap survived
-elimination of **leakage** (p=0.80), **label artifact**, **fused geometry** (Jinhojeong's
-independent 892-volume run, p=0.33) and **labelled-sheet density** (quintile matching), and was
-reported here as unexplained. It was the `instance_zscore` inference default. Under the plans
-normalization the two populations sit at **0.914 and 0.923** — the gap very largely closes.
+| population | n | median recall | median precision | precision lift | pred-positive fraction |
+|---|---|---|---|---|---|
+| locates on Scroll1A | 174 | **0.9140** | **0.6935** | 4.03× | 0.2129 |
+| locates nowhere searched | 679 | **0.9201** | **0.7559** | 6.41× | 0.1430 |
+| all | 853 | **0.9194** | **0.7463** | — | 0.1538 |
+
+⚠ **Read the volume counts before comparing them to ours.** Each column is a median over the rows
+that define *that* column, so the denominator moves within a row: `pred_positive_fraction` is
+defined on volumes carrying no labelled sheet, recall and precision are not. Hence 174 / 679 / 853
+rather than our 174 / 681 / 855. The two extra volumes on our non-located side
+(`sample_00075`, `sample_00127`) carry 4 and 7 labelled sheet voxels and nothing predicted, so
+recall is defined and 0.0 while precision is not — **the non-located recall median reads 0.9201
+over 681 as well as over 679.** 39 rows carry a degenerate status with a reason string rather
+than being dropped: 32 with `n_scored` zero (the whole inner cube is class 2), 5 with scored
+background but no labelled sheet, plus that pair.
+
+⛔ **THE RECALL GAP IS GONE: 0.9140 against 0.9201 is 0.006, where we published 0.777 against
+0.918 — a gap of 0.141.** It survived our elimination of **leakage** (p=0.80), **label
+artifact**, **fused geometry** (Jinhojeong's independent 892-volume run, p=0.33) and
+**labelled-sheet density** (quintile matching), and we reported it as unexplained. It was the
+`instance_zscore` inference default the whole time.
 
 The reason the split *looked* like two populations is that it is nearly a proxy for intensity:
 the located cohort's centred-cube mean is ~135 against m7's training fingerprint of 87.5 ± 47.7,
 while the non-located sit within half a sigma of it, and per-volume z-scoring departs from CT
 normalization exactly as a volume's statistics leave that fingerprint.
 
-**Reporting per population is still right** — a pooled score would have hidden the artifact too,
-and that is how it was found. But do not describe this as a property of m7.
+⭐ **But do not now conclude the split is meaningless — it moved from recall to precision.**
+Precision runs **0.6935 against 0.7559** and precision lift **4.03× against 6.41×**, on base
+rates of 0.163 and 0.117. **Reporting per population still earns its place**; a pooled score
+would have hidden the original artifact too, and that is how it was found. What is retracted is
+the claim that m7 *recalls* less on the located population, not the practice of splitting.
 
 ## Endpoints
 
@@ -118,11 +140,15 @@ means anything. A benchmark whose own nulls are unknown cannot separate a result
 
 ## m7 reference numbers
 
-**Use the CT-normalized column.** 60 volumes, all located, full endpoint suite. Both columns are
-the same code and the same volumes; only the input normalization differs
+**Quote the full-population table above.** The reference figures for m7 are now the 174 / 679 /
+853 medians, not the 60-volume draw this file used to lead with.
+
+The 60-volume run below is kept for one purpose only: it is **our** implementation on **our**
+hardware, and it is what makes the correction checkable end to end. Both columns are the same
+code and the same volumes; only the input normalization differs
 (`results/surface_bench_m7_ctnorm.json` and the superseded `surface_bench_m7.json`).
 
-| | ⛔ instance_zscore (villa default) | ✅ **CT normalization (what m7 was trained on)** |
+| 60 located volumes | ⛔ instance_zscore (villa default) | ✅ **CT normalization (what m7 was trained on)** |
 |---|---|---|
 | recall @0.2 | 0.7740 | **0.9109** |
 | precision | 0.4459 | **0.6680** |
@@ -130,18 +156,40 @@ the same code and the same volumes; only the input normalization differs
 | predicted-positive fraction | 0.3006 | 0.2495 |
 | **recall at matched 0.12 budget** | 0.4176 | **0.5730** |
 
-**m7 is a much better model than this benchmark originally reported** — 3.75× better than chance
-against a ceiling near 6, recovering **57%** of labelled sheet at a matched spend, while
-predicting *less* (0.2495 against 0.3006). The wrong normalization was making it both blinder and
-more liberal.
+**m7 is a much better model than this benchmark originally reported** — on the full 174 located
+volumes, precision lift **4.03×** against a ceiling near 6, while predicting *less* (0.2129
+against the broken path's 0.3006). The wrong normalization was making it both blinder and more
+liberal.
 
-⭐ **Independently corroborated.** @Jinhojeong reached **0.914 recall / 0.678 precision** on the
-same cohort by a separate implementation and a separate checkpoint fetch; this run gives
-**0.9109 / 0.6680**. Two paths agreeing to three decimals is the reason these numbers can be
-trusted where the previous ones could not.
+⭐ **What the corroboration is, precisely.** On the **same 60 volumes**, two separate
+implementations with separate checkpoint fetches give **0.9109 / 0.6680** (ours) against
+**0.9138 / 0.678** (Jinhojeong's). That is a genuine cross-implementation check and it is why
+these numbers can be trusted where the previous ones could not.
+
+⚠ **It is not, however, a check of the 60 against the population, and we previously implied it
+was.** Jinhojeong's located 60 are a *subset* of the 174, not an independent draw, and he
+characterises that draw as the bright, low-contrast end of the located set. On the full 174 his
+precision moves 0.678 → **0.6935** while the recall stands. So read the 60-volume agreement as
+evidence about *implementations*, and the 174 / 679 / 853 table as evidence about *m7*.
+
+⚠ **Per-volume agreement is looser than the medians suggest, and that is expected.** Across the
+same 60, the per-volume absolute recall difference between the two implementations has a median
+of 0.006 with a tail to 0.13, and only 29 of 60 sit inside 0.005. Jinhojeong also re-ran 120
+volumes inside the full pass and found label-side quantities reproduced exactly while prediction
+counts moved by a few parts in 1e-5 (worst case 8.8e-4 relative on `n_fp`), with only 5 of 120
+bit-identical — **fp16 sliding-window nondeterminism, not a code difference.** A second-decimal
+per-volume disagreement is not by itself a sign that something is wrong.
+
+⚠ **Budget-calibrated columns are not directly comparable between the two paths.**
+`surface_bench.py` takes the exact 0.88 quantile of the scored probabilities; Jinhojeong searches
+a 2000-bin histogram for the first bin at or below a 0.12 predicted-positive share. The
+thresholds land within one bin of each other, but the endpoints are not bounded that tightly —
+our rule always spends the full budget where a grid cannot, and 9 of his 853 come in under 0.10.
 
 Recall-only numbers for all **855** scored volumes in `results/m7_recall/` are **still from the
-broken path** and have not been regenerated.
+broken path** and are retained only so the size of the error stays checkable. **Do not quote
+them.** Our own regeneration under CT normalization (`m7_renorm.py --all`) is in progress as an
+independent check of the table above.
 
 ## Resolution: what difference this benchmark can actually see
 
@@ -258,9 +306,15 @@ an interior region is scored fairly on that region.
 
 ## Limitations, stated plainly
 
-- The full endpoint suite is currently computed on **60 volumes, all located**. The `other`
-  population has recall-only coverage (`results/m7_recall/`, 855 volumes) because producing
-  probability maps for it costs GPU time we have not spent.
+- ✅ **Resolved 2026-08-08 for m7.** The full endpoint suite now covers all **853** scorable
+  volumes across both populations, contributed by @Jinhojeong. Our own full-suite run remains at
+  **60 volumes, all located**; the `other` population had recall-only coverage
+  (`results/m7_recall/`, 855 volumes, broken path) because producing probability maps for it
+  costs GPU time we had not spent. **This limitation still applies to any model that is not m7** —
+  scoring a new checkpoint across both populations is still an unspent GPU cost.
+- ⚠ **The full-population table is a contributed result, not one we reproduced.** It ships with
+  per-volume counts, provenance hashes and a runner, so it is checkable; we have not yet checked
+  it. Treat the 60-volume column as the part this repo stands behind directly.
 - **3 seeds** is the basis for any noise floor quoted from the arms experiments — a usable
   estimate, not a tight one.
 - m7's numbers are contaminated by probable training overlap (top of this file).

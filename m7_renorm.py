@@ -35,7 +35,11 @@ import m7_margin_fp as M
 
 ROOT = Path(__file__).resolve().parent
 OUT_CACHE = ROOT / "results" / "m7_pred_cache_ctnorm"
-SPLIT = ROOT / "vesuvius-repro" / "results" / "margin_split.json"
+# The split lives beside this file in the published repo and one level down in the working
+# tree. Try both, so the published copy is runnable rather than only ours.
+SPLIT = next((p for p in (ROOT / "vesuvius-repro" / "results" / "margin_split.json",
+                          ROOT / "results" / "margin_split.json") if p.exists()),
+             ROOT / "results" / "margin_split.json")
 SIZE, TRIM = M.SIZE if hasattr(M, "SIZE") else 256, M.TRIM
 
 
@@ -55,6 +59,7 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--n", type=int, default=60)
     ap.add_argument("--size", type=int, default=256)
+    ap.add_argument("--all", action="store_true", help="every labelled volume, not just the test split")
     a = ap.parse_args()
 
     model = Path(M.MODEL)
@@ -65,7 +70,14 @@ def main() -> None:
     if not hasattr(zarr, "Blosc"):
         zarr.Blosc = numcodecs.Blosc
 
-    names = json.loads(SPLIT.read_text())["test"][:a.n]
+    if a.all:
+        # every volume that has both an image and a label, so the corrected cache can replace
+        # results/m7_recall/ wholesale rather than only its test slice
+        names = sorted(p.stem for p in (M.LABELS).glob("sample_*.tif")
+                       if (M.IMAGES / f"{p.stem}.tif").exists())
+    else:
+        names = json.loads(SPLIT.read_text())["test"][:a.n]
+    print(f"volumes to do: {len(names)}", flush=True)
     OUT_CACHE.mkdir(parents=True, exist_ok=True)
     work = ROOT / "_renorm_work"
     env = {**os.environ, "nnUNet_compile": "0", "TORCHDYNAMO_DISABLE": "1",

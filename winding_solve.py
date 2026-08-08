@@ -1,4 +1,24 @@
-"""⚠ NOT WORKING — global winding assignment from patch geometry. Kept with its results.
+"""⛔ ABANDONED 2026-08-07 — THIS ALGORITHM ALREADY EXISTS, DONE PROPERLY, IN THE VILLA REPO.
+
+`villa/volume-cartographer/scripts/spiral/find_inconsistent_windings.py` implements exactly the
+formulation below — spanning-tree propagation, non-tree edges as cycle residuals, inconsistent
+cycles as forks — except it calls the residual *winding holonomy*, solves the integer program
+with `scipy.optimize.milp`, and measures each delta by theta=0 branch transport along a
+fringe-avoiding Dijkstra path through valid quads instead of my local-contact-normal sign
+heuristic. Around it sit `fit_spiral.py` (DDP + Triton kernels), `neural_winding_losses.py`,
+`plot_winding_graph.py`, `spiral_service.py`, and `vc_calc_surface_metrics`, which already scores
+`winding_error_fraction` against point-collection ground truth.
+
+⚠ **It was in the clone the whole time and I never grepped it.** The ground truth was public too
+(`dl.ash2txt.org/datasets/spiral_datasets/PHercParis4/`: umbilicus, same_windings,
+relative_windings, abs_winding) while the docstring below asserts the axis "is not published".
+**Grep the clone and enumerate the server before designing anything.** See STRATEGY.md §00.
+
+Kept, unfixed, as the record of a dead end. Do not resume it.
+
+---
+
+⚠ NOT WORKING — global winding assignment from patch geometry. Kept with its results.
 
 STATE, 2026-08-07. The spiral structure is genuinely recovered; the integer assignment is not.
 

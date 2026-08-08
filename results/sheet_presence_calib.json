@@ -1,0 +1,125 @@
+{
+ "calibrate": {
+  "n_volumes": 12,
+  "rows": [
+   {
+    "volume": "sample_00716",
+    "sigma": 14.821672439575195,
+    "contrast_sheet_median": 3.060107946395874,
+    "contrast_bg_median": 0.931200385093689,
+    "threshold": 6.6101179122924805,
+    "recall": 0.17,
+    "n_bg": 400
+   },
+   {
+    "volume": "sample_00535",
+    "sigma": 13.512382507324219,
+    "contrast_sheet_median": 4.180089950561523,
+    "contrast_bg_median": 0.9960842728614807,
+    "threshold": 8.360442161560059,
+    "recall": 0.05,
+    "n_bg": 400
+   },
+   {
+    "volume": "sample_00775",
+    "sigma": 15.220854759216309,
+    "contrast_sheet_median": 3.0767483711242676,
+    "contrast_bg_median": 1.0042762756347656,
+    "threshold": 7.4057111740112305,
+    "recall": 0.08,
+    "n_bg": 400
+   },
+   {
+    "volume": "sample_00831",
+    "sigma": 18.790071487426758,
+    "contrast_sheet_median": 1.6291413307189941,
+    "contrast_bg_median": 1.159547209739685,
+    "threshold": 4.147994041442871,
+    "recall": 0.06,
+    "n_bg": 400
+   },
+   {
+    "volume": "sample_00665",
+    "sigma": 28.07849884033203,
+    "contrast_sheet_median": 1.7751890420913696,
+    "contrast_bg_median": 0.9060146808624268,
+    "threshold": 4.262075424194336,
+    "recall": 0.0275,
+    "n_bg": 400
+   },
+   {
+    "volume": "sample_00209",
+    "sigma": 20.058382034301758,
+    "contrast_sheet_median": 1.4350204467773438,
+    "contrast_bg_median": 1.1114788055419922,
+    "threshold": 4.990808963775635,
+    "recall": 0.02,
+    "n_bg": 400
+   },
+   {
+    "volume": "sample_00915",
+    "sigma": 14.987566947937012,
+    "contrast_sheet_median": 3.3406262397766113,
+    "contrast_bg_median": 0.9849774837493896,
+    "threshold": 6.661616802215576,
+    "recall": 0.12,
+    "n_bg": 400
+   },
+   {
+    "volume": "sample_00569",
+    "sigma": 25.651586532592773,
+    "contrast_sheet_median": 1.9021198749542236,
+    "contrast_bg_median": 0.5819889307022095,
+    "threshold": 4.2409892082214355,
+    "recall": 0.0425,
+    "n_bg": 400
+   },
+   {
+    "volume": "sample_00418",
+    "sigma": 7.246083736419678,
+    "contrast_sheet_median": 5.042133331298828,
+    "contrast_bg_median": 1.7165064811706543,
+    "threshold": 14.5513334274292,
+    "recall": 0.015,
+    "n_bg": 400
+   },
+   {
+    "volume": "sample_00047",
+    "sigma": 3.5420424938201904,
+    "contrast_sheet_median": 16.807785034179688,
+    "contrast_bg_median": 1.0010838508605957,
+    "threshold": 10.606706619262695,
+    "recall": 0.68,
+    "n_bg": 400
+   },
+   {
+    "volume": "sample_00737",
+    "sigma": 18.594369888305664,
+    "contrast_sheet_median": 2.349946975708008,
+    "contrast_bg_median": 0.8667173385620117,
+    "threshold": 6.0819244384765625,
+    "recall": 0.025,
+    "n_bg": 400
+   },
+   {
+    "volume": "sample_00204",
+    "sigma": 23.29085922241211,
+    "contrast_sheet_median": 1.7506046295166016,
+    "contrast_bg_median": 0.8783988356590271,
+    "threshold": 4.741453647613525,
+    "recall": 0.0575,
+    "n_bg": 400
+   }
+  ],
+  "sheet_contrast_median": 2.4319114685058594,
+  "sheet_contrast_q05": 0.3484061062335968,
+  "sheet_contrast_q95": 14.471025466918945,
+  "bg_contrast_median": 0.9547874927520752,
+  "bg_contrast_q99": 9.55024528503418,
+  "global_threshold": 9.55024528503418,
+  "global_recall": 0.078125,
+  "per_volume_recall": 0.11229166666666668,
+  "decision_floor": 0.5,
+  "leg_usable": false
+ }
+}
