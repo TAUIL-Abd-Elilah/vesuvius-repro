@@ -63,7 +63,7 @@ everywhere. Folding it into background counts predictions in unscored regions as
 positives and understates precision badly — an earlier version of our own harness did exactly
 that, and its precision figures are marked `precision_INVALID` in `results/m7_recall/`.
 
-## The point of the benchmark: there are two populations, not one
+## Split by provenance — the recall gap was an artifact, the precision gap is not
 
 @Jinhojeong's normalized-cross-correlation table (villa#191) locates **189 of the 892** volumes
 inside Scroll1A. Under the wrong normalization the published m7 model looked like two different
