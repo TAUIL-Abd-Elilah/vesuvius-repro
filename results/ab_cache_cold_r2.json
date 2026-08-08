@@ -1,7 +1,7 @@
 {
  "label": "cache_cold_r2",
  "runner": "run_gpu_roi_cached.py",
- "cache_dir": "C:/Users/PC/AppData/Local/Temp/claude/vesuv_chunkcache_ab",
+ "cache_dir": "<local-temp>/vesuv_chunkcache_ab",
  "cache_cleared_first": true,
  "cache_bytes_before": 0,
  "cache_bytes_after": 100663535,
