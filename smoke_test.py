@@ -75,6 +75,8 @@ def main() -> None:
         [sys.executable, str(HERE / "patch_triage.py"), "rank", "--help"],
         check=True, capture_output=True, text=True, encoding="utf-8")
     assert "PATCH/x.tif, y.tif, z.tif" in rank_help.stdout
+    assert "directory or ZIP" in rank_help.stdout
+    assert "--slab" in rank_help.stdout
 
     print("smoke test passed: 41/41 m7 artifacts match; patch-triage artifacts agree")
 

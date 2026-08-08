@@ -90,8 +90,8 @@ alongside the ones that survived.
 
 ## Patch triage: choose what to review first
 
-`patch_triage.py` ranks tifxyz patches by how likely they are to match a recorded human
-rejection decision. In leave-one-slab-out evaluation on **56,835 Scroll 4 patches across
+`patch_triage.py` ranks tifxyz patches by how likely they are to match Will Stevens'
+recorded accepted/rejected split. In leave-one-slab-out evaluation on **56,835 Scroll 4 patches across
 41 slabs**, reviewing the top 10% produced **2.345x mean per-slab precision lift** over
 random review (95% CI 2.23–2.46); **37/41 slabs** met the preregistered 2.0x floor.
 The size-only control achieved 1.03x. This is a review-prioritisation tool, not an
@@ -99,12 +99,23 @@ automatic deletion rule.
 
 ![Held-out patch-triage lift curve](results/patch_triage_lift.svg)
 
-Point it at one review batch containing `PATCH/x.tif`, `PATCH/y.tif`, and `PATCH/z.tif`:
+Point it at one review batch containing `PATCH/x.tif`, `PATCH/y.tif`, and `PATCH/z.tif`.
+It reads either an extracted directory or a ZIP archive directly:
 
 ```bash
 python patch_triage.py rank path/to/tifxyz_patches \
     --out patch_triage_ranking.csv --budget 0.10
+
+python patch_triage.py rank path/to/tifxyz_patches.zip --slab 12 \
+    --out patch_triage_ranking.csv --budget 0.10
 ```
+
+Multiple inputs are accepted, so two archives can be ranked together without extracting or
+repacking them. Use `--slab N` (repeatable) when an archive contains more than the 5,000-patch
+memory guard; the slab is `floor(z / 250)` and is read from each patch's `meta.json` when present.
+On the original two archives, a direct slab-2 run ranked all 543 usable patches. Its nine features,
+scores, and ranks exactly matched the extracted-directory run and frozen evaluation cache
+(maximum absolute feature difference 0.0); repeated direct-ZIP runs were byte-identical.
 
 The tracked deployment model is loaded from `results/patch_triage_model.json`; no labelled
 training cache is needed to rank new patches. The CSV contains a rank and selection flag
@@ -114,8 +125,12 @@ because held-out evidence supports within-slab prioritisation and the raw logits
 calibrated across slabs. The relational pair search is intentionally capped at 5,000
 patches per invocation; pass one slab or review batch at a time.
 
-Three limitations matter. The target is **Will Stevens' recorded rejection decision**, not
-independently validated geometric wrongness. Four small/low-z slabs missed the 2.0x floor.
+Three limitations matter. The target is **Will Stevens' recorded accepted/rejected split**.
+His [public pipeline](https://github.com/WillStevens/scrollreading/tree/589935fa4e8bd1dc46c55c9b082c50ba289843ab/pipeline9)
+separately exposes an automatic inconsistency list and annealing/manual exclusion lists, while its
+archive converter accepts an arbitrary list. The archives do not record which produced this split,
+so it is neither independently validated geometric wrongness nor a documented human decision.
+Four small/low-z slabs missed the 2.0x floor.
 And the five added features barely changed the result: the original four graph-position
 features scored 2.34x at 10%, versus 2.37x pooled for all nine. The useful finding is that
 graph position prioritises review—not that a complex feature model is required.

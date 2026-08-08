@@ -8,9 +8,10 @@ the main unwrapping bottlenecks"*:
     "a smaller set of precise labels in hard regions may be more useful than a larger set of
      approximate labels in easy regions"
 
-Will Stevens flagged **9,171 of 56,968** Scroll 4 patches (16.1%) as problems. Inspecting all of
-them is the bottleneck. If a ranking puts a disproportionate share of the bad ones near the top,
-the human inspects a fraction and finds most of the problems. **That is the whole product.**
+Will Stevens' published split records **9,171 of 56,968** Scroll 4 patches (16.1%) as problems.
+Inspecting all of them is the bottleneck. If a ranking puts a disproportionate share of the bad
+ones near the top, the human inspects a fraction and finds most of the problems. **That is the
+whole product.**
 
 ✅ NOT CLAIMED, checked before building (the lesson from `winding_solve.py`, which reinvented
 villa's `find_inconsistent_windings.py`): villa uses "verified/unverified" only as SOFT-CONSTRAINT
@@ -42,8 +43,10 @@ starts manufacturing results**, so:
               the coefficients will say so, and the size-only model is reported separately.
 
 ⚠ WHAT "BAD" MEANS IS STILL UNANSWERED. Will was asked directly on Discord and has not replied.
-So this predicts *his rejection decision*, which is the useful target for triage, but it is NOT
-validated as predicting geometric wrongness. Any write-up must say that plainly.
+His public pipeline can generate several exclusion lists, but the published archives do not say
+which one produced this split. So this predicts *his recorded accepted/rejected split*, which is
+the useful target for triage, but it is NOT validated as predicting geometric wrongness or a
+documented human decision. Any write-up must say that plainly.
 
 FEATURES — each a distinct hypothesis about what forks a winding, all defined before any was run:
 
@@ -66,6 +69,7 @@ FEATURES — each a distinct hypothesis about what forks a winding, all defined 
   python patch_triage.py extract --slabs 2-42     # cached per slab, ~1 pass over the archives
   python patch_triage.py evaluate
   python patch_triage.py rank path/to/tifxyz_patches --out ranking.csv --budget 0.10
+  python patch_triage.py rank patches.zip --slab 12 --out ranking.csv --budget 0.10
 """
 
 from __future__ import annotations
@@ -77,8 +81,8 @@ import io
 import json
 import sys
 import zipfile
-from collections import defaultdict
-from pathlib import Path
+from collections import Counter, defaultdict
+from pathlib import Path, PurePosixPath
 
 import numpy as np
 import tifffile
@@ -246,87 +250,191 @@ def features_for(recs) -> list[dict]:
     return out
 
 
-def load_tifxyz_directory(path: Path, seed: int = 0, max_patches: int = 5000):
-    """Load a review batch made of patch directories containing x/y/z TIFFs."""
-    root = path.resolve()
-    if not root.is_dir():
-        raise SystemExit(f"not a directory: {path}")
-    parents = sorted(
-        {p.parent for p in root.rglob("x.tif") if (p.parent / "y.tif").is_file()
-         and (p.parent / "z.tif").is_file()},
-        key=lambda p: p.as_posix(),
-    )
-    if not parents:
-        raise SystemExit(
-            f"no tifxyz patches under {path} (expected PATCH/x.tif, y.tif, z.tif)"
+def _meta_slab(meta: object) -> int | None:
+    """Return the 250-voxel z slab recorded by tifxyz metadata, if valid."""
+    try:
+        bbox = meta["bbox"]
+        return int((0.5 * (bbox[0][2] + bbox[1][2])) // SLAB)
+    except (KeyError, IndexError, TypeError, ValueError):
+        return None
+
+
+def _tifxyz_record(patch: str, xs, ys, zs, meta: object,
+                   rng: np.random.Generator) -> dict:
+    """Turn one x/y/z TIFF triplet into the fixed deployment representation."""
+    xs, ys, zs = map(np.asarray, (xs, ys, zs))
+    if not (xs.shape == ys.shape == zs.shape) or xs.ndim != 2:
+        raise ValueError(
+            f"coordinate shapes must be equal 2-D arrays, got "
+            f"{xs.shape}, {ys.shape}, {zs.shape}"
         )
-    if len(parents) > max_patches:
-        raise SystemExit(
-            f"found {len(parents)} patches, above --max-patches {max_patches}; "
-            "rank one review batch/z-slab at a time"
+    P = np.stack([zs, ys, xs], axis=-1).astype(np.float64)
+    V = (xs > 0) & (ys > 0) & (zs > 0)
+    if V.sum() < 400:
+        raise ValueError(f"only {int(V.sum())} valid nodes; need at least 400")
+    ok = V[2:, 1:-1] & V[:-2, 1:-1] & V[1:-1, 2:] & V[1:-1, :-2]
+    if ok.sum() < 100:
+        raise ValueError(
+            f"only {int(ok.sum())} central-difference nodes; need at least 100"
         )
-    rng = np.random.default_rng(seed)
-    recs, skipped = [], []
-    for parent in parents:
-        relative = parent.relative_to(root).as_posix()
-        patch = parent.name if relative == "." else relative
-        try:
-            xs = np.asarray(tifffile.imread(parent / "x.tif"))
-            ys = np.asarray(tifffile.imread(parent / "y.tif"))
-            zs = np.asarray(tifffile.imread(parent / "z.tif"))
-            if not (xs.shape == ys.shape == zs.shape) or xs.ndim != 2:
-                raise ValueError(
-                    f"coordinate shapes must be equal 2-D arrays, got "
-                    f"{xs.shape}, {ys.shape}, {zs.shape}"
-                )
-            P = np.stack([zs, ys, xs], axis=-1).astype(np.float64)
-            V = (xs > 0) & (ys > 0) & (zs > 0)
-            if V.sum() < 400:
-                raise ValueError(f"only {int(V.sum())} valid nodes; need at least 400")
-            ok = V[2:, 1:-1] & V[:-2, 1:-1] & V[1:-1, 2:] & V[1:-1, :-2]
-            if ok.sum() < 100:
-                raise ValueError(
-                    f"only {int(ok.sum())} central-difference nodes; need at least 100"
-                )
-            Pu = (0.5 * (P[2:, 1:-1] - P[:-2, 1:-1]))[ok]
-            Pv = (0.5 * (P[1:-1, 2:] - P[1:-1, :-2]))[ok]
-            nrm = np.cross(Pu, Pv)
-            length = np.linalg.norm(nrm, axis=1)
-            nrm = nrm[length > 1e-9] / length[length > 1e-9, None]
-            if len(nrm) < 50:
-                raise ValueError(f"only {len(nrm)} valid normals; need at least 50")
-            nrm = nrm * np.sign(nrm @ nrm[0])[:, None]
-            mean_normal = nrm.mean(0)
-            mean_normal /= max(np.linalg.norm(mean_normal), 1e-9)
-            spread = float(np.sqrt(np.mean(
-                np.arccos(np.clip(nrm @ mean_normal, -1, 1)) ** 2
-            )))
-            pts = P[V]
-            slab = int(float(pts[:, 0].mean()) // SLAB)
+    Pu = (0.5 * (P[2:, 1:-1] - P[:-2, 1:-1]))[ok]
+    Pv = (0.5 * (P[1:-1, 2:] - P[1:-1, :-2]))[ok]
+    nrm = np.cross(Pu, Pv)
+    length = np.linalg.norm(nrm, axis=1)
+    nrm = nrm[length > 1e-9] / length[length > 1e-9, None]
+    if len(nrm) < 50:
+        raise ValueError(f"only {len(nrm)} valid normals; need at least 50")
+    nrm = nrm * np.sign(nrm @ nrm[0])[:, None]
+    mean_normal = nrm.mean(0)
+    mean_normal /= max(np.linalg.norm(mean_normal), 1e-9)
+    spread = float(np.sqrt(np.mean(
+        np.arccos(np.clip(nrm @ mean_normal, -1, 1)) ** 2
+    )))
+    pts = P[V]
+    slab = _meta_slab(meta)
+    if slab is None:
+        slab = int(float(pts[:, 0].mean()) // SLAB)
+    if len(pts) > PTS_TREE:
+        pts = pts[rng.choice(len(pts), PTS_TREE, replace=False)]
+    pts = pts.astype(np.float32)
+    qs = pts if len(pts) <= PTS_QUERY else pts[
+        rng.choice(len(pts), PTS_QUERY, replace=False)
+    ]
+    return {
+        "patch": patch, "label": "unknown", "pts": pts, "qs": qs,
+        "lo": pts.min(0), "hi": pts.max(0), "centroid": pts.mean(0),
+        "normal": mean_normal, "normal_spread": spread,
+        "size": float(np.linalg.norm(pts.std(0))), "slab": slab,
+    }
+
+
+def _read_json_bytes(data: bytes) -> object:
+    try:
+        return json.loads(data.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return None
+
+
+def _enumerate_tifxyz_source(path: Path, prefix: str,
+                             slabs: set[int] | None) -> tuple[str, list[dict]]:
+    """Describe eligible patches without loading their large coordinate TIFFs."""
+    source = path.resolve()
+    descriptors = []
+    if source.is_dir():
+        parents = sorted(
+            {p.parent for p in source.rglob("x.tif")
+             if (p.parent / "y.tif").is_file() and (p.parent / "z.tif").is_file()},
+            key=lambda p: p.as_posix(),
+        )
+        for parent in parents:
+            relative = parent.relative_to(source).as_posix()
+            relative = parent.name if relative == "." else relative
             meta_path = parent / "meta.json"
+            meta = None
             if meta_path.is_file():
                 try:
-                    bbox = json.loads(meta_path.read_text(encoding="utf-8"))["bbox"]
-                    slab = int((0.5 * (bbox[0][2] + bbox[1][2])) // SLAB)
-                except (KeyError, IndexError, TypeError, ValueError,
-                        json.JSONDecodeError):
+                    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                except (UnicodeDecodeError, json.JSONDecodeError):
                     pass
-            if len(pts) > PTS_TREE:
-                pts = pts[rng.choice(len(pts), PTS_TREE, replace=False)]
-            pts = pts.astype(np.float32)
-            qs = pts if len(pts) <= PTS_QUERY else pts[
-                rng.choice(len(pts), PTS_QUERY, replace=False)
-            ]
-            recs.append({
-                "patch": patch, "label": "unknown", "pts": pts, "qs": qs,
-                "lo": pts.min(0), "hi": pts.max(0), "centroid": pts.mean(0),
-                "normal": mean_normal, "normal_spread": spread,
-                "size": float(np.linalg.norm(pts.std(0))), "slab": slab,
+            meta_slab = _meta_slab(meta)
+            if slabs is not None and meta_slab is not None and meta_slab not in slabs:
+                continue
+            descriptors.append({
+                "source": source, "kind": "directory", "parent": parent,
+                "patch": f"{prefix}/{relative}" if prefix else relative, "meta": meta,
             })
-        except Exception as exc:
-            skipped.append({"patch": patch, "reason": str(exc)})
+        return "directory", descriptors
+
+    if not source.is_file() or not zipfile.is_zipfile(source):
+        raise SystemExit(f"not a tifxyz directory or ZIP archive: {path}")
+    with zipfile.ZipFile(source) as archive:
+        names = {name.replace("\\", "/").lstrip("./"): name
+                 for name in archive.namelist() if not name.endswith(("/", "\\"))}
+        parents = sorted({
+            PurePosixPath(name).parent.as_posix()
+            for name in names
+            if PurePosixPath(name).name == "x.tif"
+            and f"{PurePosixPath(name).parent.as_posix()}/y.tif" in names
+            and f"{PurePosixPath(name).parent.as_posix()}/z.tif" in names
+        })
+        parts = [PurePosixPath(parent).parts for parent in parents]
+        strip_top = bool(parts and all(len(p) >= 2 and p[0] == parts[0][0] for p in parts))
+        for parent, parent_parts in zip(parents, parts):
+            relative = PurePosixPath(*parent_parts[1:]).as_posix() if strip_top else parent
+            meta_member = f"{parent}/meta.json"
+            meta = _read_json_bytes(archive.read(names[meta_member])) \
+                if meta_member in names else None
+            meta_slab = _meta_slab(meta)
+            if slabs is not None and meta_slab is not None and meta_slab not in slabs:
+                continue
+            descriptors.append({
+                "source": source, "kind": "zip", "parent": parent,
+                "members": {axis: names[f"{parent}/{axis}.tif"]
+                            for axis in ("x", "y", "z")},
+                "patch": f"{prefix}/{relative}" if prefix else relative,
+                "meta": meta,
+            })
+    return "zip", descriptors
+
+
+def load_tifxyz_inputs(paths: list[Path], seed: int = 0, max_patches: int = 5000,
+                       slabs: set[int] | None = None):
+    """Load tifxyz review batches from directories and/or ZIPs without extraction."""
+    if not paths:
+        raise SystemExit("provide at least one tifxyz directory or ZIP archive")
+    multiple = len(paths) > 1
+    descriptors = []
+    for path in paths:
+        prefix = (path.stem if path.is_file() else path.name) if multiple else ""
+        _, found = _enumerate_tifxyz_source(path, prefix, slabs)
+        descriptors.extend(found)
+    descriptors.sort(key=lambda item: item["patch"])
+    if not descriptors:
+        scope = " in the requested slab(s)" if slabs is not None else ""
+        raise SystemExit(
+            f"no tifxyz patches{scope} (expected PATCH/x.tif, y.tif, z.tif)"
+        )
+    duplicates = [name for name, count in Counter(
+        item["patch"] for item in descriptors
+    ).items() if count > 1]
+    if duplicates:
+        raise SystemExit(f"duplicate patch names across inputs: {duplicates[:5]}")
+    if len(descriptors) > max_patches:
+        raise SystemExit(
+            f"found {len(descriptors)} patches, above --max-patches {max_patches}; "
+            "pass --slab N or rank a smaller review batch"
+        )
+
+    rng = np.random.default_rng(seed)
+    recs, skipped = [], []
+    zip_handles: dict[Path, zipfile.ZipFile] = {}
+    try:
+        for item in descriptors:
+            patch = item["patch"]
+            try:
+                if item["kind"] == "directory":
+                    parent = item["parent"]
+                    xs = tifffile.imread(parent / "x.tif")
+                    ys = tifffile.imread(parent / "y.tif")
+                    zs = tifffile.imread(parent / "z.tif")
+                else:
+                    source, members = item["source"], item["members"]
+                    if source not in zip_handles:
+                        zip_handles[source] = zipfile.ZipFile(source)
+                    archive = zip_handles[source]
+                    xs = tifffile.imread(io.BytesIO(archive.read(members["x"])))
+                    ys = tifffile.imread(io.BytesIO(archive.read(members["y"])))
+                    zs = tifffile.imread(io.BytesIO(archive.read(members["z"])))
+                record = _tifxyz_record(patch, xs, ys, zs, item["meta"], rng)
+                if slabs is None or int(record["slab"]) in slabs:
+                    recs.append(record)
+            except Exception as exc:
+                skipped.append({"patch": patch, "reason": str(exc)})
+    finally:
+        for archive in zip_handles.values():
+            archive.close()
     if not recs:
-        raise SystemExit(f"all {len(parents)} tifxyz patches were invalid")
+        raise SystemExit(f"none of {len(descriptors)} candidate tifxyz patches were valid")
     return recs, skipped
 
 
@@ -407,8 +515,8 @@ def do_fit_model(cache_dir: str, out_path: str) -> None:
     print(f"wrote {destination}")
 
 
-def do_rank(input_dir: str, out_path: str, budget: float, seed: int,
-            max_patches: int, model_path: str) -> None:
+def do_rank(inputs: list[str], out_path: str, budget: float, seed: int,
+            max_patches: int, model_path: str, slabs: list[int] | None) -> None:
     """Load the fixed model artifact and rank a tifxyz review batch."""
     if not (0.0 < budget <= 1.0):
         raise SystemExit("--budget must be in (0, 1]")
@@ -419,8 +527,9 @@ def do_rank(input_dir: str, out_path: str, budget: float, seed: int,
     sd = np.asarray(model["standardization_sd"], dtype=float)
     weights = np.asarray(model["weights_intercept_then_features"], dtype=float)
 
-    recs, skipped = load_tifxyz_directory(
-        Path(input_dir), seed=seed, max_patches=max_patches
+    recs, skipped = load_tifxyz_inputs(
+        [Path(value) for value in inputs], seed=seed, max_patches=max_patches,
+        slabs=set(slabs) if slabs else None,
     )
     groups = defaultdict(list)
     for record in recs:
@@ -457,12 +566,14 @@ def do_rank(input_dir: str, out_path: str, budget: float, seed: int,
 
     metadata = {
         "tool": "patch_triage rank",
-        "input": str(input_dir),
+        "input": str(inputs[0]) if len(inputs) == 1 else None,
+        "inputs": [str(value) for value in inputs],
+        "requested_slabs": sorted(set(slabs)) if slabs else None,
         "output": str(destination),
         "seed": int(seed),
         "budget": float(budget),
         "ranking_scope": "within each 250-voxel z slab; scores are not cross-slab calibrated",
-        "n_input_directories": len(recs) + len(skipped),
+        "n_input_patches": len(recs) + len(skipped),
         "n_ranked": len(ranked),
         "n_skipped": len(skipped),
         "skipped": skipped,
@@ -472,7 +583,8 @@ def do_rank(input_dir: str, out_path: str, budget: float, seed: int,
             **model["training"], "validation": model.get("validation"),
         },
         "limitations": [
-            "Predicts Will Stevens' recorded rejection decision, not validated geometric wrongness.",
+            "Predicts Will Stevens' recorded accepted/rejected split; its provenance is not documented by the archives.",
+            "The target is not independently validated geometric wrongness or a documented human decision.",
             "Held-out mean per-slab lift@10% was 2.345x; 4 of 41 slabs missed the 2.0x floor.",
             "The five added features did not materially outperform patch_graph's original four.",
         ],
@@ -486,7 +598,7 @@ def do_rank(input_dir: str, out_path: str, budget: float, seed: int,
         print(f"skipped {len(skipped)} invalid patches; details: {metadata_path}")
     print(f"wrote {destination}")
     print(f"wrote {metadata_path}")
-    print("scope: predicts a recorded human rejection decision, not geometric wrongness")
+    print("scope: predicts a recorded accepted/rejected split, not validated geometric wrongness")
 
 
 def do_extract(slabs: list[int], seed: int) -> None:
@@ -715,7 +827,7 @@ def _write_lift_svg(path: Path, curve: list[dict]) -> None:
 <text x="{left+plot_w-200}" y="{top+24}" class="legend">patch-weighted</text>
 <line x1="{left+plot_w-245}" y1="{top+43}" x2="{left+plot_w-210}" y2="{top+43}" stroke="#d35d38" stroke-width="3"/>
 <text x="{left+plot_w-200}" y="{top+48}" class="legend">mean slab</text>
-<text x="{left+plot_w-245}" y="{top+72}" class="sub">Target: recorded human rejection decision</text>
+<text x="{left+plot_w-245}" y="{top+72}" class="sub">Target: recorded accepted/rejected split</text>
 </svg>
 '''
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -787,11 +899,18 @@ def main() -> None:
     r = sub.add_parser(
         "rank", help="rank a tifxyz review batch within each 250-voxel z slab"
     )
-    r.add_argument("input_dir", help="directory containing PATCH/x.tif, y.tif, z.tif")
+    r.add_argument(
+        "inputs", nargs="+",
+        help="directory or ZIP containing PATCH/x.tif, y.tif, z.tif; multiple allowed",
+    )
     r.add_argument("--out", default="patch_triage_ranking.csv")
     r.add_argument("--budget", type=float, default=0.10)
     r.add_argument("--seed", type=int, default=0)
     r.add_argument("--model", default=str(MODEL))
+    r.add_argument(
+        "--slab", type=int, action="append", dest="slabs",
+        help="rank only this 250-voxel z slab (repeat for more than one)",
+    )
     r.add_argument(
         "--max-patches", type=int, default=5000,
         help="memory guard for the relational pair search (default: 5000)",
@@ -810,7 +929,7 @@ def main() -> None:
     elif a.cmd == "evaluate":
         do_evaluate(a.out, Path(a.cache_dir))
     elif a.cmd == "rank":
-        do_rank(a.input_dir, a.out, a.budget, a.seed, a.max_patches, a.model)
+        do_rank(a.inputs, a.out, a.budget, a.seed, a.max_patches, a.model, a.slabs)
     elif a.cmd == "fit-model":
         do_fit_model(a.cache_dir, a.out)
     else:

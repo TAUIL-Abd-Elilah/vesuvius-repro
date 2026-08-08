@@ -23,5 +23,5 @@
 <text x="610" y="94" class="legend">patch-weighted</text>
 <line x1="565" y1="113" x2="600" y2="113" stroke="#d35d38" stroke-width="3"/>
 <text x="610" y="118" class="legend">mean slab</text>
-<text x="565" y="142" class="sub">Target: recorded human rejection decision</text>
+<text x="565" y="142" class="sub">Target: recorded accepted/rejected split</text>
 </svg>
