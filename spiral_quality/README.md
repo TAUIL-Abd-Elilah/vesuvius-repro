@@ -82,8 +82,13 @@ help produce an improved fit; this release demonstrates detection and stopping o
 - Villa [#1380](https://github.com/ScrollPrize/villa/pull/1380) evaluates synthetic phantoms against
   exact truth and correlates them with real-scroll rankings. It is complementary: this release
   evaluates one failed production fit directly against real CT plus intrinsic geometry.
+- Villa [#1382](https://github.com/ScrollPrize/villa/pull/1382) and its linked physical-audit
+  repository evaluate binary surface-prediction volumes against cross-resolution truth labels on
+  PHerc0139 and PHerc1203, including shifted-null controls. That is also complementary: it audits
+  upstream surface predictions, whereas this release compares the geometry and CT agreement of
+  two states of a production Spiral winding fit.
 
-No code from #1380 or the reviewed consumer-GPU project is copied here.
+No code from #1380, #1382 or the reviewed consumer-GPU project is copied here.
 
 ## Files
 
