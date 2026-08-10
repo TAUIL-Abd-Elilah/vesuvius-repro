@@ -1,0 +1,17 @@
+{
+  "format": "spiral-quality-release-manifest-v1",
+  "files": [
+    {"path": "evaluate_native_spiral_quality.py", "bytes": 52646, "sha256": "4b9fde37c131d99aefab04b4927b4e35f78cec8c8fb9372c568ad5b98e74f8a2"},
+    {"path": "PHERC0125_QUALITY_ALIGNMENT_AMENDMENT.md", "bytes": 3490, "sha256": "6501ebd0c94f0c7ab6558bb19b02b34db8b1eac54a40c73212972a2fc94f540b"},
+    {"path": "PHERC0125_QUALITY_BLOCK_BATCH_AMENDMENT.md", "bytes": 2058, "sha256": "5bc4a12ec86e5e1c110986f0d96f874249d9635f36927e3f0db20db0ea2218a5"},
+    {"path": "PHERC0125_QUALITY_FINALIZATION_AMENDMENT.md", "bytes": 2279, "sha256": "9655e549315e1b5aca5b6a4c02e19d57dd76ffbb82a40719b7766104bc7ddd35"},
+    {"path": "PHERC0125_QUALITY_INTRINSIC_SCHEMA_AMENDMENT.md", "bytes": 2150, "sha256": "87e6f4a53efc9b69cb8bf302b6a3c9b5db7b504cd29de044e28304372a23ea4d"},
+    {"path": "README.md", "bytes": 4912, "sha256": "353d09d1cf489e6d5c5744c8e1b3121cd28406d48028e5c7af9ca7af4abc9b06"},
+    {"path": "results/PHerc0125_loss_summary.json", "bytes": 997, "sha256": "2daf45e41ce2de0963ed6eb7b0386aeb5bfe32ec871e6182effaddf36b019f4d"},
+    {"path": "results/PHerc0125_native_fit_quality.json", "bytes": 861476, "sha256": "a80995fce75d694e13a82e0afc2d36e29b70d8eee718f1c76a79b0d3087d7bec"},
+    {"path": "SPIRAL_PRIZE_SCROLL_NATIVE_FIT_PREREG.md", "bytes": 16593, "sha256": "a8af1607cdb930d13e2c26b1b1e5aaaca7d46a0abea1394234ab6ada9253b504"},
+    {"path": "SPIRAL_PRIZE_SCROLL_QUALITY_EVALUATION_PREREG.md", "bytes": 5240, "sha256": "137a3d78870f642c9599d29d1dd1421ae99c473fc88e5e43e39873ceff6643a9"},
+    {"path": "test_evaluate_native_spiral_quality.py", "bytes": 17382, "sha256": "0f5e014a83707314672348b6455828badf9ce61ccec5a29266d6a296fb3f0b6f"},
+    {"path": "verify_spiral_quality_release.py", "bytes": 10718, "sha256": "d7068969da8d365baab75a5dab597c7a41b2df51d2bd16820218aa04a99beb48"}
+  ]
+}

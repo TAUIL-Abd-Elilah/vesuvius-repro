@@ -1,0 +1,22 @@
+{
+  "format": "pherc0125-native-fit-loss-summary-v1",
+  "scroll": "PHerc0125",
+  "scope": {
+    "full_resolution_z_half_open": [9984, 10880],
+    "slices": 896,
+    "scan_slices": 20840,
+    "whole_scroll_claim": false
+  },
+  "quality_report_sha256": "a80995fce75d694e13a82e0afc2d36e29b70d8eee718f1c76a79b0d3087d7bec",
+  "source_evidence_sha256": {
+    "baseline": "79e8179321c3e37d2434d920042a509fc0eb30f69a2df3a6104298ca5e206c5d",
+    "final": "78ad8cc5dbd4be81441fa4c638de4a2a2ec53c1e7d8c4e79e8cdc7fd2ee8a756"
+  },
+  "milestones": [
+    {"step": 1, "total_loss": 111.70510864257812, "warnings": []},
+    {"step": 15000, "total_loss": 19.777013778686523, "warnings": []}
+  ],
+  "loss_reduction_percent": 82.29533633777945,
+  "native_validation_errors_at_final": [],
+  "provenance_note": "Exact fields extracted from the two hash-pinned runner evidence records. The full runner JSON is omitted because it contains machine-local paths; the quality report retains both original SHA-256 digests."
+}

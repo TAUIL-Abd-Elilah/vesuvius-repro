@@ -78,7 +78,20 @@ def main() -> None:
     assert "directory or ZIP" in rank_help.stdout
     assert "--slab" in rank_help.stdout
 
-    print("smoke test passed: 41/41 m7 artifacts match; patch-triage artifacts agree")
+    spiral_quality = subprocess.run(
+        [sys.executable, str(HERE / "spiral_quality" / "verify_spiral_quality_release.py")],
+        check=True, capture_output=True, text=True, encoding="utf-8")
+    spiral_result = json.loads(spiral_quality.stdout)
+    assert spiral_result["complete"] is True
+    assert spiral_result["paired_profiles_rehashed"] == 800
+    assert spiral_result["ct_recomputed"] is True
+    assert spiral_result["intrinsic_recomputed"] is True
+    assert spiral_result["all_authorizations_false"] is True
+
+    print(
+        "smoke test passed: 41/41 m7 artifacts match; patch-triage artifacts agree; "
+        "Spiral quality release recomputes"
+    )
 
 
 if __name__ == "__main__":

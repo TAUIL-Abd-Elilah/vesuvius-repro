@@ -1,0 +1,5 @@
+# The Spiral release binds exact text-file SHA-256 values. Keep those bytes stable
+# across Windows and Unix checkouts.
+spiral_quality/** text eol=lf
+# This frozen, hash-bound protocol intentionally has its original extra EOF line.
+spiral_quality/PHERC0125_QUALITY_BLOCK_BATCH_AMENDMENT.md whitespace=-blank-at-eof
