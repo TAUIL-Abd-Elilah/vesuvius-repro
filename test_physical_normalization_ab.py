@@ -147,6 +147,13 @@ class PhysicalNormalizationABTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             R.max_pool_l0_to_l1(np.zeros((3, 4, 4)))
 
+    def test_public_freeze_comparison_accepts_only_line_ending_conversion(self) -> None:
+        committed = b'{\n "value": 1\n}\n'
+        checkout = b'{\r\n "value": 1\r\n}\r\n'
+        changed = b'{\r\n "value": 2\r\n}\r\n'
+        self.assertEqual(R.normalized_text_bytes(committed), R.normalized_text_bytes(checkout))
+        self.assertNotEqual(R.normalized_text_bytes(committed), R.normalized_text_bytes(changed))
+
     def test_candidate_selection_is_hash_ordered_per_stratum(self) -> None:
         candidates = []
         for stratum in range(P.Z_STRATA):

@@ -87,6 +87,12 @@ def _git(root: Path, *args: str, binary: bool = False) -> str | bytes:
     ).strip()
 
 
+def normalized_text_bytes(value: bytes) -> bytes:
+    """Compare Git blobs to Windows checkouts without weakening content checks."""
+
+    return value.replace(b"\r\n", b"\n").rstrip(b"\n")
+
+
 def require_public_freeze(repo: Path, manifest_path: Path) -> dict[str, str]:
     status = str(_git(repo, "status", "--porcelain=v1"))
     if status:
@@ -103,9 +109,9 @@ def require_public_freeze(repo: Path, manifest_path: Path) -> dict[str, str]:
         _git(repo, "ls-files", "--error-unmatch", rel)
     except subprocess.CalledProcessError as exc:
         raise SystemExit(f"manifest is not tracked at HEAD: {rel}") from exc
-    committed = _git(repo, "show", f"HEAD:{rel}", binary=True)
-    local = manifest_path.read_bytes().rstrip()
-    if bytes(committed).rstrip() != local:
+    committed = bytes(_git(repo, "show", f"HEAD:{rel}", binary=True))
+    local = manifest_path.read_bytes()
+    if normalized_text_bytes(committed) != normalized_text_bytes(local):
         raise SystemExit("local manifest bytes do not match the committed HEAD blob")
     remote_line = subprocess.check_output(
         ["git", "ls-remote", "origin", f"refs/heads/{branch}"],
