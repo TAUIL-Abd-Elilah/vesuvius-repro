@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 
 import numpy as np
@@ -9,15 +10,65 @@ import physical_normalization_ab as P
 import run_physical_released_baseline_comparison as O
 
 
-def test_public_protocol_lock_and_files_verify() -> None:
+BASELINE_FREEZE_COMMIT = "c62fd475b6f7df716e828b3a774e304e7cf43176"
+
+
+def materialize_baseline_freeze(
+    repo: Path,
+    destination: Path,
+    paths: set[str],
+    crlf_paths: set[str],
+) -> None:
+    """Reconstruct locked protocol files when testing from a descendant branch."""
+
+    ancestor = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", BASELINE_FREEZE_COMMIT, "HEAD"],
+        cwd=repo,
+        check=False,
+    )
+    assert ancestor.returncode == 0, "baseline freeze is not an ancestor of HEAD"
+    for relative in sorted(paths):
+        data = subprocess.check_output(
+            ["git", "show", f"{BASELINE_FREEZE_COMMIT}:{relative}"],
+            cwd=repo,
+        )
+        if relative in crlf_paths:
+            data = data.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+        target = destination / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+
+
+def test_public_protocol_lock_and_files_verify(tmp_path: Path) -> None:
     repo = Path(__file__).resolve().parent
-    lock = O.load_protocol_lock(
-        repo / "results" / "physical_released_baseline_comparison" / "protocol_lock.json"
+    lock_relative = "results/physical_released_baseline_comparison/protocol_lock.json"
+    lock_path = repo / lock_relative
+    locked_lock_bytes = subprocess.check_output(
+        ["git", "show", f"{BASELINE_FREEZE_COMMIT}:{lock_relative}"],
+        cwd=repo,
+    )
+    assert lock_path.read_bytes() == locked_lock_bytes
+    lock = O.load_protocol_lock(lock_path)
+    assert lock["checkout_line_endings"]["source_manifest"] == "crlf"
+    required_paths = set(lock["protocol_files_sha256"])
+    required_paths.update(
+        {
+            lock["source_manifest_path"],
+            lock["failed_causal_result_path"],
+            lock["preoutcome_failure_path"],
+            lock["pre_score_failure_path"],
+        }
+    )
+    materialize_baseline_freeze(
+        repo,
+        tmp_path,
+        required_paths,
+        {lock["source_manifest_path"]},
     )
     verified = O.verify_protocol_files(
-        repo,
+        tmp_path,
         lock,
-        repo / "results" / "physical_normalization_ab" / "manifest.json",
+        tmp_path / lock["source_manifest_path"],
     )
     assert verified["source_manifest"]["content_sha256"] == O.SOURCE_MANIFEST_CONTENT_SHA256
     assert verified["failed_causal_result"]["corrected_arm_run"] is False
