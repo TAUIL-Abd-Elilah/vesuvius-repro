@@ -8,6 +8,11 @@ official model from the public weights and public CT, blends the logits, and sco
 result against what was published. No private data, no per-scroll hand-wiring — everything
 it needs comes from `catalog.json`, so it works for any scroll with a published prediction.
 
+> **Current normalization experiment:** the preregistered causal A/B stopped at its
+> baseline sentinel, as designed. PHerc0139 passed; PHerc1203 scored 0.9989617 against a
+> frozen 0.999 cutoff. No corrected-arm result was inspected. See the
+> [fail-closed result](PHYSICAL_NORMALIZATION_AB_SENTINEL_RESULT.md).
+
 ## Try it in 30 seconds (no GPU, no downloads)
 
 ```bash
