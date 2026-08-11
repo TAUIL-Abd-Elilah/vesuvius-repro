@@ -22,10 +22,13 @@ it needs comes from `catalog.json`, so it works for any scroll with a published 
 > model-independent PHerc1203 recto labels, complementary z-stratum cross-fitting, six
 > inferential seeds, and untouched PHerc0139 safety evaluation. The outcome-blind plan,
 > tested execution runtime, scorer, and [runbook](CROSSSCAN_FINETUNE_RUNBOOK.md) are public;
-> the [immutable execution lock](results/crossscan_finetune/execution_lock.json) binds them to
-> public implementation commit `abc9719` and content hash
-> `b1a3cf2fba4c354bd5fa99297d2f6cf206f3c9dff6bba7544d0233a7d053a7b1`. No pilot or
-> fine-tuned prediction exists at this locked pre-outcome stage.
+> the [replacement execution lock](results/crossscan_finetune/execution_lock.json) binds them to
+> public implementation commit `07e078d` and content hash
+> `9a685b5c2842c9ccb34699c6254c5da1ff834824d51bdbbb515483812e51f746`. A
+> [real preprocessing smoke](results/crossscan_finetune/preprocess_smoke.json) covers the
+> fingerprint correction documented in [amendment 02](CROSSSCAN_FINETUNE_AMENDMENT_02.md);
+> the [superseded first lock](results/crossscan_finetune/execution_lock.superseded-20260811.json)
+> remains public. No pilot or fine-tuned prediction exists at this locked pre-outcome stage.
 
 ## Try it in 30 seconds (no GPU, no downloads)
 
