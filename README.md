@@ -22,7 +22,10 @@ it needs comes from `catalog.json`, so it works for any scroll with a published 
 > model-independent PHerc1203 recto labels, complementary z-stratum cross-fitting, six
 > inferential seeds, and untouched PHerc0139 safety evaluation. The outcome-blind plan,
 > tested execution runtime, scorer, and [runbook](CROSSSCAN_FINETUNE_RUNBOOK.md) are public;
-> no pilot or fine-tuned prediction exists at this implementation stage.
+> the [immutable execution lock](results/crossscan_finetune/execution_lock.json) binds them to
+> public implementation commit `abc9719` and content hash
+> `b1a3cf2fba4c354bd5fa99297d2f6cf206f3c9dff6bba7544d0233a7d053a7b1`. No pilot or
+> fine-tuned prediction exists at this locked pre-outcome stage.
 
 ## Try it in 30 seconds (no GPU, no downloads)
 
