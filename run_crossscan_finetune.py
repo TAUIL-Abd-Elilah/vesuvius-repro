@@ -43,11 +43,11 @@ FINGERPRINT_EXTRACTOR = (
     "DatasetFingerprintExtractor"
 )
 LOCKED_IMPLEMENTATION_FILES = (
-    ".gitattributes",
     "CROSSSCAN_FINETUNE_AMENDMENT_01.md",
     "CROSSSCAN_FINETUNE_AMENDMENT_02.md",
     "CROSSSCAN_FINETUNE_AMENDMENT_03.md",
     "CROSSSCAN_FINETUNE_AMENDMENT_04.md",
+    "CROSSSCAN_FINETUNE_AMENDMENT_05.md",
     "CROSSSCAN_FINETUNE_PREREG.md",
     "CROSSSCAN_FINETUNE_RUNBOOK.md",
     "crossscan_training_memory_smoke.py",
@@ -60,6 +60,7 @@ LOCKED_IMPLEMENTATION_FILES = (
     "test_score_crossscan_finetune.py",
     "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining.json",
     "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining-v2.json",
+    "results/crossscan_finetune/execution_lock.withdrawn-20260811-release-attributes.json",
     "results/crossscan_finetune/preprocess_smoke.json",
     "results/crossscan_finetune/plan.json",
 )
