@@ -1,12 +1,17 @@
 {
   "schema_version": 1,
   "protocol_id": "physical_released_baseline_operational_v1",
+  "implementation_revision": 2,
   "status": "preregistered_before_corrected_physical_outcomes",
   "registered_utc": "2026-08-11T04:47:41.3931353Z",
+  "amended_utc": "2026-08-11T04:54:16.8940697Z",
   "estimand": "exact_pr1386_pipeline_vs_released_binary_artifact",
   "causal_claim_allowed": false,
   "corrected_physical_arrays_seen_at_lock": false,
-  "output_namespace": "physical_released_baseline_comparison",
+  "output_namespace": "physical_released_baseline_comparison_r2",
+  "superseded_output_namespace": "physical_released_baseline_comparison",
+  "preoutcome_failure_path": "results/physical_released_baseline_comparison/preoutcome_failure_01.json",
+  "preoutcome_failure_sha256": "7b08a046817e7822b6a93eadfe72a75810412f7d894961153a8432163fe790b6",
   "source_manifest_path": "results/physical_normalization_ab/manifest.json",
   "source_manifest_file_sha256": "d0831d7bb8f5a3aa47eaf4f21d414c336d0a217f6ebe5ad0dc9ecd4dc57423eb",
   "source_manifest_content_sha256": "567a18faa1c8ca7e743c9240133f4200e67e3085823dd4795c4518e3e0e65ac0",
@@ -29,6 +34,15 @@
     "fixed_threshold": 0.2,
     "matched_mass_control": true
   },
+  "released_binary_canonicalization": {
+    "accepted_uint8_values": [
+      0,
+      1,
+      255
+    ],
+    "mapping": "nonzero_to_one",
+    "other_values": "hard_failure"
+  },
   "success_gate": {
     "positive_fixed_point_skill_each_scroll": true,
     "pooled_point_skill_delta_bootstrap_ci_low_strictly_positive": true,
@@ -46,9 +60,11 @@
     "retain_final_arrays_and_receipts": true
   },
   "protocol_files_sha256": {
-    "PHYSICAL_RELEASED_BASELINE_COMPARISON_PREREG.md": "3bed32f93763fcc5c4ea406ed0723f5176342c64a6fb2a6aa23490365cc5d8f4",
-    "run_physical_released_baseline_comparison.py": "b09d18758ebb88a1031e6296ff1d01e1f682fed19fd5a8cb0b61a57ab59cf660",
-    "test_physical_released_baseline_comparison.py": "ae618e71c2364735b7c4f87932b448a4285f52ff9fe20276a2192134bbaf70ea"
+    "PHYSICAL_RELEASED_BASELINE_COMPARISON_AMENDMENT_01.md": "6f08ba5dc89ce2bda2ee3b34d2cb5ead6f7af1f72ff13c8c8dd969f7c5e3fa55",
+    "PHYSICAL_RELEASED_BASELINE_COMPARISON_PREREG.md": "ed5ab8a519dac2b96235b9281cdb031fbab421944de8b5e7ac721557da5bcfbf",
+    "results/physical_released_baseline_comparison/preoutcome_failure_01.json": "7b08a046817e7822b6a93eadfe72a75810412f7d894961153a8432163fe790b6",
+    "run_physical_released_baseline_comparison.py": "af33319822fb7cb29d209a880f9bc009836ddb6ddcb76116af0764b70e532664",
+    "test_physical_released_baseline_comparison.py": "25ddd93be8329564530d40541b10d9402f1236b58f9a59fc92a58c15e9224378"
   },
-  "content_sha256": "178aed1bbe3e56571935ca9daf9840083cbdbad39ca2ed78600690561889a33b"
+  "content_sha256": "044e5640103f1ff8189fc31fb414962b2a16dcedbdd3942dee83b15378e6c84f"
 }

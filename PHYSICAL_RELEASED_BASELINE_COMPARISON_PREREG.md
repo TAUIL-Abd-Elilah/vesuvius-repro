@@ -3,6 +3,12 @@
 Status: **preregistered after the causal sentinel failure and before any corrected physical
 outcome**.
 
+Implementation revision 2 is frozen by
+`PHYSICAL_RELEASED_BASELINE_COMPARISON_AMENDMENT_01.md`. The first dry-run stopped before
+model inference because the released binary is encoded as `{0,255}`, not literal `{0,1}`.
+Revision 2 canonicalizes nonzero to one and writes to a new output namespace; all scientific
+choices remain unchanged.
+
 ## Why this is a separate protocol
 
 The earlier causal normalization A/B required an old-path reproduction Dice of at least
@@ -84,6 +90,11 @@ commands, environment, code/input hashes, and stdout/stderr hashes. After the fi
 and receipt validate, the runner deletes only the heavy temporary `logits/` and
 `merged.zarr/` directories for that attempt. Text logs, receipts, final arrays, and cleanup
 receipts remain. Failed attempts are never cleaned automatically.
+
+The released uint8 artifact is accepted only when every read value is in `{0,1,255}` and is
+canonicalized by `value != 0` before L1 max pooling. Any other value is a hard failure. This
+preserves binary semantics for both observed encodings and matches the boolean conversion
+used by the earlier sentinel.
 
 The machine lock is
 `results/physical_released_baseline_comparison/protocol_lock.json`. Exact sequence:

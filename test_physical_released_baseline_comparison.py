@@ -12,7 +12,7 @@ import run_physical_released_baseline_comparison as O
 def test_public_protocol_lock_and_files_verify() -> None:
     repo = Path(__file__).resolve().parent
     lock = O.load_protocol_lock(
-        repo / "results" / O.OUTPUT_NAMESPACE / "protocol_lock.json"
+        repo / "results" / "physical_released_baseline_comparison" / "protocol_lock.json"
     )
     verified = O.verify_protocol_files(
         repo,
@@ -21,6 +21,7 @@ def test_public_protocol_lock_and_files_verify() -> None:
     )
     assert verified["source_manifest"]["content_sha256"] == O.SOURCE_MANIFEST_CONTENT_SHA256
     assert verified["failed_causal_result"]["corrected_arm_run"] is False
+    assert verified["preoutcome_failure"]["model_inference_started"] is False
 
 
 def test_output_namespace_is_fail_closed(tmp_path: Path) -> None:
@@ -28,6 +29,37 @@ def test_output_namespace_is_fail_closed(tmp_path: Path) -> None:
     assert O.require_output_namespace(good) == good.resolve()
     with pytest.raises(SystemExit, match="output root must end"):
         O.require_output_namespace(tmp_path / "physical_normalization_ab")
+
+
+@pytest.mark.parametrize("foreground", [1, 255])
+def test_released_binary_encodings_canonicalize_identically(foreground: int) -> None:
+    source = np.asarray([[0, foreground], [foreground, 0]], dtype=np.uint8)
+    view = O.CanonicalReleasedBinaryArray(source)
+    np.testing.assert_array_equal(
+        view[:, :], np.asarray([[0, 1], [1, 0]], dtype=np.uint8)
+    )
+
+
+def test_released_binary_canonicalization_rejects_other_values() -> None:
+    view = O.CanonicalReleasedBinaryArray(np.asarray([0, 2, 255], dtype=np.uint8))
+    with pytest.raises(RuntimeError, match="non-binary"):
+        view[:]
+
+
+def test_operational_block_restores_remote_opener(monkeypatch: pytest.MonkeyPatch) -> None:
+    original = O.R._open_remote_zarr
+
+    def fake_run(*args, **kwargs):
+        assert O.R._open_remote_zarr is not original
+        opened = O.R._open_remote_zarr("unused")
+        np.testing.assert_array_equal(opened[:], np.asarray([0, 1], dtype=np.uint8))
+        return "dry_run"
+
+    monkeypatch.setattr(O.R, "_open_remote_zarr", lambda url: np.asarray([0, 255], dtype=np.uint8))
+    patched_original = O.R._open_remote_zarr
+    monkeypatch.setattr(O.R, "run_block", fake_run)
+    assert O.run_operational_block(None, {}, {}, {}, {}) == "dry_run"
+    assert O.R._open_remote_zarr is patched_original
 
 
 def test_protocol_lock_content_hash_is_checked(tmp_path: Path) -> None:

@@ -13,13 +13,16 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+import numpy as np
+
 import physical_normalization_ab as P
 import run_physical_normalization_ab as R
 
 
 PROTOCOL_ID = "physical_released_baseline_operational_v1"
+IMPLEMENTATION_REVISION = 2
 LOCK_STATUS = "preregistered_before_corrected_physical_outcomes"
-OUTPUT_NAMESPACE = "physical_released_baseline_comparison"
+OUTPUT_NAMESPACE = "physical_released_baseline_comparison_r2"
 SOURCE_MANIFEST_CONTENT_SHA256 = (
     "567a18faa1c8ca7e743c9240133f4200e67e3085823dd4795c4518e3e0e65ac0"
 )
@@ -36,6 +39,7 @@ def load_protocol_lock(path: Path) -> dict[str, Any]:
         raise SystemExit(f"protocol lock content SHA mismatch: {recorded} != {actual}")
     expected = {
         "protocol_id": PROTOCOL_ID,
+        "implementation_revision": IMPLEMENTATION_REVISION,
         "status": LOCK_STATUS,
         "output_namespace": OUTPUT_NAMESPACE,
         "source_manifest_content_sha256": SOURCE_MANIFEST_CONTENT_SHA256,
@@ -44,6 +48,46 @@ def load_protocol_lock(path: Path) -> dict[str, Any]:
         if lock.get(key) != value:
             raise SystemExit(f"protocol lock {key} mismatch: {lock.get(key)!r} != {value!r}")
     return lock
+
+
+class CanonicalReleasedBinaryArray:
+    """Read-only view mapping accepted uint8 binary encodings to literal {0,1}."""
+
+    def __init__(self, array: Any):
+        self._array = array
+
+    def __getitem__(self, key: Any) -> np.ndarray:
+        value = np.asarray(self._array[key])
+        if value.dtype != np.uint8:
+            raise RuntimeError(f"released baseline dtype changed: {value.dtype}")
+        if not np.isin(value, [0, 1, 255]).all():
+            observed = np.unique(value)
+            raise RuntimeError(
+                "released baseline contains non-binary uint8 values: "
+                f"{observed[:16].tolist()}"
+            )
+        return (value != 0).astype(np.uint8)
+
+
+def run_operational_block(
+    args: argparse.Namespace,
+    manifest: dict[str, Any],
+    verification: dict[str, Any],
+    block: dict[str, Any],
+    env: dict[str, str],
+) -> str:
+    """Run the inherited block implementation with binary storage canonicalized."""
+
+    original_open = R._open_remote_zarr
+
+    def open_canonical(url: str) -> CanonicalReleasedBinaryArray:
+        return CanonicalReleasedBinaryArray(original_open(url))
+
+    R._open_remote_zarr = open_canonical
+    try:
+        return R.run_block(args, manifest, verification, block, env)
+    finally:
+        R._open_remote_zarr = original_open
 
 
 def require_output_namespace(out_root: Path) -> Path:
@@ -83,7 +127,20 @@ def verify_protocol_files(
         raise SystemExit("causal result does not prove corrected_arm_run=false")
     if causal.get("manifest_content_sha256") != SOURCE_MANIFEST_CONTENT_SHA256:
         raise SystemExit("causal result refers to a different source manifest")
-    return {"source_manifest": source_manifest, "failed_causal_result": causal}
+    failure = P.load_json(repo / lock["preoutcome_failure_path"])
+    if failure.get("status") != "failed_before_model_inference":
+        raise SystemExit("revision-1 failure was not pre-inference")
+    if failure.get("corrected_probability_array_created") is not False:
+        raise SystemExit("revision-1 failure does not prove that no corrected array existed")
+    if failure.get("failed_attempt_receipt_sha256") != (
+        "54b620f8d19d4292b1ee19aa3596f5480ffa30197805682c2fde309379b2df4a"
+    ):
+        raise SystemExit("revision-1 failed receipt binding changed")
+    return {
+        "source_manifest": source_manifest,
+        "failed_causal_result": causal,
+        "preoutcome_failure": failure,
+    }
 
 
 def _write_or_verify_protocol_receipt(
@@ -95,6 +152,7 @@ def _write_or_verify_protocol_receipt(
     fixed = {
         "schema_version": 1,
         "protocol_id": PROTOCOL_ID,
+        "implementation_revision": IMPLEMENTATION_REVISION,
         "estimand": "exact_pr1386_pipeline_vs_released_binary_artifact",
         "causal_claim_allowed": False,
         "protocol_lock_content_sha256": lock["content_sha256"],
@@ -158,6 +216,7 @@ def cleanup_completed_heavy_work(out_root: Path, block: dict[str, Any]) -> Path:
     value = {
         "schema_version": 1,
         "protocol_id": PROTOCOL_ID,
+        "implementation_revision": IMPLEMENTATION_REVISION,
         "block_id": block["block_id"],
         "attempt": attempt,
         "final_receipt_sha256": P.sha256_file(final_receipt_path),
@@ -208,6 +267,7 @@ def write_completion_if_ready(
     fixed = {
         "schema_version": 1,
         "protocol_id": PROTOCOL_ID,
+        "implementation_revision": IMPLEMENTATION_REVISION,
         "status": "inference_complete_unscored",
         "causal_claim_allowed": False,
         "protocol_lock_content_sha256": lock["content_sha256"],
@@ -267,7 +327,7 @@ def run_command(args: argparse.Namespace) -> None:
             raise SystemExit(f"unknown block ID: {args.block_id}")
     for index, block in enumerate(blocks, 1):
         print(f"[{index}/{len(blocks)}] {block['block_id']}", flush=True)
-        status = R.run_block(args, manifest, base, block, env)
+        status = run_operational_block(args, manifest, base, block, env)
         if status in {"complete", "already_complete"}:
             cleanup_completed_heavy_work(out_root, block)
         print(f"  {status}", flush=True)
