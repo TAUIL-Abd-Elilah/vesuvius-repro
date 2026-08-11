@@ -12,6 +12,10 @@ it needs comes from `catalog.json`, so it works for any scroll with a published 
 > baseline sentinel, as designed. PHerc0139 passed; PHerc1203 scored 0.9989617 against a
 > frozen 0.999 cutoff. No corrected-arm result was inspected. See the
 > [fail-closed result](PHYSICAL_NORMALIZATION_AB_SENTINEL_RESULT.md).
+>
+> A [separate operational comparison](PHYSICAL_RELEASED_BASELINE_COMPARISON_PREREG.md)
+> is now publicly locked: exact PR #1386 output versus the released binary artifacts on
+> the same 64 truth-only-selected blocks. It makes no causal-normalization claim.
 
 ## Try it in 30 seconds (no GPU, no downloads)
 
