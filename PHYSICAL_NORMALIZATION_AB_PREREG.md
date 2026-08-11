@@ -1,11 +1,12 @@
 # Physical normalization A/B: preregistered protocol
 
-Status: publicly frozen protocol v2, implementation r2; no real model arm has been scored
+Status: publicly frozen protocol v2, implementation r3; no real model arm has been scored
 against either physical label volume. Protocol v1 was superseded before inference after the
 truth-only power audit documented in `PHYSICAL_NORMALIZATION_AB_AMENDMENT_01.md`. All 64
 coordinates are unchanged. The initial v2 runner was superseded after a pre-prediction Zarr
 compatibility failure documented in `PHYSICAL_NORMALIZATION_AB_AMENDMENT_02.md`; this changed
-runtime store creation only, not the statistical protocol.
+runtime store creation only, not the statistical protocol. A second pre-score failure and
+Windows-safe blend entrypoint are documented in `PHYSICAL_NORMALIZATION_AB_AMENDMENT_03.md`.
 
 ## Question
 
@@ -186,3 +187,5 @@ Both arms run under one frozen Zarr compatibility bootstrap. Under Zarr 3 it res
 former `zarr.Blosc -> numcodecs.Blosc` alias and requests Zarr format 2 whenever the legacy
 writer supplies a v2 compressor. Under Zarr 2 those operations preserve native behavior. The
 bootstrap is applied to inference and blending and its SHA-256 is recorded in every receipt.
+Blending imports its module by canonical package name so Windows worker-spawn can resolve its
+functions; this entrypoint has its own frozen SHA-256 and regression test.

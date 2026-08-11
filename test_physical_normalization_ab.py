@@ -220,6 +220,37 @@ class PhysicalNormalizationABTests(unittest.TestCase):
             self.assertEqual(metadata["zarr_format"], 2)
             self.assertEqual(metadata["compressor"]["id"], "blosc")
 
+    def test_blend_bootstrap_keeps_workers_importable_under_spawn(self) -> None:
+        module_text = """\
+import concurrent.futures
+import multiprocessing
+
+def _worker(value):
+    return value * value
+
+def main():
+    context = multiprocessing.get_context('spawn')
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=1, mp_context=context
+    ) as executor:
+        return 0 if executor.submit(_worker, 7).result() == 49 else 1
+"""
+        with tempfile.TemporaryDirectory() as tmp:
+            package = Path(tmp) / "vesuvius" / "models" / "run"
+            package.mkdir(parents=True)
+            for parent in (package.parents[1], package.parent, package):
+                (parent / "__init__.py").write_text("", encoding="utf-8")
+            (package / "blending.py").write_text(module_text, encoding="utf-8")
+            env = os.environ.copy()
+            env["PYTHONPATH"] = tmp + os.pathsep + env.get("PYTHONPATH", "")
+            env["PYTHONIOENCODING"] = "utf-8"
+            result = R.run_text(
+                [sys.executable, "-c", R.BLEND_BOOTSTRAP, "unused", "unused"],
+                Path(tmp),
+                env,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_candidate_selection_is_hash_ordered_per_stratum(self) -> None:
         candidates = []
         for stratum in range(P.Z_STRATA):

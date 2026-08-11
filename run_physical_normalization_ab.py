@@ -53,7 +53,14 @@ MODULE_BOOTSTRAP = ZARR2_COMPAT_SHIM + (
     "sys.argv=sys.argv[1:]\n"
     "runpy.run_module(_physical_ab_module,run_name='__main__')\n"
 )
+BLEND_BOOTSTRAP = ZARR2_COMPAT_SHIM + (
+    "import sys\n"
+    "from vesuvius.models.run import blending as _physical_ab_blending\n"
+    "sys.argv=['blending',*sys.argv[1:]]\n"
+    "raise SystemExit(_physical_ab_blending.main())\n"
+)
 ZARR2_COMPAT_SHA256 = P.sha256_bytes(ZARR2_COMPAT_SHIM.encode("utf-8"))
+BLEND_BOOTSTRAP_SHA256 = P.sha256_bytes(BLEND_BOOTSTRAP.encode("utf-8"))
 
 
 def utc_now() -> str:
@@ -383,6 +390,7 @@ def infer_probability_extent(
             "shim_sha256": ZARR2_COMPAT_SHA256,
             "applied_to": ["inference", "blending"],
         },
+        "blend_bootstrap_sha256": BLEND_BOOTSTRAP_SHA256,
     }
     if args.dry_run:
         print(command_text(command))
@@ -416,10 +424,11 @@ def infer_probability_extent(
     blend_command = [
         str(Path(args.python).resolve()),
         "-c",
-        MODULE_BOOTSTRAP,
-        "vesuvius.models.run.blending",
+        BLEND_BOOTSTRAP,
         str(logits),
         str(merged),
+        "--num_workers",
+        str(args.num_workers),
     ]
     blend = run_text(blend_command, villa_root, env)
     blend_stdout = work / "blend.stdout.log"

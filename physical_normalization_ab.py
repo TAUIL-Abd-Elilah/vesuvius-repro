@@ -29,7 +29,7 @@ import numpy as np
 
 
 PROTOCOL_VERSION = 2
-IMPLEMENTATION_REVISION = 2
+IMPLEMENTATION_REVISION = 3
 MANIFEST_STATUS = "preregistered_no_real_arm_scores_protocol_v2"
 SELECTION_SEED = "vesuvius-physical-normalization-ab-v1-2026-08-11"
 BOOTSTRAP_SEED = 20260811
@@ -405,7 +405,9 @@ def build_manifest(repo: Path, labels_root: Path, model_dir: Path) -> dict[str, 
         "PHYSICAL_NORMALIZATION_AB_PREREG.md",
         "PHYSICAL_NORMALIZATION_AB_AMENDMENT_01.md",
         "PHYSICAL_NORMALIZATION_AB_AMENDMENT_02.md",
+        "PHYSICAL_NORMALIZATION_AB_AMENDMENT_03.md",
         "results/physical_normalization_ab/sentinel_failure_01.json",
+        "results/physical_normalization_ab/sentinel_failure_02.json",
         "results/physical_normalization_ab/truth_power_audit.json",
         "requirements.txt",
     ):
