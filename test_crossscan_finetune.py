@@ -137,6 +137,15 @@ class SamplingTests(unittest.TestCase):
 
 
 class GeometryAndPlanTests(unittest.TestCase):
+    def test_content_hash_is_distinct_from_file_identity(self) -> None:
+        value = {"a": 1}
+        sealed = cf._with_content_hash(value)
+        self.assertEqual(sealed["content_sha256"], cf.content_hash_without_field(sealed))
+        serialized_file_hash = cf.sha256_bytes(
+            (cf.canonical_json(sealed) + "\r\n").encode("ascii")
+        )
+        self.assertNotEqual(serialized_file_hash, sealed["content_sha256"])
+
     def test_box_geometry(self) -> None:
         origin = [192, 1024, 1536]
         self.assertEqual(

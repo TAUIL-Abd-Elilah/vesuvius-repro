@@ -24,7 +24,10 @@ from physical_normalization_ab import SCROLLS, scan_candidates
 PROTOCOL_VERSION = 1
 PLAN_STATUS = "preoutcome_design_lock_no_pilot_or_primary_predictions"
 SELECTION_SEED = "vesuvius-crossscan-physical-finetune-v1-2026-08-11"
-SOURCE_MANIFEST_SHA256 = (
+SOURCE_MANIFEST_FILE_SHA256 = (
+    "d0831d7bb8f5a3aa47eaf4f21d414c336d0a217f6ebe5ad0dc9ecd4dc57423eb"
+)
+SOURCE_MANIFEST_CONTENT_SHA256 = (
     "567a18faa1c8ca7e743c9240133f4200e67e3085823dd4795c4518e3e0e65ac0"
 )
 
@@ -308,12 +311,16 @@ def _with_content_hash(plan: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+def content_hash_without_field(value: dict[str, Any]) -> str:
+    bare = copy.deepcopy(value)
+    bare.pop("content_sha256", None)
+    return sha256_bytes(canonical_json(bare).encode("ascii"))
+
+
 def validate_plan(plan: dict[str, Any]) -> dict[str, Any]:
     errors: list[str] = []
     expected_hash = plan.get("content_sha256")
-    bare = copy.deepcopy(plan)
-    bare.pop("content_sha256", None)
-    actual_hash = sha256_bytes(canonical_json(bare).encode("ascii"))
+    actual_hash = content_hash_without_field(plan)
     if expected_hash != actual_hash:
         errors.append(f"content hash {expected_hash} != {actual_hash}")
     if plan.get("protocol_version") != PROTOCOL_VERSION:
@@ -439,11 +446,24 @@ def build_plan(
 ) -> dict[str, Any]:
     public_git = require_public_clean_head(repo)
     source_sha = sha256_file(source_manifest_path)
-    if source_sha != SOURCE_MANIFEST_SHA256:
+    if source_sha != SOURCE_MANIFEST_FILE_SHA256:
         raise SystemExit(
-            f"source manifest SHA-256 {source_sha} != frozen {SOURCE_MANIFEST_SHA256}"
+            "source manifest whole-file SHA-256 "
+            f"{source_sha} != frozen {SOURCE_MANIFEST_FILE_SHA256}"
         )
     source = load_json(source_manifest_path)
+    source_content = source.get("content_sha256")
+    if source_content != SOURCE_MANIFEST_CONTENT_SHA256:
+        raise SystemExit(
+            "source manifest recorded content SHA-256 "
+            f"{source_content} != frozen {SOURCE_MANIFEST_CONTENT_SHA256}"
+        )
+    recomputed_source_content = content_hash_without_field(source)
+    if recomputed_source_content != source_content:
+        raise SystemExit(
+            "source manifest content does not recompute: "
+            f"{recomputed_source_content} != {source_content}"
+        )
     primary: dict[str, list[dict[str, Any]]] = {TRAIN_SCROLL: [], SAFETY_SCROLL: []}
     for block in source["blocks"]:
         if block["scroll"] in primary:
