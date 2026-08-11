@@ -22,6 +22,8 @@ def test_public_protocol_lock_and_files_verify() -> None:
     assert verified["source_manifest"]["content_sha256"] == O.SOURCE_MANIFEST_CONTENT_SHA256
     assert verified["failed_causal_result"]["corrected_arm_run"] is False
     assert verified["preoutcome_failure"]["model_inference_started"] is False
+    assert verified["pre_score_failure"]["blending_started"] is False
+    assert verified["pre_score_failure"]["physical_score_computed"] is False
 
 
 def test_output_namespace_is_fail_closed(tmp_path: Path) -> None:
@@ -51,15 +53,39 @@ def test_operational_block_restores_remote_opener(monkeypatch: pytest.MonkeyPatc
 
     def fake_run(*args, **kwargs):
         assert O.R._open_remote_zarr is not original
+        assert O.R.NORMALIZATION_LOG_TOKEN == O.MODEL_NORMALIZATION_LOG_TOKEN
         opened = O.R._open_remote_zarr("unused")
         np.testing.assert_array_equal(opened[:], np.asarray([0, 1], dtype=np.uint8))
         return "dry_run"
 
     monkeypatch.setattr(O.R, "_open_remote_zarr", lambda url: np.asarray([0, 255], dtype=np.uint8))
     patched_original = O.R._open_remote_zarr
+    monkeypatch.setattr(O.R, "NORMALIZATION_LOG_TOKEN", "inherited-test-token")
+    patched_original_token = O.R.NORMALIZATION_LOG_TOKEN
     monkeypatch.setattr(O.R, "run_block", fake_run)
     assert O.run_operational_block(None, {}, {}, {}, {}) == "dry_run"
     assert O.R._open_remote_zarr is patched_original
+    assert O.R.NORMALIZATION_LOG_TOKEN == patched_original_token
+
+
+def test_operational_block_restores_patches_after_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(O.R, "_open_remote_zarr", lambda url: np.asarray([0], dtype=np.uint8))
+    patched_original = O.R._open_remote_zarr
+    monkeypatch.setattr(O.R, "NORMALIZATION_LOG_TOKEN", "inherited-error-token")
+    patched_original_token = O.R.NORMALIZATION_LOG_TOKEN
+
+    def fail(*args, **kwargs):
+        assert O.R._open_remote_zarr is not patched_original
+        assert O.R.NORMALIZATION_LOG_TOKEN == O.MODEL_NORMALIZATION_LOG_TOKEN
+        raise RuntimeError("injected failure")
+
+    monkeypatch.setattr(O.R, "run_block", fail)
+    with pytest.raises(RuntimeError, match="injected failure"):
+        O.run_operational_block(None, {}, {}, {}, {})
+    assert O.R._open_remote_zarr is patched_original
+    assert O.R.NORMALIZATION_LOG_TOKEN == patched_original_token
 
 
 def test_protocol_lock_content_hash_is_checked(tmp_path: Path) -> None:

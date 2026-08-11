@@ -1,17 +1,23 @@
 {
   "schema_version": 1,
   "protocol_id": "physical_released_baseline_operational_v1",
-  "implementation_revision": 2,
+  "implementation_revision": 3,
   "status": "preregistered_before_corrected_physical_outcomes",
   "registered_utc": "2026-08-11T04:47:41.3931353Z",
   "amended_utc": "2026-08-11T04:54:16.8940697Z",
+  "second_amended_utc": "2026-08-11T05:17:25.2636989Z",
   "estimand": "exact_pr1386_pipeline_vs_released_binary_artifact",
   "causal_claim_allowed": false,
   "corrected_physical_arrays_seen_at_lock": false,
-  "output_namespace": "physical_released_baseline_comparison_r2",
-  "superseded_output_namespace": "physical_released_baseline_comparison",
+  "output_namespace": "physical_released_baseline_comparison_r3",
+  "superseded_output_namespaces": [
+    "physical_released_baseline_comparison",
+    "physical_released_baseline_comparison_r2"
+  ],
   "preoutcome_failure_path": "results/physical_released_baseline_comparison/preoutcome_failure_01.json",
   "preoutcome_failure_sha256": "7b08a046817e7822b6a93eadfe72a75810412f7d894961153a8432163fe790b6",
+  "pre_score_failure_path": "results/physical_released_baseline_comparison/pre_score_failure_02.json",
+  "pre_score_failure_sha256": "658ab6c6e9c418247103c502b1875dd419980bc60ffe66e151616b64747cf007",
   "source_manifest_path": "results/physical_normalization_ab/manifest.json",
   "source_manifest_file_sha256": "d0831d7bb8f5a3aa47eaf4f21d414c336d0a217f6ebe5ad0dc9ecd4dc57423eb",
   "source_manifest_content_sha256": "567a18faa1c8ca7e743c9240133f4200e67e3085823dd4795c4518e3e0e65ac0",
@@ -30,6 +36,7 @@
   "candidate": {
     "normalization": "ct_from_model_plans",
     "normalization_override": null,
+    "required_normalization_log_token": "Using model-declared normalization 'ct' instead of CLI/default 'instance_zscore'.",
     "tta": false,
     "fixed_threshold": 0.2,
     "matched_mass_control": true
@@ -59,12 +66,22 @@
     "retain_failed_attempts": true,
     "retain_final_arrays_and_receipts": true
   },
-  "protocol_files_sha256": {
-    "PHYSICAL_RELEASED_BASELINE_COMPARISON_AMENDMENT_01.md": "6f08ba5dc89ce2bda2ee3b34d2cb5ead6f7af1f72ff13c8c8dd969f7c5e3fa55",
-    "PHYSICAL_RELEASED_BASELINE_COMPARISON_PREREG.md": "ed5ab8a519dac2b96235b9281cdb031fbab421944de8b5e7ac721557da5bcfbf",
-    "results/physical_released_baseline_comparison/preoutcome_failure_01.json": "7b08a046817e7822b6a93eadfe72a75810412f7d894961153a8432163fe790b6",
-    "run_physical_released_baseline_comparison.py": "af33319822fb7cb29d209a880f9bc009836ddb6ddcb76116af0764b70e532664",
-    "test_physical_released_baseline_comparison.py": "25ddd93be8329564530d40541b10d9402f1236b58f9a59fc92a58c15e9224378"
+  "revision_2_logits_reused": false,
+  "checkout_line_endings": {
+    "other_byte_hashed_protocol_files": "lf",
+    "source_manifest": "crlf",
+    "policy_path": ".gitattributes",
+    "policy_sha256": "f53a3cce8fb48ef091f8a9a46d962dff781d4d13a1b22863faa6aa37d45c40c3"
   },
-  "content_sha256": "044e5640103f1ff8189fc31fb414962b2a16dcedbdd3942dee83b15378e6c84f"
+  "protocol_files_sha256": {
+    ".gitattributes": "f53a3cce8fb48ef091f8a9a46d962dff781d4d13a1b22863faa6aa37d45c40c3",
+    "PHYSICAL_RELEASED_BASELINE_COMPARISON_AMENDMENT_01.md": "6f08ba5dc89ce2bda2ee3b34d2cb5ead6f7af1f72ff13c8c8dd969f7c5e3fa55",
+    "PHYSICAL_RELEASED_BASELINE_COMPARISON_AMENDMENT_02.md": "112127f7731b63bee0d3740acd5058915c8fd02bc142210b7e588fe6987fc63c",
+    "PHYSICAL_RELEASED_BASELINE_COMPARISON_PREREG.md": "8846fb19a5f46f18daaef285103788b1099d7b7b464e4d477161d11a8459e5a1",
+    "results/physical_released_baseline_comparison/preoutcome_failure_01.json": "7b08a046817e7822b6a93eadfe72a75810412f7d894961153a8432163fe790b6",
+    "results/physical_released_baseline_comparison/pre_score_failure_02.json": "658ab6c6e9c418247103c502b1875dd419980bc60ffe66e151616b64747cf007",
+    "run_physical_released_baseline_comparison.py": "7a3b714defb3eab12eff5e593231df62a80f56fbfc9336cb94249f1294313c7d",
+    "test_physical_released_baseline_comparison.py": "54456a7d75fd328661b5c9bbdbc1a386a89db45b9a308b3de22e9f1241752262"
+  },
+  "content_sha256": "97368b402aa313ad6f24442671da0182302530d1ecb0479b0e40d174d855d8b9"
 }

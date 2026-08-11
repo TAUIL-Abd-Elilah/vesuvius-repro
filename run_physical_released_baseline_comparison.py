@@ -20,14 +20,17 @@ import run_physical_normalization_ab as R
 
 
 PROTOCOL_ID = "physical_released_baseline_operational_v1"
-IMPLEMENTATION_REVISION = 2
+IMPLEMENTATION_REVISION = 3
 LOCK_STATUS = "preregistered_before_corrected_physical_outcomes"
-OUTPUT_NAMESPACE = "physical_released_baseline_comparison_r2"
+OUTPUT_NAMESPACE = "physical_released_baseline_comparison_r3"
 SOURCE_MANIFEST_CONTENT_SHA256 = (
     "567a18faa1c8ca7e743c9240133f4200e67e3085823dd4795c4518e3e0e65ac0"
 )
 FAILED_CAUSAL_STATUS = "closed_fail_closed"
 HEAVY_WORK_NAMES = ("logits", "merged.zarr")
+MODEL_NORMALIZATION_LOG_TOKEN = (
+    "Using model-declared normalization 'ct' instead of CLI/default 'instance_zscore'."
+)
 
 
 def load_protocol_lock(path: Path) -> dict[str, Any]:
@@ -47,6 +50,10 @@ def load_protocol_lock(path: Path) -> dict[str, Any]:
     for key, value in expected.items():
         if lock.get(key) != value:
             raise SystemExit(f"protocol lock {key} mismatch: {lock.get(key)!r} != {value!r}")
+    if lock.get("candidate", {}).get("required_normalization_log_token") != (
+        MODEL_NORMALIZATION_LOG_TOKEN
+    ):
+        raise SystemExit("protocol lock normalization proof token mismatch")
     return lock
 
 
@@ -79,15 +86,18 @@ def run_operational_block(
     """Run the inherited block implementation with binary storage canonicalized."""
 
     original_open = R._open_remote_zarr
+    original_token = R.NORMALIZATION_LOG_TOKEN
 
     def open_canonical(url: str) -> CanonicalReleasedBinaryArray:
         return CanonicalReleasedBinaryArray(original_open(url))
 
     R._open_remote_zarr = open_canonical
+    R.NORMALIZATION_LOG_TOKEN = MODEL_NORMALIZATION_LOG_TOKEN
     try:
         return R.run_block(args, manifest, verification, block, env)
     finally:
         R._open_remote_zarr = original_open
+        R.NORMALIZATION_LOG_TOKEN = original_token
 
 
 def require_output_namespace(out_root: Path) -> Path:
@@ -136,10 +146,33 @@ def verify_protocol_files(
         "54b620f8d19d4292b1ee19aa3596f5480ffa30197805682c2fde309379b2df4a"
     ):
         raise SystemExit("revision-1 failed receipt binding changed")
+    pre_score_path = repo / lock["pre_score_failure_path"]
+    if P.sha256_file(pre_score_path) != lock["pre_score_failure_sha256"]:
+        raise SystemExit("revision-2 pre-score failure SHA changed")
+    pre_score_failure = P.load_json(pre_score_path)
+    if pre_score_failure.get("status") != "failed_after_inference_before_blending":
+        raise SystemExit("revision-2 failure was not before blending")
+    if pre_score_failure.get("inference_complete") is not True:
+        raise SystemExit("revision-2 failure does not prove inference completion")
+    if pre_score_failure.get("inference_patch_count") != 150:
+        raise SystemExit("revision-2 inference patch count changed")
+    if pre_score_failure.get("blending_started") is not False:
+        raise SystemExit("revision-2 failure does not prove blending_started=false")
+    if pre_score_failure.get("corrected_probability_array_created") is not False:
+        raise SystemExit("revision-2 failure does not prove that no probability array existed")
+    if pre_score_failure.get("physical_score_computed") is not False:
+        raise SystemExit("revision-2 failure does not prove that no physical score existed")
+    if pre_score_failure.get("final_block_array_created") is not False:
+        raise SystemExit("revision-2 failure does not prove that no final block array existed")
+    if pre_score_failure.get("observed_normalization_log_token") != (
+        MODEL_NORMALIZATION_LOG_TOKEN
+    ):
+        raise SystemExit("revision-2 observed normalization token changed")
     return {
         "source_manifest": source_manifest,
         "failed_causal_result": causal,
         "preoutcome_failure": failure,
+        "pre_score_failure": pre_score_failure,
     }
 
 

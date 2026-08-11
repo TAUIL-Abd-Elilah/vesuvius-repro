@@ -9,6 +9,14 @@ model inference because the released binary is encoded as `{0,255}`, not literal
 Revision 2 canonicalizes nonzero to one and writes to a new output namespace; all scientific
 choices remain unchanged.
 
+Implementation revision 3 is frozen by
+`PHYSICAL_RELEASED_BASELINE_COMPARISON_AMENDMENT_02.md`. Revision 2 completed all 150
+inference patches for the first block, then stopped before blending because the inherited
+proof token did not exactly match the predictor's actual PR #1386 log line. Revision 3
+binds that exact line and writes to a third output namespace. It does not reuse revision-2
+logits, and no probability array or physical score existed when this amendment was made.
+It also pins the byte-hashed files' checkout line endings for cross-platform verification.
+
 ## Why this is a separate protocol
 
 The earlier causal normalization A/B required an old-path reproduction Dice of at least

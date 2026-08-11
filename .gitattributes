@@ -1,0 +1,14 @@
+/.gitattributes text eol=lf
+
+/PHYSICAL_NORMALIZATION_AB_*.md text eol=lf
+/physical_normalization_ab.py text eol=lf
+/run_physical_normalization_ab.py text eol=lf
+/test_physical_normalization_ab.py text eol=lf
+/requirements.txt text eol=lf
+/results/physical_normalization_ab/*.json text eol=lf
+/results/physical_normalization_ab/manifest.json text eol=crlf
+
+/PHYSICAL_RELEASED_BASELINE_COMPARISON_*.md text eol=lf
+/run_physical_released_baseline_comparison.py text eol=lf
+/test_physical_released_baseline_comparison.py text eol=lf
+/results/physical_released_baseline_comparison/*.json text eol=lf
