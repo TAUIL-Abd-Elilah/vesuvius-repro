@@ -110,6 +110,51 @@ class FilesAndConfigurationTests(unittest.TestCase):
             with self.assertRaises((TypeError, ValueError)):
                 R.coerce_locked_training_hyperparameters(trainer)
 
+    def test_frozen_checkpoint_load_is_hash_bound_and_narrowly_allowlisted(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            checkpoint = Path(tmp) / "checkpoint.pth"
+            checkpoint.write_bytes(b"frozen-checkpoint")
+            expected = R.file_record(checkpoint)
+            network = mock.Mock()
+            with (
+                mock.patch(
+                    "torch.serialization.get_unsafe_globals_in_checkpoint",
+                    return_value=list(R.TRUSTED_CHECKPOINT_STATIC_UNSAFE_GLOBALS),
+                ),
+                mock.patch("torch.serialization.safe_globals") as safe_globals,
+                mock.patch(
+                    "nnunetv2.run.load_pretrained_weights.load_pretrained_weights"
+                ) as loader,
+            ):
+                record = R.load_frozen_pretrained_weights(
+                    network, checkpoint, expected, verbose=True
+                )
+            loader.assert_called_once_with(network, str(checkpoint), verbose=True)
+            safe_globals.assert_called_once_with(R.trusted_checkpoint_safe_types())
+            self.assertEqual(record, R.trusted_checkpoint_load_record(expected))
+            self.assertEqual(
+                record["allowlisted_types"],
+                [
+                    "numpy.dtype",
+                    "numpy._core.multiarray.scalar",
+                    "numpy.dtypes.Float32DType",
+                    "numpy.dtypes.Float64DType",
+                    "numpy.dtypes.Int64DType",
+                ],
+            )
+
+            bad = dict(expected)
+            bad["sha256"] = "0" * 64
+            with self.assertRaisesRegex(ValueError, "identity mismatch"):
+                R.load_frozen_pretrained_weights(network, checkpoint, bad)
+
+            with mock.patch(
+                "torch.serialization.get_unsafe_globals_in_checkpoint",
+                return_value=["builtins.eval"],
+            ):
+                with self.assertRaisesRegex(ValueError, "unsafe globals changed"):
+                    R.load_frozen_pretrained_weights(network, checkpoint, expected)
+
     def test_dataset_fingerprint_validation_is_case_bound(self) -> None:
         fingerprint = {
             "spacings": [[1.0, 1.0, 1.0]],
@@ -357,6 +402,9 @@ class FilesAndConfigurationTests(unittest.TestCase):
                 "initial_checkpoint_sha256": PLAN["inputs"]["model"][
                     "fold_0/checkpoint_best.pth"
                 ]["sha256"],
+                "initial_checkpoint_load": R.trusted_checkpoint_load_record(
+                    PLAN["inputs"]["model"]["fold_0/checkpoint_best.pth"]
+                ),
                 "training_config": {
                     "relative_path": R.relative_data_path(root, config),
                     **R.file_record(config),

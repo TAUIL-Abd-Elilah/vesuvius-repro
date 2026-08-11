@@ -16,6 +16,8 @@
 /CROSSSCAN_FINETUNE_PREREG.md text eol=lf
 /CROSSSCAN_FINETUNE_AMENDMENT_*.md text eol=lf
 /CROSSSCAN_FINETUNE_RUNBOOK.md text eol=lf
+/crossscan_preprocess_smoke.py text eol=lf
+/crossscan_training_memory_smoke.py text eol=lf
 /crossscan_finetune.py text eol=lf
 /run_crossscan_finetune.py text eol=lf
 /score_crossscan_finetune.py text eol=lf
