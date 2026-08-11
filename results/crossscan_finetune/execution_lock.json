@@ -1,0 +1,165 @@
+{
+  "content_sha256": "f2006d6e435c50aaaf6b3b63e2654e90d0c9c71e714c52d1b8f367ae2b8cb8bd",
+  "created_utc": "2026-08-11T19:05:41.141645+00:00",
+  "environment": {
+    "blosc2": "4.9.1",
+    "nnunetv2_module": "nnunetv2/__init__.py",
+    "numpy": "2.4.6",
+    "python": "3.14.6",
+    "pyyaml": "6.0.3",
+    "scipy": "1.18.0",
+    "tifffile": "2026.7.14",
+    "torch": "2.13.0+cu126",
+    "torch_cuda": "12.6",
+    "zarr": "3.2.1"
+  },
+  "implementation": {
+    "branch": "physical-crossscan-finetune",
+    "commit": "9ac72b77fb33ac047832b1be773f67ee79bcb0d6",
+    "files": {
+      "CROSSSCAN_FINETUNE_AMENDMENT_01.md": {
+        "bytes": 4896,
+        "sha256": "d31c227155cda84f6bd1b92ebe8f136d7e0d6f4d64543c24478492713cd3f9a2"
+      },
+      "CROSSSCAN_FINETUNE_AMENDMENT_02.md": {
+        "bytes": 2619,
+        "sha256": "dc9f3a5762292df4263c42d4270f71f7c95f335db34c7f1e35819b7d7d013464"
+      },
+      "CROSSSCAN_FINETUNE_AMENDMENT_03.md": {
+        "bytes": 2876,
+        "sha256": "ad860d9283944be9645cc3f0cb1010cbda769c76ffdc56d8eb7569c832a1ddfc"
+      },
+      "CROSSSCAN_FINETUNE_PREREG.md": {
+        "bytes": 9239,
+        "sha256": "1c2d1de4549922905e8c98616c0eaa4b467ce89e146ec07d68dac1959d1f9162"
+      },
+      "CROSSSCAN_FINETUNE_RUNBOOK.md": {
+        "bytes": 6688,
+        "sha256": "4503023fc5bd36543a90efff59c692620459faaf81e932ff8b34773edfb404a9"
+      },
+      "crossscan_finetune.py": {
+        "bytes": 27791,
+        "sha256": "c3bc23a9210dde1803b4fc8a8783606fbd74e5f6475666a88061c1e2b397268b"
+      },
+      "crossscan_preprocess_smoke.py": {
+        "bytes": 6830,
+        "sha256": "70429d3c8cd8059655ad6e042ba4e5b1572b08c4daad3adeee554db00d4160ba"
+      },
+      "crossscan_training_memory_smoke.py": {
+        "bytes": 8668,
+        "sha256": "f3ada6cffeea6cc1cf669091336d8fff25987738d18e019be99ff381ee0db2ba"
+      },
+      "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining.json": {
+        "bytes": 5153,
+        "sha256": "4a7bf68e9d090e0dc6b7521529aeaed8bb372e3aa36e37e7acec799a01b35511"
+      },
+      "results/crossscan_finetune/plan.json": {
+        "bytes": 589802,
+        "sha256": "5a719ee75d4e30cef6a2a6e6c2eaf302f5ccbdbda67f4dca162d7df875f077b2"
+      },
+      "results/crossscan_finetune/preprocess_smoke.json": {
+        "bytes": 2474,
+        "sha256": "73f7db990e147e4d6963ab60e0dc8dfc44dae40750e00e6c271c7516a4760117"
+      },
+      "run_crossscan_finetune.py": {
+        "bytes": 71037,
+        "sha256": "326b02b9c9194152ac49f742eec4d0707931357876a3f0d850ebd84af149de24"
+      },
+      "score_crossscan_finetune.py": {
+        "bytes": 25754,
+        "sha256": "fcb58ccb9fd346f3bf24b2fed138a2b33965688ac25aec2a626814a25537915a"
+      },
+      "test_crossscan_finetune.py": {
+        "bytes": 7408,
+        "sha256": "fcb76ebabe9f46c87d499d258559c9b42c4aeef050332f6a02132a78f3bf6d0b"
+      },
+      "test_run_crossscan_finetune.py": {
+        "bytes": 17981,
+        "sha256": "af53d1257e85d0a43d2a160c6c71d343b60f9dde57576a62f35af97705c5c75d"
+      },
+      "test_score_crossscan_finetune.py": {
+        "bytes": 9845,
+        "sha256": "4cd0bd9934327eb8778680c4b00016c59ca6bafb445e3f91199d24a0c43072a5"
+      }
+    },
+    "remote_commit": "9ac72b77fb33ac047832b1be773f67ee79bcb0d6",
+    "repo": "https://github.com/TAUIL-Abd-Elilah/vesuvius-repro"
+  },
+  "plan": {
+    "bytes": 589802,
+    "content_sha256": "ab0128fa294c3f7cdb6188253c83f62e31cddc074708673aa974841289265da5",
+    "file_sha256": "5a719ee75d4e30cef6a2a6e6c2eaf302f5ccbdbda67f4dca162d7df875f077b2",
+    "path": "results/crossscan_finetune/plan.json"
+  },
+  "resolved_protocol": {
+    "configuration": "3d_fullres",
+    "dataset_id": 913,
+    "dataset_name": "Dataset913_CrossScanPhysical",
+    "foreground_oversampling": "probabilistic 0.5 per batch item",
+    "inference_gaussian": true,
+    "inference_mirroring": false,
+    "inference_tile_step_size": 0.5,
+    "iterations_per_epoch": 40,
+    "l0_to_l1_reduction": "2x2x2 maximum",
+    "matched_mass_ties": "stable descending probability, then plan case order, then C-order voxel index",
+    "plans_identifier": "nnUNetResEncUNetLPlans",
+    "trainer_name": "CrossScanPhysicalTrainer",
+    "validation_iterations_per_epoch": 10,
+    "visual_cases": [
+      {
+        "case_id": "PHerc1203-z0448-y2368-x1664",
+        "score_slice_l1": 32,
+        "scroll": "PHerc1203",
+        "z_stratum": 0
+      },
+      {
+        "case_id": "PHerc1203-z0576-y2496-x1536",
+        "score_slice_l1": 32,
+        "scroll": "PHerc1203",
+        "z_stratum": 1
+      },
+      {
+        "case_id": "PHerc1203-z1472-y1728-x2560",
+        "score_slice_l1": 32,
+        "scroll": "PHerc1203",
+        "z_stratum": 2
+      },
+      {
+        "case_id": "PHerc1203-z1728-y1728-x1920",
+        "score_slice_l1": 32,
+        "scroll": "PHerc1203",
+        "z_stratum": 3
+      },
+      {
+        "case_id": "PHerc0139-z0192-y1280-x0192",
+        "score_slice_l1": 32,
+        "scroll": "PHerc0139",
+        "z_stratum": 0
+      },
+      {
+        "case_id": "PHerc0139-z0576-y0512-x1344",
+        "score_slice_l1": 32,
+        "scroll": "PHerc0139",
+        "z_stratum": 1
+      },
+      {
+        "case_id": "PHerc0139-z0832-y0128-x0960",
+        "score_slice_l1": 32,
+        "scroll": "PHerc0139",
+        "z_stratum": 2
+      },
+      {
+        "case_id": "PHerc0139-z0960-y0640-x1472",
+        "score_slice_l1": 32,
+        "scroll": "PHerc0139",
+        "z_stratum": 3
+      }
+    ]
+  },
+  "schema_version": "vesuvius-crossscan-execution-lock-v1",
+  "status": "public_preoutcome_execution_lock",
+  "villa": {
+    "commit": "94ba215963afb6216e380fe2c86131fa5e724c3b",
+    "nnunet_tree": "24941bfa19e7239db6458287c2a39b9ad4bd7f4a"
+  }
+}
