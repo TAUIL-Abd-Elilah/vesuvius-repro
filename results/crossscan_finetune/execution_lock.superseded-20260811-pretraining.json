@@ -1,12 +1,11 @@
 {
-  "content_sha256": "f2006d6e435c50aaaf6b3b63e2654e90d0c9c71e714c52d1b8f367ae2b8cb8bd",
-  "created_utc": "2026-08-11T19:05:41.141645+00:00",
+  "content_sha256": "9a685b5c2842c9ccb34699c6254c5da1ff834824d51bdbbb515483812e51f746",
+  "created_utc": "2026-08-11T10:20:48.424696+00:00",
   "environment": {
     "blosc2": "4.9.1",
     "nnunetv2_module": "nnunetv2/__init__.py",
     "numpy": "2.4.6",
     "python": "3.14.6",
-    "pyyaml": "6.0.3",
     "scipy": "1.18.0",
     "tifffile": "2026.7.14",
     "torch": "2.13.0+cu126",
@@ -15,7 +14,7 @@
   },
   "implementation": {
     "branch": "physical-crossscan-finetune",
-    "commit": "9ac72b77fb33ac047832b1be773f67ee79bcb0d6",
+    "commit": "07e078d427fda2c28148498c0d4e832d49b65253",
     "files": {
       "CROSSSCAN_FINETUNE_AMENDMENT_01.md": {
         "bytes": 4896,
@@ -24,10 +23,6 @@
       "CROSSSCAN_FINETUNE_AMENDMENT_02.md": {
         "bytes": 2619,
         "sha256": "dc9f3a5762292df4263c42d4270f71f7c95f335db34c7f1e35819b7d7d013464"
-      },
-      "CROSSSCAN_FINETUNE_AMENDMENT_03.md": {
-        "bytes": 2876,
-        "sha256": "ad860d9283944be9645cc3f0cb1010cbda769c76ffdc56d8eb7569c832a1ddfc"
       },
       "CROSSSCAN_FINETUNE_PREREG.md": {
         "bytes": 9239,
@@ -45,14 +40,6 @@
         "bytes": 6830,
         "sha256": "70429d3c8cd8059655ad6e042ba4e5b1572b08c4daad3adeee554db00d4160ba"
       },
-      "crossscan_training_memory_smoke.py": {
-        "bytes": 8668,
-        "sha256": "f3ada6cffeea6cc1cf669091336d8fff25987738d18e019be99ff381ee0db2ba"
-      },
-      "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining.json": {
-        "bytes": 5153,
-        "sha256": "4a7bf68e9d090e0dc6b7521529aeaed8bb372e3aa36e37e7acec799a01b35511"
-      },
       "results/crossscan_finetune/plan.json": {
         "bytes": 589802,
         "sha256": "5a719ee75d4e30cef6a2a6e6c2eaf302f5ccbdbda67f4dca162d7df875f077b2"
@@ -62,8 +49,8 @@
         "sha256": "73f7db990e147e4d6963ab60e0dc8dfc44dae40750e00e6c271c7516a4760117"
       },
       "run_crossscan_finetune.py": {
-        "bytes": 71037,
-        "sha256": "326b02b9c9194152ac49f742eec4d0707931357876a3f0d850ebd84af149de24"
+        "bytes": 69278,
+        "sha256": "b96b2b71d5d2b90084c5b71538a28375b00b6c2e5744f25195bad9ad30eee16d"
       },
       "score_crossscan_finetune.py": {
         "bytes": 25754,
@@ -74,15 +61,15 @@
         "sha256": "fcb76ebabe9f46c87d499d258559c9b42c4aeef050332f6a02132a78f3bf6d0b"
       },
       "test_run_crossscan_finetune.py": {
-        "bytes": 17981,
-        "sha256": "af53d1257e85d0a43d2a160c6c71d343b60f9dde57576a62f35af97705c5c75d"
+        "bytes": 16530,
+        "sha256": "cd52e52eb7dee433879a3e7b029357684b63d644adc81a4b098dfbd0d09d2c93"
       },
       "test_score_crossscan_finetune.py": {
         "bytes": 9845,
         "sha256": "4cd0bd9934327eb8778680c4b00016c59ca6bafb445e3f91199d24a0c43072a5"
       }
     },
-    "remote_commit": "9ac72b77fb33ac047832b1be773f67ee79bcb0d6",
+    "remote_commit": "07e078d427fda2c28148498c0d4e832d49b65253",
     "repo": "https://github.com/TAUIL-Abd-Elilah/vesuvius-repro"
   },
   "plan": {
