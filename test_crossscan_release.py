@@ -187,6 +187,7 @@ class TechnicalReportTests(unittest.TestCase):
         self.assertIn("CC BY-NC 4.0", report)
         self.assertIn("Apache-2.0", report)
         self.assertIn("MIT", report)
+        self.assertIn("TOOLING_LICENSE.txt", report)
         self.assertNotIn("TODO", report)
 
     def test_report_rejects_seed_reordering(self) -> None:
@@ -327,6 +328,7 @@ class LicenseTests(unittest.TestCase):
             self.assertIn("CC BY-NC 4.0", text)
             self.assertIn("Apache-2.0", text)
             self.assertIn("MIT", text)
+            self.assertIn("TOOLING_LICENSE.txt", text)
             self.assertIn(plan["inputs"]["label_release"], text)
 
     def test_license_notice_rejects_plan_drift(self) -> None:
@@ -339,6 +341,7 @@ class LicenseTests(unittest.TestCase):
             })
 
     def test_provenance_requires_both_label_and_base_model_terms(self) -> None:
+        repo = Path(__file__).resolve().parent
         plan = {
             "inputs": {
                 "label_license": "CC BY-NC 4.0",
@@ -348,10 +351,26 @@ class LicenseTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             card = Path(tmp) / "README.md"
             card.write_text("---\nlicense: apache-2.0\n---\n", encoding="utf-8")
-            E.verify_license_provenance(plan, card)
+            E.verify_license_provenance(plan, card, repo / "LICENSE")
             card.write_text("---\nlicense: mit\n---\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "base-model card"):
-                E.verify_license_provenance(plan, card)
+                E.verify_license_provenance(plan, card, repo / "LICENSE")
+
+    def test_provenance_requires_complete_mit_tooling_terms(self) -> None:
+        plan = {
+            "inputs": {
+                "label_license": "CC BY-NC 4.0",
+                "label_release": "https://example.invalid/labels",
+            }
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            card = root / "README.md"
+            card.write_text("---\nlicense: apache-2.0\n---\n", encoding="utf-8")
+            tooling_license = root / "LICENSE"
+            tooling_license.write_text("MIT\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "MIT license terms"):
+                E.verify_license_provenance(plan, card, tooling_license)
 
 
 if __name__ == "__main__":

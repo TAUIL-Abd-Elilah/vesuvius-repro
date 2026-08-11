@@ -161,7 +161,7 @@ def validate_standard_nnunet_model(model_root: Path, folds: list[int]) -> None:
 
 
 def verify_license_provenance(
-    plan: dict[str, Any], base_model_card: Path,
+    plan: dict[str, Any], base_model_card: Path, tooling_license: Path,
 ) -> None:
     if plan.get("inputs", {}).get("label_license") != P.RELEASE_LICENSES[
         "fine_tuned_checkpoints_and_derived_evidence"
@@ -171,6 +171,16 @@ def verify_license_provenance(
         "\n" + base_model_card.read_text(encoding="utf-8")
     ):
         raise ValueError("base-model card does not declare license: apache-2.0")
+    if not tooling_license.is_file():
+        raise ValueError("tooling LICENSE is missing")
+    license_text = tooling_license.read_text(encoding="utf-8")
+    required_mit_terms = (
+        "MIT License",
+        "Permission is hereby granted, free of charge",
+        'THE SOFTWARE IS PROVIDED "AS IS"',
+    )
+    if not all(term in license_text for term in required_mit_terms):
+        raise ValueError("tooling LICENSE does not contain the MIT license terms")
 
 
 def model_license_notice(plan: dict[str, Any]) -> str:
@@ -195,7 +205,8 @@ the underlying Vesuvius Challenge scan data.
 The initial `scrollprize/surface_m7_nnunet` checkpoint declares **Apache-2.0**. That base
 license and attribution are retained in `evidence/BASE_MODEL_README.md`; it does not remove
 the CC BY-NC 4.0 conditions on these fine-tuned weights and derived evidence. The included
-release-tooling source files remain **MIT**-licensed under the public experiment repository.
+release-tooling source files remain **MIT**-licensed; their complete license text is in
+`TOOLING_LICENSE.txt`.
 """
 
 
@@ -271,7 +282,8 @@ Kaggle Vesuvius surface-detection solution. Its base checkpoint declares Apache-
 that attribution is retained. The fine-tuned checkpoints and result-derived evidence are
 **CC BY-NC 4.0**, matching the physical-label release at <{label_release}>. The included
 tooling remains MIT-licensed. See `MODEL_LICENSE.md` and the copied base-model card for the
-separate terms; upstream terms continue to govern their respective inputs.
+separate terms, and `TOOLING_LICENSE.txt` for the included tooling's MIT terms; upstream
+terms continue to govern their respective inputs.
 """
 
 
@@ -486,7 +498,8 @@ for exact commands and environment identity.
 The fine-tuned checkpoints and result-derived evidence are **CC BY-NC 4.0**, matching the
 physical-label release used by the frozen plan. The base m7 checkpoint declares
 **Apache-2.0**, and the included release tooling remains **MIT**-licensed. See
-`MODEL_LICENSE.md` and `evidence/BASE_MODEL_README.md` for the separated provenance.
+`MODEL_LICENSE.md`, `evidence/BASE_MODEL_README.md`, and `TOOLING_LICENSE.txt` for the
+separated provenance and complete tooling terms.
 """
 
 
@@ -530,7 +543,8 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
     )
     result = load_hashed(data / "final_result.json")
     base_model_card = model_dir / "README.md"
-    verify_license_provenance(plan, base_model_card)
+    tooling_license = repo / "LICENSE"
+    verify_license_provenance(plan, base_model_card, tooling_license)
     expected_result = {
         "schema_version": "crossscan-final-result-v1",
         "status": "POSITIVE_DEPLOYABLE",
@@ -627,6 +641,9 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
         "predict_crossscan_probability_ensemble.py",
     ):
         tooling.append(copy_artifact(repo / name, staging, name))
+    tooling.append(copy_artifact(
+        tooling_license, staging, "TOOLING_LICENSE.txt"
+    ))
 
     card = staging / "README.md"
     card.write_text(model_card(result, plan, records), encoding="utf-8")
