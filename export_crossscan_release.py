@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 import crossscan_finetune as C
+import predict_crossscan_probability_ensemble as P
 import run_crossscan_finetune as R
 
 
@@ -159,11 +160,53 @@ def validate_standard_nnunet_model(model_root: Path, folds: list[int]) -> None:
         gc.collect()
 
 
-def model_card(result: dict[str, Any], records: list[dict[str, Any]]) -> str:
+def verify_license_provenance(
+    plan: dict[str, Any], base_model_card: Path,
+) -> None:
+    if plan.get("inputs", {}).get("label_license") != P.RELEASE_LICENSES[
+        "fine_tuned_checkpoints_and_derived_evidence"
+    ]:
+        raise ValueError("physical-label license differs from the release contract")
+    if not base_model_card.is_file() or "\nlicense: apache-2.0\n" not in (
+        "\n" + base_model_card.read_text(encoding="utf-8")
+    ):
+        raise ValueError("base-model card does not declare license: apache-2.0")
+
+
+def model_license_notice(plan: dict[str, Any]) -> str:
+    label_license = plan.get("inputs", {}).get("label_license")
+    if label_license != P.RELEASE_LICENSES[
+        "fine_tuned_checkpoints_and_derived_evidence"
+    ]:
+        raise ValueError("physical-label license differs from the release contract")
+    label_release = plan.get("inputs", {}).get("label_release")
+    if not isinstance(label_release, str) or not label_release.startswith("https://"):
+        raise ValueError("plan does not identify the physical-label release")
+    return f"""# Model and evidence license
+
+The fine-tuned checkpoints and result-derived evidence in this package are released under
+**{label_license}**:
+<https://creativecommons.org/licenses/by-nc/4.0/>.
+
+They were trained and evaluated with physical-label volumes from:
+<{label_release}>. Those labels and their derived measurements inherit CC BY-NC 4.0 from
+the underlying Vesuvius Challenge scan data.
+
+The initial `scrollprize/surface_m7_nnunet` checkpoint declares **Apache-2.0**. That base
+license and attribution are retained in `evidence/BASE_MODEL_README.md`; it does not remove
+the CC BY-NC 4.0 conditions on these fine-tuned weights and derived evidence. The included
+release-tooling source files remain **MIT**-licensed under the public experiment repository.
+"""
+
+
+def model_card(
+    result: dict[str, Any], plan: dict[str, Any], records: list[dict[str, Any]],
+) -> str:
     primary = result["primary_summary"]
     safety = result["safety_summary"]
+    label_release = plan["inputs"]["label_release"]
     return f"""---
-license: apache-2.0
+license: cc-by-nc-4.0
 library_name: nnunet
 pipeline_tag: image-segmentation
 tags:
@@ -224,9 +267,11 @@ fixed visual panels, plan, lock, and training receipts are in `evidence/`.
 ## Attribution and license
 
 Fine-tuned from `scrollprize/surface_m7_nnunet`, the nnU-Net component of the first-place
-Kaggle Vesuvius surface-detection solution. The base model declares Apache-2.0; this
-release uses the same license and retains that attribution. If original-author terms
-differ, those govern.
+Kaggle Vesuvius surface-detection solution. Its base checkpoint declares Apache-2.0 and
+that attribution is retained. The fine-tuned checkpoints and result-derived evidence are
+**CC BY-NC 4.0**, matching the physical-label release at <{label_release}>. The included
+tooling remains MIT-licensed. See `MODEL_LICENSE.md` and the copied base-model card for the
+separate terms; upstream terms continue to govern their respective inputs.
 """
 
 
@@ -435,6 +480,13 @@ See `evidence/` for the sealed plan, lock, pilot, final result, training receipt
 fixed panel. `release_manifest.json` binds every copied artifact and checkpoint by SHA-256.
 The public training/materialization/scoring implementation remains the authoritative source
 for exact commands and environment identity.
+
+## License
+
+The fine-tuned checkpoints and result-derived evidence are **CC BY-NC 4.0**, matching the
+physical-label release used by the frozen plan. The base m7 checkpoint declares
+**Apache-2.0**, and the included release tooling remains **MIT**-licensed. See
+`MODEL_LICENSE.md` and `evidence/BASE_MODEL_README.md` for the separated provenance.
 """
 
 
@@ -478,10 +530,7 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
     )
     result = load_hashed(data / "final_result.json")
     base_model_card = model_dir / "README.md"
-    if not base_model_card.is_file() or "\nlicense: apache-2.0\n" not in (
-        "\n" + base_model_card.read_text(encoding="utf-8")
-    ):
-        raise ValueError("base-model card does not declare license: apache-2.0")
+    verify_license_provenance(plan, base_model_card)
     expected_result = {
         "schema_version": "crossscan-final-result-v1",
         "status": "POSITIVE_DEPLOYABLE",
@@ -580,12 +629,18 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
         tooling.append(copy_artifact(repo / name, staging, name))
 
     card = staging / "README.md"
-    card.write_text(model_card(result, records), encoding="utf-8")
+    card.write_text(model_card(result, plan, records), encoding="utf-8")
     report = staging / "TECHNICAL_REPORT.md"
     report.write_text(
         technical_report(result, plan, lock, records), encoding="utf-8"
     )
-    reports = [relative_record(staging, card), relative_record(staging, report)]
+    license_notice = staging / "MODEL_LICENSE.md"
+    license_notice.write_text(model_license_notice(plan), encoding="utf-8")
+    reports = [
+        relative_record(staging, card),
+        relative_record(staging, report),
+        relative_record(staging, license_notice),
+    ]
 
     model_files = {
         "plans": relative_record(staging, model_root / "plans.json"),
@@ -603,7 +658,7 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
         "outcome": result["status"],
         "selected_steps": result["selected_steps"],
         "base_model": plan["inputs"]["model"],
-        "license": "Apache-2.0 (matching the declared base-model license)",
+        "licenses": P.RELEASE_LICENSES,
         "ensemble": {
             "aggregation": "arithmetic mean of class probabilities",
             "fold_count": 12,

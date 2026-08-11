@@ -184,6 +184,9 @@ class TechnicalReportTests(unittest.TestCase):
         for z in range(4):
             self.assertIn(f"| z{z} |", report)
         self.assertEqual(report.count("![Fixed cross-scan panel"), 8)
+        self.assertIn("CC BY-NC 4.0", report)
+        self.assertIn("Apache-2.0", report)
+        self.assertIn("MIT", report)
         self.assertNotIn("TODO", report)
 
     def test_report_rejects_seed_reordering(self) -> None:
@@ -218,6 +221,28 @@ class ManifestTests(unittest.TestCase):
                 json.dumps(value), encoding="utf-8"
             )
             with self.assertRaisesRegex(ValueError, "does not describe"):
+                P.load_release_manifest(root)
+
+    def test_load_manifest_rejects_wrong_license_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            value = {
+                "status": "PASS",
+                "ensemble": {
+                    "aggregation": "arithmetic mean of class probabilities",
+                    "fold_count": 12,
+                    "mirroring": False,
+                },
+                "licenses": {
+                    **P.RELEASE_LICENSES,
+                    "fine_tuned_checkpoints_and_derived_evidence": "Apache-2.0",
+                },
+            }
+            value["content_sha256"] = P.content_hash(value)
+            (root / "release_manifest.json").write_text(
+                json.dumps(value), encoding="utf-8"
+            )
+            with self.assertRaisesRegex(ValueError, "license contract"):
                 P.load_release_manifest(root)
 
     def test_integrity_check_covers_models_and_supporting_files(self) -> None:
@@ -255,6 +280,7 @@ class ManifestTests(unittest.TestCase):
             report = record("TECHNICAL_REPORT.md", b"report")
             manifest = {
                 "status": "PASS",
+                "licenses": P.RELEASE_LICENSES,
                 "ensemble": {
                     "aggregation": "arithmetic mean of class probabilities",
                     "fold_count": 12,
@@ -275,6 +301,57 @@ class ManifestTests(unittest.TestCase):
             (root / "TECHNICAL_REPORT.md").write_bytes(b"tampered")
             with self.assertRaisesRegex(ValueError, "release file hash mismatch"):
                 P.verify_release_files(root, loaded)
+
+
+class LicenseTests(unittest.TestCase):
+    def test_model_outputs_separate_input_and_derivative_licenses(self) -> None:
+        repo = Path(__file__).resolve().parent
+        plan = json.loads(
+            (repo / "results/crossscan_finetune/plan.json").read_text(encoding="utf-8")
+        )
+        result = {
+            "status": "POSITIVE_DEPLOYABLE",
+            "content_sha256": "f" * 64,
+            "primary_summary": {
+                "mean": 0.02,
+                "ci95": [0.01, 0.03],
+                "two_sided_p": 0.01,
+                "positive_seeds": 6,
+            },
+            "safety_summary": {"mean": 0.0, "ci95": [-0.001, 0.001]},
+        }
+        card = E.model_card(result, plan, [{}] * 12)
+        notice = E.model_license_notice(plan)
+        self.assertIn("license: cc-by-nc-4.0", card)
+        for text in (card, notice):
+            self.assertIn("CC BY-NC 4.0", text)
+            self.assertIn("Apache-2.0", text)
+            self.assertIn("MIT", text)
+            self.assertIn(plan["inputs"]["label_release"], text)
+
+    def test_license_notice_rejects_plan_drift(self) -> None:
+        with self.assertRaisesRegex(ValueError, "license differs"):
+            E.model_license_notice({
+                "inputs": {
+                    "label_license": "Apache-2.0",
+                    "label_release": "https://example.invalid/labels",
+                }
+            })
+
+    def test_provenance_requires_both_label_and_base_model_terms(self) -> None:
+        plan = {
+            "inputs": {
+                "label_license": "CC BY-NC 4.0",
+                "label_release": "https://example.invalid/labels",
+            }
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            card = Path(tmp) / "README.md"
+            card.write_text("---\nlicense: apache-2.0\n---\n", encoding="utf-8")
+            E.verify_license_provenance(plan, card)
+            card.write_text("---\nlicense: mit\n---\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "base-model card"):
+                E.verify_license_provenance(plan, card)
 
 
 if __name__ == "__main__":

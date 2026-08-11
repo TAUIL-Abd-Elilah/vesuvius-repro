@@ -13,6 +13,13 @@ from pathlib import Path
 from typing import Iterable
 
 
+RELEASE_LICENSES = {
+    "fine_tuned_checkpoints_and_derived_evidence": "CC BY-NC 4.0",
+    "base_model": "Apache-2.0",
+    "release_tooling": "MIT",
+}
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as stream:
@@ -42,6 +49,8 @@ def load_release_manifest(release_dir: Path) -> dict:
         "mirroring": False,
     }:
         raise ValueError("release manifest does not describe the locked 12-model ensemble")
+    if manifest.get("licenses") != RELEASE_LICENSES:
+        raise ValueError("release manifest license contract mismatch")
     return manifest
 
 

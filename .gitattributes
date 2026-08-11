@@ -23,3 +23,9 @@
 /test_run_crossscan_finetune.py text eol=lf
 /test_score_crossscan_finetune.py text eol=lf
 /results/crossscan_finetune/*.json text eol=lf
+
+/CROSSSCAN_RELEASE.md text eol=lf
+/export_crossscan_release.py text eol=lf
+/predict_crossscan_probability_ensemble.py text eol=lf
+/test_crossscan_release.py text eol=lf
+/.github/workflows/crossscan-release.yml text eol=lf
