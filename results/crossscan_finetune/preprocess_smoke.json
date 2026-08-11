@@ -1,0 +1,79 @@
+{
+  "assertions": {
+    "fingerprint_is_receipted": true,
+    "official_default_preprocessor_completed": true,
+    "official_fingerprint_extractor_completed": true,
+    "trainer_start_fingerprint_copy_completed": true
+  },
+  "content_sha256": "c4eea771f9be5f670b7549e4ff59852a4c215072c20d3c956e5386d16936a22d",
+  "created_utc": "2026-08-11T10:20:19.068919+00:00",
+  "environment": {
+    "blosc2": "4.9.1",
+    "nnunetv2_module": "nnunetv2/__init__.py",
+    "numpy": "2.4.6",
+    "python": "3.14.6",
+    "scipy": "1.18.0",
+    "tifffile": "2026.7.14",
+    "torch": "2.13.0+cu126",
+    "torch_cuda": "12.6",
+    "zarr": "3.2.1"
+  },
+  "fingerprint_file": {
+    "bytes": 580,
+    "sha256": "4b0e909d51f53663840489097551b20b8447cec7eacf60fd417cfeb7d2d45a4c"
+  },
+  "fingerprint_foreground_voxel_budget": 4096,
+  "fingerprint_receipt_content_sha256": "1c141b5d3d7ab4a3b1276aa292d9d9929a9b125aa76296e9ef597cd04bb7d0e4",
+  "fingerprint_summary": {
+    "case_count": 1,
+    "median_relative_size_after_cropping": 1.0,
+    "unique_shapes_after_crop": [
+      [
+        192,
+        192,
+        192
+      ]
+    ],
+    "unique_spacings": [
+      [
+        1.0,
+        1.0,
+        1.0
+      ]
+    ]
+  },
+  "implementation": {
+    "branch": "physical-crossscan-finetune",
+    "commit": "159683193a3be7ab2d3366e4b1f65161a849cbce",
+    "remote_commit": "159683193a3be7ab2d3366e4b1f65161a849cbce"
+  },
+  "model_plans": {
+    "bytes": 10751,
+    "sha256": "5358b6973982815b727384d8ed3d6ef86db047c07ff00d85f8ae390f07c49fbc"
+  },
+  "preprocessed_case": {
+    "data": {
+      "bytes": 224143,
+      "sha256": "66eefbf4ad12cc860b4bbc965696a3b7b012d6b234a2b8e90881e919bf56380f"
+    },
+    "properties": {
+      "bytes": 2642805,
+      "sha256": "f088b2d51f942475d26c1739a3e8e5322020c21c0c3ee8e94c5aa89f2cbc3ae6"
+    }
+  },
+  "preprocessing_receipt_content_sha256": "b27e4d483898ae00972d59d87653a73b8e711eb1c3adcaccbbf0d430945869b6",
+  "schema_version": "crossscan-preprocess-smoke-v1",
+  "status": "PASS",
+  "synthetic_inputs": {
+    "ct_array_sha256": "362dc4fb1b2649338443ef27b42db76014ad1756228691d6a2b6eb6fa92b3e3d",
+    "truth_bits_array_sha256": "4877a4f9adbbe3a484d1460fcd3e9009d2623bb473359853db48e9789dbb5479"
+  },
+  "trainer_start_copy": {
+    "bytes": 580,
+    "sha256": "4b0e909d51f53663840489097551b20b8447cec7eacf60fd417cfeb7d2d45a4c"
+  },
+  "villa": {
+    "commit": "94ba215963afb6216e380fe2c86131fa5e724c3b",
+    "nnunet_tree": "24941bfa19e7239db6458287c2a39b9ad4bd7f4a"
+  }
+}
