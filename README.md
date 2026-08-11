@@ -29,6 +29,10 @@ it needs comes from `catalog.json`, so it works for any scroll with a published 
 > fingerprint correction documented in [amendment 02](CROSSSCAN_FINETUNE_AMENDMENT_02.md);
 > the [superseded first lock](results/crossscan_finetune/execution_lock.superseded-20260811.json)
 > remains public. No pilot or fine-tuned prediction exists at this locked pre-outcome stage.
+> A [separate release path](CROSSSCAN_RELEASE.md) is also public before outcome: it removes
+> optimizer state without changing weights, validates standard nnU-Net loading, and provides
+> probability-space ensemble inference. It fails closed unless the frozen terminal result is
+> `POSITIVE_DEPLOYABLE`; no fine-tuned weight or efficacy claim exists yet.
 
 ## Try it in 30 seconds (no GPU, no downloads)
 
