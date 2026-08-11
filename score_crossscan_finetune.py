@@ -372,7 +372,7 @@ def score_pilot(
             "schema_version": "crossscan-pilot-verdict-v1",
             "status": decision,
             "created_utc": R.utc_now(),
-            "selected_steps": steps if decision == "PASS" else None,
+            "selected_steps": C.PILOT_RETRY_STEPS if decision == "PASS" else None,
             "attempt_content_sha256": attempt["content_sha256"],
             "plan_content_sha256": plan["content_sha256"],
             "execution_lock_content_sha256": lock["content_sha256"],

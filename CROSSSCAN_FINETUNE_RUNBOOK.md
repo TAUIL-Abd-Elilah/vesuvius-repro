@@ -79,9 +79,10 @@ foreach ($fold in @('even','odd')) {
 & $python score_crossscan_finetune.py pilot --villa-root $villa --labels-root $labels --model-dir $model --data-root $data --steps 2000
 ```
 
-If the scorer returns PASS, pilot_verdict.json fixes 2,000 steps. If it returns RETRY_REQUIRED,
-repeat both folds and pilot inference at 4,000 steps, then score once at 4,000. The runtime refuses
-the retry unless the 2,000-step decision authorizes it. A second failure writes
+If the 2,000-step scorer returns PASS, `pilot_verdict.json` fixes the preregistered 4,000 steps for
+every inferential run. If it returns RETRY_REQUIRED, repeat both folds and pilot inference at
+4,000 steps, then score once at 4,000; a pass there fixes the same 4,000-step inferential recipe.
+The runtime refuses the retry unless the 2,000-step decision authorizes it. A second failure writes
 TARGET-UNLEARNABLE and blocks every primary command.
 
 ## 4. Run all six inferential seeds
@@ -91,6 +92,7 @@ refused.
 
 ```powershell
 $steps = (Get-Content -Raw (Join-Path $data 'pilot_verdict.json') | ConvertFrom-Json).selected_steps
+if ($steps -ne 4000) { throw 'pilot verdict did not select the frozen inferential recipe' }
 foreach ($seed in 40..45) {
   foreach ($fold in @('even','odd')) {
     & $python run_crossscan_finetune.py train --villa-root $villa --labels-root $labels --model-dir $model --data-root $data --seed $seed --steps $steps --fold $fold
