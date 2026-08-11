@@ -1,0 +1,41 @@
+name: Physical bridge-split protocol
+
+on:
+  push:
+    branches:
+      - physical-multithreshold-repair
+  pull_request:
+    paths:
+      - PHYSICAL_BRIDGE_SPLIT_PREREG.md
+      - physical_bridge_split.py
+      - probability_bridge_split.py
+      - test_physical_bridge_split.py
+      - test_probability_bridge_split.py
+      - .github/workflows/physical-bridge-split.yml
+
+permissions:
+  contents: read
+
+jobs:
+  protocol-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install CPU test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pytest
+      - name: Compile bridge-split protocol
+        run: |
+          python -m py_compile \
+            physical_bridge_split.py \
+            probability_bridge_split.py \
+            test_physical_bridge_split.py \
+            test_probability_bridge_split.py
+      - name: Run repository tests
+        run: python -m pytest -q
