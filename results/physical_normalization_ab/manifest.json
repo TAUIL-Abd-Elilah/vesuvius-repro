@@ -1,0 +1,5684 @@
+{
+  "analysis": {
+    "bootstrap_draws": 10000,
+    "bootstrap_seed": 20260811,
+    "far37_noninferiority_margin_absolute": 0.01,
+    "fixed_threshold": 0.2,
+    "matched_mass_scope": "one truth-blind valid-mask threshold per scroll",
+    "minimum_arc_blocks_per_scroll": 24,
+    "primary_metric": "arc_recall_minus_shifted_null_arc_recall"
+  },
+  "blocks": [
+    {
+      "array_file": "arrays/PHerc0139-z0064-y1280-x1472.npz",
+      "block_id": "PHerc0139-z0064-y1280-x1472",
+      "geometry": {
+        "inference_bbox_l0": [
+          3520,
+          3776,
+          3504,
+          3920,
+          3824,
+          4112
+        ],
+        "prediction_extent_global_l0": [
+          3584,
+          3712,
+          3568,
+          3856,
+          3888,
+          4048
+        ],
+        "prediction_extent_global_l1": [
+          1792,
+          1856,
+          1784,
+          1928,
+          1944,
+          2024
+        ],
+        "prediction_extent_local_l1": [
+          64,
+          128,
+          1208,
+          1352,
+          1464,
+          1544
+        ],
+        "score_global_l0": [
+          3584,
+          3712,
+          3712,
+          3840,
+          3904,
+          4032
+        ],
+        "score_global_l1": [
+          1792,
+          1856,
+          1856,
+          1920,
+          1952,
+          2016
+        ],
+        "score_local_l1": [
+          64,
+          128,
+          1280,
+          1344,
+          1472,
+          1536
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 114889,
+        "material_fraction_of_valid": 0.49176672017121453,
+        "recto_count": 61010,
+        "sampled_centerline_count": 2871,
+        "valid_count": 233625,
+        "valid_fraction": 0.8912086486816406,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        64,
+        1280,
+        1472
+      ],
+      "rank_sha256": "003f6e13f93a912354c33c139ec89e30f76e55cc7c7a1bb03e3c6a5a04c21463",
+      "receipt_file": "receipts/PHerc0139-z0064-y1280-x1472.json",
+      "scroll": "PHerc0139",
+      "selection_index": 0,
+      "visual_slice_global_l1": 1820,
+      "visual_slice_local_l1": 92,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0064-y0512-x1600.npz",
+      "block_id": "PHerc0139-z0064-y0512-x1600",
+      "geometry": {
+        "inference_bbox_l0": [
+          3520,
+          3776,
+          1968,
+          2384,
+          4080,
+          4368
+        ],
+        "prediction_extent_global_l0": [
+          3584,
+          3712,
+          2032,
+          2320,
+          4144,
+          4304
+        ],
+        "prediction_extent_global_l1": [
+          1792,
+          1856,
+          1016,
+          1160,
+          2072,
+          2152
+        ],
+        "prediction_extent_local_l1": [
+          64,
+          128,
+          440,
+          584,
+          1592,
+          1672
+        ],
+        "score_global_l0": [
+          3584,
+          3712,
+          2176,
+          2304,
+          4160,
+          4288
+        ],
+        "score_global_l1": [
+          1792,
+          1856,
+          1088,
+          1152,
+          2080,
+          2144
+        ],
+        "score_local_l1": [
+          64,
+          128,
+          512,
+          576,
+          1600,
+          1664
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 122457,
+        "material_fraction_of_valid": 0.5154608364762931,
+        "recto_count": 69795,
+        "sampled_centerline_count": 3756,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        64,
+        512,
+        1600
+      ],
+      "rank_sha256": "031aefabcc51973df411adf1c6136aef1459979945d9bab18c1fb8d395931064",
+      "receipt_file": "receipts/PHerc0139-z0064-y0512-x1600.json",
+      "scroll": "PHerc0139",
+      "selection_index": 1,
+      "visual_slice_global_l1": 1808,
+      "visual_slice_local_l1": 80,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0192-y1408-x1216.npz",
+      "block_id": "PHerc0139-z0192-y1408-x1216",
+      "geometry": {
+        "inference_bbox_l0": [
+          3776,
+          4032,
+          3760,
+          4176,
+          3312,
+          3600
+        ],
+        "prediction_extent_global_l0": [
+          3840,
+          3968,
+          3824,
+          4112,
+          3376,
+          3536
+        ],
+        "prediction_extent_global_l1": [
+          1920,
+          1984,
+          1912,
+          2056,
+          1688,
+          1768
+        ],
+        "prediction_extent_local_l1": [
+          192,
+          256,
+          1336,
+          1480,
+          1208,
+          1288
+        ],
+        "score_global_l0": [
+          3840,
+          3968,
+          3968,
+          4096,
+          3392,
+          3520
+        ],
+        "score_global_l1": [
+          1920,
+          1984,
+          1984,
+          2048,
+          1696,
+          1760
+        ],
+        "score_local_l1": [
+          192,
+          256,
+          1408,
+          1472,
+          1216,
+          1280
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 161293,
+        "material_fraction_of_valid": 0.6455438332479508,
+        "recto_count": 61582,
+        "sampled_centerline_count": 2403,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        192,
+        1408,
+        1216
+      ],
+      "rank_sha256": "0340b76377e87da900b0e253d080d27180d1f98fe4aebb24b7cd422013cf0ac9",
+      "receipt_file": "receipts/PHerc0139-z0192-y1408-x1216.json",
+      "scroll": "PHerc0139",
+      "selection_index": 2,
+      "visual_slice_global_l1": 1972,
+      "visual_slice_local_l1": 244,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0192-y1280-x0192.npz",
+      "block_id": "PHerc0139-z0192-y1280-x0192",
+      "geometry": {
+        "inference_bbox_l0": [
+          3776,
+          4032,
+          3504,
+          3920,
+          1264,
+          1552
+        ],
+        "prediction_extent_global_l0": [
+          3840,
+          3968,
+          3568,
+          3856,
+          1328,
+          1488
+        ],
+        "prediction_extent_global_l1": [
+          1920,
+          1984,
+          1784,
+          1928,
+          664,
+          744
+        ],
+        "prediction_extent_local_l1": [
+          192,
+          256,
+          1208,
+          1352,
+          184,
+          264
+        ],
+        "score_global_l0": [
+          3840,
+          3968,
+          3712,
+          3840,
+          1344,
+          1472
+        ],
+        "score_global_l1": [
+          1920,
+          1984,
+          1856,
+          1920,
+          672,
+          736
+        ],
+        "score_local_l1": [
+          192,
+          256,
+          1280,
+          1344,
+          192,
+          256
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 179560,
+        "material_fraction_of_valid": 0.7212635367460394,
+        "recto_count": 75362,
+        "sampled_centerline_count": 3416,
+        "valid_count": 248952,
+        "valid_fraction": 0.949676513671875,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        192,
+        1280,
+        192
+      ],
+      "rank_sha256": "04831cadf3b02debd9975dda97070fa61a71e17ccfda9d524c03253a3a0ca7db",
+      "receipt_file": "receipts/PHerc0139-z0192-y1280-x0192.json",
+      "scroll": "PHerc0139",
+      "selection_index": 3,
+      "visual_slice_global_l1": 1952,
+      "visual_slice_local_l1": 224,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0064-y1280-x1344.npz",
+      "block_id": "PHerc0139-z0064-y1280-x1344",
+      "geometry": {
+        "inference_bbox_l0": [
+          3520,
+          3776,
+          3504,
+          3920,
+          3568,
+          3856
+        ],
+        "prediction_extent_global_l0": [
+          3584,
+          3712,
+          3568,
+          3856,
+          3632,
+          3792
+        ],
+        "prediction_extent_global_l1": [
+          1792,
+          1856,
+          1784,
+          1928,
+          1816,
+          1896
+        ],
+        "prediction_extent_local_l1": [
+          64,
+          128,
+          1208,
+          1352,
+          1336,
+          1416
+        ],
+        "score_global_l0": [
+          3584,
+          3712,
+          3712,
+          3840,
+          3648,
+          3776
+        ],
+        "score_global_l1": [
+          1792,
+          1856,
+          1856,
+          1920,
+          1824,
+          1888
+        ],
+        "score_local_l1": [
+          64,
+          128,
+          1280,
+          1344,
+          1344,
+          1408
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 133779,
+        "material_fraction_of_valid": 0.5863488139693893,
+        "recto_count": 69144,
+        "sampled_centerline_count": 2979,
+        "valid_count": 228156,
+        "valid_fraction": 0.8703460693359375,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        64,
+        1280,
+        1344
+      ],
+      "rank_sha256": "0624aec91e00b0757d933b6914c4c8b542c04a596dbf3be062c20d00df180288",
+      "receipt_file": "receipts/PHerc0139-z0064-y1280-x1344.json",
+      "scroll": "PHerc0139",
+      "selection_index": 4,
+      "visual_slice_global_l1": 1832,
+      "visual_slice_local_l1": 104,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0192-y1024-x0704.npz",
+      "block_id": "PHerc0139-z0192-y1024-x0704",
+      "geometry": {
+        "inference_bbox_l0": [
+          3776,
+          4032,
+          2992,
+          3408,
+          2288,
+          2576
+        ],
+        "prediction_extent_global_l0": [
+          3840,
+          3968,
+          3056,
+          3344,
+          2352,
+          2512
+        ],
+        "prediction_extent_global_l1": [
+          1920,
+          1984,
+          1528,
+          1672,
+          1176,
+          1256
+        ],
+        "prediction_extent_local_l1": [
+          192,
+          256,
+          952,
+          1096,
+          696,
+          776
+        ],
+        "score_global_l0": [
+          3840,
+          3968,
+          3200,
+          3328,
+          2368,
+          2496
+        ],
+        "score_global_l1": [
+          1920,
+          1984,
+          1600,
+          1664,
+          1184,
+          1248
+        ],
+        "score_local_l1": [
+          192,
+          256,
+          1024,
+          1088,
+          704,
+          768
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 151677,
+        "material_fraction_of_valid": 0.6070576652151639,
+        "recto_count": 98566,
+        "sampled_centerline_count": 4417,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        192,
+        1024,
+        704
+      ],
+      "rank_sha256": "07eb25150def388590e23f3f210548ac0ab0c4fc46491851de1658e590319f02",
+      "receipt_file": "receipts/PHerc0139-z0192-y1024-x0704.json",
+      "scroll": "PHerc0139",
+      "selection_index": 5,
+      "visual_slice_global_l1": 1960,
+      "visual_slice_local_l1": 232,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0064-y0512-x0832.npz",
+      "block_id": "PHerc0139-z0064-y0512-x0832",
+      "geometry": {
+        "inference_bbox_l0": [
+          3520,
+          3776,
+          1968,
+          2384,
+          2544,
+          2832
+        ],
+        "prediction_extent_global_l0": [
+          3584,
+          3712,
+          2032,
+          2320,
+          2608,
+          2768
+        ],
+        "prediction_extent_global_l1": [
+          1792,
+          1856,
+          1016,
+          1160,
+          1304,
+          1384
+        ],
+        "prediction_extent_local_l1": [
+          64,
+          128,
+          440,
+          584,
+          824,
+          904
+        ],
+        "score_global_l0": [
+          3584,
+          3712,
+          2176,
+          2304,
+          2624,
+          2752
+        ],
+        "score_global_l1": [
+          1792,
+          1856,
+          1088,
+          1152,
+          1312,
+          1376
+        ],
+        "score_local_l1": [
+          64,
+          128,
+          512,
+          576,
+          832,
+          896
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 107989,
+        "material_fraction_of_valid": 0.4545603785021552,
+        "recto_count": 64508,
+        "sampled_centerline_count": 3215,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        64,
+        512,
+        832
+      ],
+      "rank_sha256": "0801685b54bc366eb9117e0bfa26112b74b23bdf12b42b20f0d9ebac474eb67c",
+      "receipt_file": "receipts/PHerc0139-z0064-y0512-x0832.json",
+      "scroll": "PHerc0139",
+      "selection_index": 6,
+      "visual_slice_global_l1": 1852,
+      "visual_slice_local_l1": 124,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0064-y0128-x0960.npz",
+      "block_id": "PHerc0139-z0064-y0128-x0960",
+      "geometry": {
+        "inference_bbox_l0": [
+          3520,
+          3776,
+          1200,
+          1616,
+          2800,
+          3088
+        ],
+        "prediction_extent_global_l0": [
+          3584,
+          3712,
+          1264,
+          1552,
+          2864,
+          3024
+        ],
+        "prediction_extent_global_l1": [
+          1792,
+          1856,
+          632,
+          776,
+          1432,
+          1512
+        ],
+        "prediction_extent_local_l1": [
+          64,
+          128,
+          56,
+          200,
+          952,
+          1032
+        ],
+        "score_global_l0": [
+          3584,
+          3712,
+          1408,
+          1536,
+          2880,
+          3008
+        ],
+        "score_global_l1": [
+          1792,
+          1856,
+          704,
+          768,
+          1440,
+          1504
+        ],
+        "score_local_l1": [
+          64,
+          128,
+          128,
+          192,
+          960,
+          1024
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 68640,
+        "material_fraction_of_valid": 0.28892780172413796,
+        "recto_count": 35941,
+        "sampled_centerline_count": 1827,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        64,
+        128,
+        960
+      ],
+      "rank_sha256": "0b2206c4969761ebf3ce3e381f8c8f40905d6bc720258338c3c344606c5c092a",
+      "receipt_file": "receipts/PHerc0139-z0064-y0128-x0960.json",
+      "scroll": "PHerc0139",
+      "selection_index": 7,
+      "visual_slice_global_l1": 1808,
+      "visual_slice_local_l1": 80,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0320-y0896-x0192.npz",
+      "block_id": "PHerc0139-z0320-y0896-x0192",
+      "geometry": {
+        "inference_bbox_l0": [
+          4032,
+          4288,
+          2736,
+          3152,
+          1264,
+          1552
+        ],
+        "prediction_extent_global_l0": [
+          4096,
+          4224,
+          2800,
+          3088,
+          1328,
+          1488
+        ],
+        "prediction_extent_global_l1": [
+          2048,
+          2112,
+          1400,
+          1544,
+          664,
+          744
+        ],
+        "prediction_extent_local_l1": [
+          320,
+          384,
+          824,
+          968,
+          184,
+          264
+        ],
+        "score_global_l0": [
+          4096,
+          4224,
+          2944,
+          3072,
+          1344,
+          1472
+        ],
+        "score_global_l1": [
+          2048,
+          2112,
+          1472,
+          1536,
+          672,
+          736
+        ],
+        "score_local_l1": [
+          320,
+          384,
+          896,
+          960,
+          192,
+          256
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 133803,
+        "material_fraction_of_valid": 0.6039376938041354,
+        "recto_count": 56212,
+        "sampled_centerline_count": 2615,
+        "valid_count": 221551,
+        "valid_fraction": 0.8451499938964844,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        320,
+        896,
+        192
+      ],
+      "rank_sha256": "0015f37fcdd7eb48e11e34c572a0ba99214bf51189b5a4292d218f479148556e",
+      "receipt_file": "receipts/PHerc0139-z0320-y0896-x0192.json",
+      "scroll": "PHerc0139",
+      "selection_index": 8,
+      "visual_slice_global_l1": 2108,
+      "visual_slice_local_l1": 380,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0576-y1536-x1472.npz",
+      "block_id": "PHerc0139-z0576-y1536-x1472",
+      "geometry": {
+        "inference_bbox_l0": [
+          4544,
+          4800,
+          4016,
+          4432,
+          3824,
+          4112
+        ],
+        "prediction_extent_global_l0": [
+          4608,
+          4736,
+          4080,
+          4368,
+          3888,
+          4048
+        ],
+        "prediction_extent_global_l1": [
+          2304,
+          2368,
+          2040,
+          2184,
+          1944,
+          2024
+        ],
+        "prediction_extent_local_l1": [
+          576,
+          640,
+          1464,
+          1608,
+          1464,
+          1544
+        ],
+        "score_global_l0": [
+          4608,
+          4736,
+          4224,
+          4352,
+          3904,
+          4032
+        ],
+        "score_global_l1": [
+          2304,
+          2368,
+          2112,
+          2176,
+          1952,
+          2016
+        ],
+        "score_local_l1": [
+          576,
+          640,
+          1536,
+          1600,
+          1472,
+          1536
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 94293,
+        "material_fraction_of_valid": 0.3773893762807377,
+        "recto_count": 61756,
+        "sampled_centerline_count": 3028,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        576,
+        1536,
+        1472
+      ],
+      "rank_sha256": "003fe4a1c36175899071335ee60ae69c6fad74ece70e4a7adfdf136e784426b4",
+      "receipt_file": "receipts/PHerc0139-z0576-y1536-x1472.json",
+      "scroll": "PHerc0139",
+      "selection_index": 9,
+      "visual_slice_global_l1": 2332,
+      "visual_slice_local_l1": 604,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0576-y0640-x0960.npz",
+      "block_id": "PHerc0139-z0576-y0640-x0960",
+      "geometry": {
+        "inference_bbox_l0": [
+          4544,
+          4800,
+          2224,
+          2640,
+          2800,
+          3088
+        ],
+        "prediction_extent_global_l0": [
+          4608,
+          4736,
+          2288,
+          2576,
+          2864,
+          3024
+        ],
+        "prediction_extent_global_l1": [
+          2304,
+          2368,
+          1144,
+          1288,
+          1432,
+          1512
+        ],
+        "prediction_extent_local_l1": [
+          576,
+          640,
+          568,
+          712,
+          952,
+          1032
+        ],
+        "score_global_l0": [
+          4608,
+          4736,
+          2432,
+          2560,
+          2880,
+          3008
+        ],
+        "score_global_l1": [
+          2304,
+          2368,
+          1216,
+          1280,
+          1440,
+          1504
+        ],
+        "score_local_l1": [
+          576,
+          640,
+          640,
+          704,
+          960,
+          1024
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 66853,
+        "material_fraction_of_valid": 0.26756611808401637,
+        "recto_count": 45563,
+        "sampled_centerline_count": 2621,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        576,
+        640,
+        960
+      ],
+      "rank_sha256": "01a8d6a0bc9ae717781de7ea5e91988f701ecfb4acafbb7726b1df538b07af5c",
+      "receipt_file": "receipts/PHerc0139-z0576-y0640-x0960.json",
+      "scroll": "PHerc0139",
+      "selection_index": 10,
+      "visual_slice_global_l1": 2356,
+      "visual_slice_local_l1": 628,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0448-y1536-x0448.npz",
+      "block_id": "PHerc0139-z0448-y1536-x0448",
+      "geometry": {
+        "inference_bbox_l0": [
+          4288,
+          4544,
+          4016,
+          4432,
+          1776,
+          2064
+        ],
+        "prediction_extent_global_l0": [
+          4352,
+          4480,
+          4080,
+          4368,
+          1840,
+          2000
+        ],
+        "prediction_extent_global_l1": [
+          2176,
+          2240,
+          2040,
+          2184,
+          920,
+          1000
+        ],
+        "prediction_extent_local_l1": [
+          448,
+          512,
+          1464,
+          1608,
+          440,
+          520
+        ],
+        "score_global_l0": [
+          4352,
+          4480,
+          4224,
+          4352,
+          1856,
+          1984
+        ],
+        "score_global_l1": [
+          2176,
+          2240,
+          2112,
+          2176,
+          928,
+          992
+        ],
+        "score_local_l1": [
+          448,
+          512,
+          1536,
+          1600,
+          448,
+          512
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 141742,
+        "material_fraction_of_valid": 0.5966375942887931,
+        "recto_count": 69515,
+        "sampled_centerline_count": 3540,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        448,
+        1536,
+        448
+      ],
+      "rank_sha256": "021cf7dcb631e223d65fba013d81ddf7b118ebe96feadb9f78d88b6762f0eff5",
+      "receipt_file": "receipts/PHerc0139-z0448-y1536-x0448.json",
+      "scroll": "PHerc0139",
+      "selection_index": 11,
+      "visual_slice_global_l1": 2180,
+      "visual_slice_local_l1": 452,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0448-y0768-x0960.npz",
+      "block_id": "PHerc0139-z0448-y0768-x0960",
+      "geometry": {
+        "inference_bbox_l0": [
+          4288,
+          4544,
+          2480,
+          2896,
+          2800,
+          3088
+        ],
+        "prediction_extent_global_l0": [
+          4352,
+          4480,
+          2544,
+          2832,
+          2864,
+          3024
+        ],
+        "prediction_extent_global_l1": [
+          2176,
+          2240,
+          1272,
+          1416,
+          1432,
+          1512
+        ],
+        "prediction_extent_local_l1": [
+          448,
+          512,
+          696,
+          840,
+          952,
+          1032
+        ],
+        "score_global_l0": [
+          4352,
+          4480,
+          2688,
+          2816,
+          2880,
+          3008
+        ],
+        "score_global_l1": [
+          2176,
+          2240,
+          1344,
+          1408,
+          1440,
+          1504
+        ],
+        "score_local_l1": [
+          448,
+          512,
+          768,
+          832,
+          960,
+          1024
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 141016,
+        "material_fraction_of_valid": 0.5935816271551724,
+        "recto_count": 74677,
+        "sampled_centerline_count": 3983,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        448,
+        768,
+        960
+      ],
+      "rank_sha256": "02224347436d14e34aa1633ccc9ddefc1c76ec9390b19969478e3d041a464413",
+      "receipt_file": "receipts/PHerc0139-z0448-y0768-x0960.json",
+      "scroll": "PHerc0139",
+      "selection_index": 12,
+      "visual_slice_global_l1": 2192,
+      "visual_slice_local_l1": 464,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0576-y0512-x1344.npz",
+      "block_id": "PHerc0139-z0576-y0512-x1344",
+      "geometry": {
+        "inference_bbox_l0": [
+          4544,
+          4800,
+          1968,
+          2384,
+          3568,
+          3856
+        ],
+        "prediction_extent_global_l0": [
+          4608,
+          4736,
+          2032,
+          2320,
+          3632,
+          3792
+        ],
+        "prediction_extent_global_l1": [
+          2304,
+          2368,
+          1016,
+          1160,
+          1816,
+          1896
+        ],
+        "prediction_extent_local_l1": [
+          576,
+          640,
+          440,
+          584,
+          1336,
+          1416
+        ],
+        "score_global_l0": [
+          4608,
+          4736,
+          2176,
+          2304,
+          3648,
+          3776
+        ],
+        "score_global_l1": [
+          2304,
+          2368,
+          1088,
+          1152,
+          1824,
+          1888
+        ],
+        "score_local_l1": [
+          576,
+          640,
+          512,
+          576,
+          1344,
+          1408
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 139930,
+        "material_fraction_of_valid": 0.5600425845286885,
+        "recto_count": 74721,
+        "sampled_centerline_count": 4098,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        576,
+        512,
+        1344
+      ],
+      "rank_sha256": "0280318dd10bfccfdaa71ec6bac786bcc2cc08770f65bee28e2b07042aad47ed",
+      "receipt_file": "receipts/PHerc0139-z0576-y0512-x1344.json",
+      "scroll": "PHerc0139",
+      "selection_index": 13,
+      "visual_slice_global_l1": 2340,
+      "visual_slice_local_l1": 612,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0320-y1152-x1088.npz",
+      "block_id": "PHerc0139-z0320-y1152-x1088",
+      "geometry": {
+        "inference_bbox_l0": [
+          4032,
+          4288,
+          3248,
+          3664,
+          3056,
+          3344
+        ],
+        "prediction_extent_global_l0": [
+          4096,
+          4224,
+          3312,
+          3600,
+          3120,
+          3280
+        ],
+        "prediction_extent_global_l1": [
+          2048,
+          2112,
+          1656,
+          1800,
+          1560,
+          1640
+        ],
+        "prediction_extent_local_l1": [
+          320,
+          384,
+          1080,
+          1224,
+          1080,
+          1160
+        ],
+        "score_global_l0": [
+          4096,
+          4224,
+          3456,
+          3584,
+          3136,
+          3264
+        ],
+        "score_global_l1": [
+          2048,
+          2112,
+          1728,
+          1792,
+          1568,
+          1632
+        ],
+        "score_local_l1": [
+          320,
+          384,
+          1152,
+          1216,
+          1088,
+          1152
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 136918,
+        "material_fraction_of_valid": 0.5479876408811475,
+        "recto_count": 80519,
+        "sampled_centerline_count": 3649,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        320,
+        1152,
+        1088
+      ],
+      "rank_sha256": "028d021c610a93e7cdf77648a05db52e07290e6a9b59a8cb7432eb8f59d1a97d",
+      "receipt_file": "receipts/PHerc0139-z0320-y1152-x1088.json",
+      "scroll": "PHerc0139",
+      "selection_index": 14,
+      "visual_slice_global_l1": 2084,
+      "visual_slice_local_l1": 356,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0320-y1664-x0192.npz",
+      "block_id": "PHerc0139-z0320-y1664-x0192",
+      "geometry": {
+        "inference_bbox_l0": [
+          4032,
+          4288,
+          4272,
+          4688,
+          1264,
+          1552
+        ],
+        "prediction_extent_global_l0": [
+          4096,
+          4224,
+          4336,
+          4624,
+          1328,
+          1488
+        ],
+        "prediction_extent_global_l1": [
+          2048,
+          2112,
+          2168,
+          2312,
+          664,
+          744
+        ],
+        "prediction_extent_local_l1": [
+          320,
+          384,
+          1592,
+          1736,
+          184,
+          264
+        ],
+        "score_global_l0": [
+          4096,
+          4224,
+          4480,
+          4608,
+          1344,
+          1472
+        ],
+        "score_global_l1": [
+          2048,
+          2112,
+          2240,
+          2304,
+          672,
+          736
+        ],
+        "score_local_l1": [
+          320,
+          384,
+          1664,
+          1728,
+          192,
+          256
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 174807,
+        "material_fraction_of_valid": 0.7050972293370013,
+        "recto_count": 90212,
+        "sampled_centerline_count": 4369,
+        "valid_count": 247919,
+        "valid_fraction": 0.9457359313964844,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        320,
+        1664,
+        192
+      ],
+      "rank_sha256": "02f522f6d616af2d4495c922f3f35e03873b933927278dfe78b5df75319009de",
+      "receipt_file": "receipts/PHerc0139-z0320-y1664-x0192.json",
+      "scroll": "PHerc0139",
+      "selection_index": 15,
+      "visual_slice_global_l1": 2076,
+      "visual_slice_local_l1": 348,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0704-y0128-x1088.npz",
+      "block_id": "PHerc0139-z0704-y0128-x1088",
+      "geometry": {
+        "inference_bbox_l0": [
+          4800,
+          5056,
+          1200,
+          1616,
+          3056,
+          3344
+        ],
+        "prediction_extent_global_l0": [
+          4864,
+          4992,
+          1264,
+          1552,
+          3120,
+          3280
+        ],
+        "prediction_extent_global_l1": [
+          2432,
+          2496,
+          632,
+          776,
+          1560,
+          1640
+        ],
+        "prediction_extent_local_l1": [
+          704,
+          768,
+          56,
+          200,
+          1080,
+          1160
+        ],
+        "score_global_l0": [
+          4864,
+          4992,
+          1408,
+          1536,
+          3136,
+          3264
+        ],
+        "score_global_l1": [
+          2432,
+          2496,
+          704,
+          768,
+          1568,
+          1632
+        ],
+        "score_local_l1": [
+          704,
+          768,
+          128,
+          192,
+          1088,
+          1152
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 154240,
+        "material_fraction_of_valid": 0.6173155737704918,
+        "recto_count": 74099,
+        "sampled_centerline_count": 3789,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        704,
+        128,
+        1088
+      ],
+      "rank_sha256": "005cf6b351e2602dbc2bbd34d56e7aff00882d859cfeb5dca858a5f551b282da",
+      "receipt_file": "receipts/PHerc0139-z0704-y0128-x1088.json",
+      "scroll": "PHerc0139",
+      "selection_index": 16,
+      "visual_slice_global_l1": 2460,
+      "visual_slice_local_l1": 732,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0704-y1024-x0960.npz",
+      "block_id": "PHerc0139-z0704-y1024-x0960",
+      "geometry": {
+        "inference_bbox_l0": [
+          4800,
+          5056,
+          2992,
+          3408,
+          2800,
+          3088
+        ],
+        "prediction_extent_global_l0": [
+          4864,
+          4992,
+          3056,
+          3344,
+          2864,
+          3024
+        ],
+        "prediction_extent_global_l1": [
+          2432,
+          2496,
+          1528,
+          1672,
+          1432,
+          1512
+        ],
+        "prediction_extent_local_l1": [
+          704,
+          768,
+          952,
+          1096,
+          952,
+          1032
+        ],
+        "score_global_l0": [
+          4864,
+          4992,
+          3200,
+          3328,
+          2880,
+          3008
+        ],
+        "score_global_l1": [
+          2432,
+          2496,
+          1600,
+          1664,
+          1440,
+          1504
+        ],
+        "score_local_l1": [
+          704,
+          768,
+          1024,
+          1088,
+          960,
+          1024
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 160121,
+        "material_fraction_of_valid": 0.6408531314036885,
+        "recto_count": 68306,
+        "sampled_centerline_count": 4034,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        704,
+        1024,
+        960
+      ],
+      "rank_sha256": "00d72da5078649b95c25ebc7553485f262e98e966808b71543a0ed72a81c1d09",
+      "receipt_file": "receipts/PHerc0139-z0704-y1024-x0960.json",
+      "scroll": "PHerc0139",
+      "selection_index": 17,
+      "visual_slice_global_l1": 2480,
+      "visual_slice_local_l1": 752,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0832-y0128-x0960.npz",
+      "block_id": "PHerc0139-z0832-y0128-x0960",
+      "geometry": {
+        "inference_bbox_l0": [
+          5056,
+          5312,
+          1200,
+          1616,
+          2800,
+          3088
+        ],
+        "prediction_extent_global_l0": [
+          5120,
+          5248,
+          1264,
+          1552,
+          2864,
+          3024
+        ],
+        "prediction_extent_global_l1": [
+          2560,
+          2624,
+          632,
+          776,
+          1432,
+          1512
+        ],
+        "prediction_extent_local_l1": [
+          832,
+          896,
+          56,
+          200,
+          952,
+          1032
+        ],
+        "score_global_l0": [
+          5120,
+          5248,
+          1408,
+          1536,
+          2880,
+          3008
+        ],
+        "score_global_l1": [
+          2560,
+          2624,
+          704,
+          768,
+          1440,
+          1504
+        ],
+        "score_local_l1": [
+          832,
+          896,
+          128,
+          192,
+          960,
+          1024
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 153456,
+        "material_fraction_of_valid": 0.6459455818965517,
+        "recto_count": 64001,
+        "sampled_centerline_count": 3182,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        832,
+        128,
+        960
+      ],
+      "rank_sha256": "01c05f8138349fe49897e9ea08009e51b01826127fa17004d7b29c00ae7bbb90",
+      "receipt_file": "receipts/PHerc0139-z0832-y0128-x0960.json",
+      "scroll": "PHerc0139",
+      "selection_index": 18,
+      "visual_slice_global_l1": 2564,
+      "visual_slice_local_l1": 836,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0704-y0256-x1344.npz",
+      "block_id": "PHerc0139-z0704-y0256-x1344",
+      "geometry": {
+        "inference_bbox_l0": [
+          4800,
+          5056,
+          1456,
+          1872,
+          3568,
+          3856
+        ],
+        "prediction_extent_global_l0": [
+          4864,
+          4992,
+          1520,
+          1808,
+          3632,
+          3792
+        ],
+        "prediction_extent_global_l1": [
+          2432,
+          2496,
+          760,
+          904,
+          1816,
+          1896
+        ],
+        "prediction_extent_local_l1": [
+          704,
+          768,
+          184,
+          328,
+          1336,
+          1416
+        ],
+        "score_global_l0": [
+          4864,
+          4992,
+          1664,
+          1792,
+          3648,
+          3776
+        ],
+        "score_global_l1": [
+          2432,
+          2496,
+          832,
+          896,
+          1824,
+          1888
+        ],
+        "score_local_l1": [
+          704,
+          768,
+          256,
+          320,
+          1344,
+          1408
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 173000,
+        "material_fraction_of_valid": 0.7655172108623794,
+        "recto_count": 59240,
+        "sampled_centerline_count": 3090,
+        "valid_count": 225991,
+        "valid_fraction": 0.8620872497558594,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        704,
+        256,
+        1344
+      ],
+      "rank_sha256": "025c800db8b04988890fc9da5f5b94f9988e5c288d088bd04cf2aaf199ea3b2a",
+      "receipt_file": "receipts/PHerc0139-z0704-y0256-x1344.json",
+      "scroll": "PHerc0139",
+      "selection_index": 19,
+      "visual_slice_global_l1": 2436,
+      "visual_slice_local_l1": 708,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0832-y0640-x1600.npz",
+      "block_id": "PHerc0139-z0832-y0640-x1600",
+      "geometry": {
+        "inference_bbox_l0": [
+          5056,
+          5312,
+          2224,
+          2640,
+          4080,
+          4368
+        ],
+        "prediction_extent_global_l0": [
+          5120,
+          5248,
+          2288,
+          2576,
+          4144,
+          4304
+        ],
+        "prediction_extent_global_l1": [
+          2560,
+          2624,
+          1144,
+          1288,
+          2072,
+          2152
+        ],
+        "prediction_extent_local_l1": [
+          832,
+          896,
+          568,
+          712,
+          1592,
+          1672
+        ],
+        "score_global_l0": [
+          5120,
+          5248,
+          2432,
+          2560,
+          4160,
+          4288
+        ],
+        "score_global_l1": [
+          2560,
+          2624,
+          1216,
+          1280,
+          2080,
+          2144
+        ],
+        "score_local_l1": [
+          832,
+          896,
+          640,
+          704,
+          1600,
+          1664
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 114403,
+        "material_fraction_of_valid": 0.4815589641702586,
+        "recto_count": 59911,
+        "sampled_centerline_count": 3084,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        832,
+        640,
+        1600
+      ],
+      "rank_sha256": "046b31c36662ec32534d0fe5e02dd18db940ce69a600d3687e191abcc581550a",
+      "receipt_file": "receipts/PHerc0139-z0832-y0640-x1600.json",
+      "scroll": "PHerc0139",
+      "selection_index": 20,
+      "visual_slice_global_l1": 2564,
+      "visual_slice_local_l1": 836,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0832-y1152-x1856.npz",
+      "block_id": "PHerc0139-z0832-y1152-x1856",
+      "geometry": {
+        "inference_bbox_l0": [
+          5056,
+          5312,
+          3248,
+          3664,
+          4592,
+          4880
+        ],
+        "prediction_extent_global_l0": [
+          5120,
+          5248,
+          3312,
+          3600,
+          4656,
+          4816
+        ],
+        "prediction_extent_global_l1": [
+          2560,
+          2624,
+          1656,
+          1800,
+          2328,
+          2408
+        ],
+        "prediction_extent_local_l1": [
+          832,
+          896,
+          1080,
+          1224,
+          1848,
+          1928
+        ],
+        "score_global_l0": [
+          5120,
+          5248,
+          3456,
+          3584,
+          4672,
+          4800
+        ],
+        "score_global_l1": [
+          2560,
+          2624,
+          1728,
+          1792,
+          2336,
+          2400
+        ],
+        "score_local_l1": [
+          832,
+          896,
+          1152,
+          1216,
+          1856,
+          1920
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 132012,
+        "material_fraction_of_valid": 0.5556808997844828,
+        "recto_count": 72729,
+        "sampled_centerline_count": 3748,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        832,
+        1152,
+        1856
+      ],
+      "rank_sha256": "061112630c8700612bb2c8dd1d4f1cecf7484cf8c463c81bda91b6ad2326ad02",
+      "receipt_file": "receipts/PHerc0139-z0832-y1152-x1856.json",
+      "scroll": "PHerc0139",
+      "selection_index": 21,
+      "visual_slice_global_l1": 2596,
+      "visual_slice_local_l1": 868,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0704-y1024-x0576.npz",
+      "block_id": "PHerc0139-z0704-y1024-x0576",
+      "geometry": {
+        "inference_bbox_l0": [
+          4800,
+          5056,
+          2992,
+          3408,
+          2032,
+          2320
+        ],
+        "prediction_extent_global_l0": [
+          4864,
+          4992,
+          3056,
+          3344,
+          2096,
+          2256
+        ],
+        "prediction_extent_global_l1": [
+          2432,
+          2496,
+          1528,
+          1672,
+          1048,
+          1128
+        ],
+        "prediction_extent_local_l1": [
+          704,
+          768,
+          952,
+          1096,
+          568,
+          648
+        ],
+        "score_global_l0": [
+          4864,
+          4992,
+          3200,
+          3328,
+          2112,
+          2240
+        ],
+        "score_global_l1": [
+          2432,
+          2496,
+          1600,
+          1664,
+          1056,
+          1120
+        ],
+        "score_local_l1": [
+          704,
+          768,
+          1024,
+          1088,
+          576,
+          640
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 94627,
+        "material_fraction_of_valid": 0.37914040619753747,
+        "recto_count": 62640,
+        "sampled_centerline_count": 3637,
+        "valid_count": 249583,
+        "valid_fraction": 0.9520835876464844,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        704,
+        1024,
+        576
+      ],
+      "rank_sha256": "07d8c4f90bc5c36f4610e9a0e8718d6b9504220051b78bedeef68132de7b6f59",
+      "receipt_file": "receipts/PHerc0139-z0704-y1024-x0576.json",
+      "scroll": "PHerc0139",
+      "selection_index": 22,
+      "visual_slice_global_l1": 2452,
+      "visual_slice_local_l1": 724,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0832-y1152-x0832.npz",
+      "block_id": "PHerc0139-z0832-y1152-x0832",
+      "geometry": {
+        "inference_bbox_l0": [
+          5056,
+          5312,
+          3248,
+          3664,
+          2544,
+          2832
+        ],
+        "prediction_extent_global_l0": [
+          5120,
+          5248,
+          3312,
+          3600,
+          2608,
+          2768
+        ],
+        "prediction_extent_global_l1": [
+          2560,
+          2624,
+          1656,
+          1800,
+          1304,
+          1384
+        ],
+        "prediction_extent_local_l1": [
+          832,
+          896,
+          1080,
+          1224,
+          824,
+          904
+        ],
+        "score_global_l0": [
+          5120,
+          5248,
+          3456,
+          3584,
+          2624,
+          2752
+        ],
+        "score_global_l1": [
+          2560,
+          2624,
+          1728,
+          1792,
+          1312,
+          1376
+        ],
+        "score_local_l1": [
+          832,
+          896,
+          1152,
+          1216,
+          832,
+          896
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 84618,
+        "material_fraction_of_valid": 0.35618433459051724,
+        "recto_count": 55176,
+        "sampled_centerline_count": 3637,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        832,
+        1152,
+        832
+      ],
+      "rank_sha256": "088ce68efd5f0c412206096e95a581377593d72a1dc34018d1d442bc400f4645",
+      "receipt_file": "receipts/PHerc0139-z0832-y1152-x0832.json",
+      "scroll": "PHerc0139",
+      "selection_index": 23,
+      "visual_slice_global_l1": 2620,
+      "visual_slice_local_l1": 892,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0960-y0896-x0576.npz",
+      "block_id": "PHerc0139-z0960-y0896-x0576",
+      "geometry": {
+        "inference_bbox_l0": [
+          5312,
+          5568,
+          2736,
+          3152,
+          2032,
+          2320
+        ],
+        "prediction_extent_global_l0": [
+          5376,
+          5504,
+          2800,
+          3088,
+          2096,
+          2256
+        ],
+        "prediction_extent_global_l1": [
+          2688,
+          2752,
+          1400,
+          1544,
+          1048,
+          1128
+        ],
+        "prediction_extent_local_l1": [
+          960,
+          1024,
+          824,
+          968,
+          568,
+          648
+        ],
+        "score_global_l0": [
+          5376,
+          5504,
+          2944,
+          3072,
+          2112,
+          2240
+        ],
+        "score_global_l1": [
+          2688,
+          2752,
+          1472,
+          1536,
+          1056,
+          1120
+        ],
+        "score_local_l1": [
+          960,
+          1024,
+          896,
+          960,
+          576,
+          640
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 196821,
+        "material_fraction_of_valid": 0.7877377369364754,
+        "recto_count": 61194,
+        "sampled_centerline_count": 2358,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        960,
+        896,
+        576
+      ],
+      "rank_sha256": "0026d141bd426381e55ab9bc999a062e37d5c32eadf54af725c6b05341302e58",
+      "receipt_file": "receipts/PHerc0139-z0960-y0896-x0576.json",
+      "scroll": "PHerc0139",
+      "selection_index": 24,
+      "visual_slice_global_l1": 2736,
+      "visual_slice_local_l1": 1008,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc0139-z1088-y1536-x1728.npz",
+      "block_id": "PHerc0139-z1088-y1536-x1728",
+      "geometry": {
+        "inference_bbox_l0": [
+          5568,
+          5824,
+          4016,
+          4432,
+          4336,
+          4624
+        ],
+        "prediction_extent_global_l0": [
+          5632,
+          5760,
+          4080,
+          4368,
+          4400,
+          4560
+        ],
+        "prediction_extent_global_l1": [
+          2816,
+          2880,
+          2040,
+          2184,
+          2200,
+          2280
+        ],
+        "prediction_extent_local_l1": [
+          1088,
+          1152,
+          1464,
+          1608,
+          1720,
+          1800
+        ],
+        "score_global_l0": [
+          5632,
+          5760,
+          4224,
+          4352,
+          4416,
+          4544
+        ],
+        "score_global_l1": [
+          2816,
+          2880,
+          2112,
+          2176,
+          2208,
+          2272
+        ],
+        "score_local_l1": [
+          1088,
+          1152,
+          1536,
+          1600,
+          1728,
+          1792
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 109787,
+        "material_fraction_of_valid": 0.43967737155535264,
+        "recto_count": 81081,
+        "sampled_centerline_count": 4798,
+        "valid_count": 249699,
+        "valid_fraction": 0.9525260925292969,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1088,
+        1536,
+        1728
+      ],
+      "rank_sha256": "00aa94be186ee57dc1184486df2898117abdd95001fcc7f10da31dd697a1d9f7",
+      "receipt_file": "receipts/PHerc0139-z1088-y1536-x1728.json",
+      "scroll": "PHerc0139",
+      "selection_index": 25,
+      "visual_slice_global_l1": 2852,
+      "visual_slice_local_l1": 1124,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc0139-z1088-y1152-x1600.npz",
+      "block_id": "PHerc0139-z1088-y1152-x1600",
+      "geometry": {
+        "inference_bbox_l0": [
+          5568,
+          5824,
+          3248,
+          3664,
+          4080,
+          4368
+        ],
+        "prediction_extent_global_l0": [
+          5632,
+          5760,
+          3312,
+          3600,
+          4144,
+          4304
+        ],
+        "prediction_extent_global_l1": [
+          2816,
+          2880,
+          1656,
+          1800,
+          2072,
+          2152
+        ],
+        "prediction_extent_local_l1": [
+          1088,
+          1152,
+          1080,
+          1224,
+          1592,
+          1672
+        ],
+        "score_global_l0": [
+          5632,
+          5760,
+          3456,
+          3584,
+          4160,
+          4288
+        ],
+        "score_global_l1": [
+          2816,
+          2880,
+          1728,
+          1792,
+          2080,
+          2144
+        ],
+        "score_local_l1": [
+          1088,
+          1152,
+          1152,
+          1216,
+          1600,
+          1664
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 76308,
+        "material_fraction_of_valid": 0.30540791495901637,
+        "recto_count": 49247,
+        "sampled_centerline_count": 3467,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1088,
+        1152,
+        1600
+      ],
+      "rank_sha256": "04a9ad771823899a206cc178cf46aef7b958a77e5dc1fe16cbf0487efa019ff5",
+      "receipt_file": "receipts/PHerc0139-z1088-y1152-x1600.json",
+      "scroll": "PHerc0139",
+      "selection_index": 26,
+      "visual_slice_global_l1": 2836,
+      "visual_slice_local_l1": 1108,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc0139-z1088-y0768-x0576.npz",
+      "block_id": "PHerc0139-z1088-y0768-x0576",
+      "geometry": {
+        "inference_bbox_l0": [
+          5568,
+          5824,
+          2480,
+          2896,
+          2032,
+          2320
+        ],
+        "prediction_extent_global_l0": [
+          5632,
+          5760,
+          2544,
+          2832,
+          2096,
+          2256
+        ],
+        "prediction_extent_global_l1": [
+          2816,
+          2880,
+          1272,
+          1416,
+          1048,
+          1128
+        ],
+        "prediction_extent_local_l1": [
+          1088,
+          1152,
+          696,
+          840,
+          568,
+          648
+        ],
+        "score_global_l0": [
+          5632,
+          5760,
+          2688,
+          2816,
+          2112,
+          2240
+        ],
+        "score_global_l1": [
+          2816,
+          2880,
+          1344,
+          1408,
+          1056,
+          1120
+        ],
+        "score_local_l1": [
+          1088,
+          1152,
+          768,
+          832,
+          576,
+          640
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 66119,
+        "material_fraction_of_valid": 0.26462842597336067,
+        "recto_count": 41773,
+        "sampled_centerline_count": 2280,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1088,
+        768,
+        576
+      ],
+      "rank_sha256": "05257a995a51b0a4523fcc2bd5a63b579decaefb20bd770c28af7ac8c1e65441",
+      "receipt_file": "receipts/PHerc0139-z1088-y0768-x0576.json",
+      "scroll": "PHerc0139",
+      "selection_index": 27,
+      "visual_slice_global_l1": 2872,
+      "visual_slice_local_l1": 1144,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc0139-z1088-y1536-x0192.npz",
+      "block_id": "PHerc0139-z1088-y1536-x0192",
+      "geometry": {
+        "inference_bbox_l0": [
+          5568,
+          5824,
+          4016,
+          4432,
+          1264,
+          1552
+        ],
+        "prediction_extent_global_l0": [
+          5632,
+          5760,
+          4080,
+          4368,
+          1328,
+          1488
+        ],
+        "prediction_extent_global_l1": [
+          2816,
+          2880,
+          2040,
+          2184,
+          664,
+          744
+        ],
+        "prediction_extent_local_l1": [
+          1088,
+          1152,
+          1464,
+          1608,
+          184,
+          264
+        ],
+        "score_global_l0": [
+          5632,
+          5760,
+          4224,
+          4352,
+          1344,
+          1472
+        ],
+        "score_global_l1": [
+          2816,
+          2880,
+          2112,
+          2176,
+          672,
+          736
+        ],
+        "score_local_l1": [
+          1088,
+          1152,
+          1536,
+          1600,
+          192,
+          256
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 119937,
+        "material_fraction_of_valid": 0.4897386688444263,
+        "recto_count": 70638,
+        "sampled_centerline_count": 3722,
+        "valid_count": 244900,
+        "valid_fraction": 0.9342193603515625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1088,
+        1536,
+        192
+      ],
+      "rank_sha256": "0685492dfc239036ead34d33b91f15e692ad7290b3ad27270089d47575b226b6",
+      "receipt_file": "receipts/PHerc0139-z1088-y1536-x0192.json",
+      "scroll": "PHerc0139",
+      "selection_index": 28,
+      "visual_slice_global_l1": 2824,
+      "visual_slice_local_l1": 1096,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0960-y1024-x0576.npz",
+      "block_id": "PHerc0139-z0960-y1024-x0576",
+      "geometry": {
+        "inference_bbox_l0": [
+          5312,
+          5568,
+          2992,
+          3408,
+          2032,
+          2320
+        ],
+        "prediction_extent_global_l0": [
+          5376,
+          5504,
+          3056,
+          3344,
+          2096,
+          2256
+        ],
+        "prediction_extent_global_l1": [
+          2688,
+          2752,
+          1528,
+          1672,
+          1048,
+          1128
+        ],
+        "prediction_extent_local_l1": [
+          960,
+          1024,
+          952,
+          1096,
+          568,
+          648
+        ],
+        "score_global_l0": [
+          5376,
+          5504,
+          3200,
+          3328,
+          2112,
+          2240
+        ],
+        "score_global_l1": [
+          2688,
+          2752,
+          1600,
+          1664,
+          1056,
+          1120
+        ],
+        "score_local_l1": [
+          960,
+          1024,
+          1024,
+          1088,
+          576,
+          640
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 85049,
+        "material_fraction_of_valid": 0.34039206582991804,
+        "recto_count": 66889,
+        "sampled_centerline_count": 3380,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        960,
+        1024,
+        576
+      ],
+      "rank_sha256": "0987103499dd63c4ffd78f1b64167cb0bf96b9e272b19f08567bd8a35243d21c",
+      "receipt_file": "receipts/PHerc0139-z0960-y1024-x0576.json",
+      "scroll": "PHerc0139",
+      "selection_index": 29,
+      "visual_slice_global_l1": 2708,
+      "visual_slice_local_l1": 980,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc0139-z1088-y0512-x0448.npz",
+      "block_id": "PHerc0139-z1088-y0512-x0448",
+      "geometry": {
+        "inference_bbox_l0": [
+          5568,
+          5824,
+          1968,
+          2384,
+          1776,
+          2064
+        ],
+        "prediction_extent_global_l0": [
+          5632,
+          5760,
+          2032,
+          2320,
+          1840,
+          2000
+        ],
+        "prediction_extent_global_l1": [
+          2816,
+          2880,
+          1016,
+          1160,
+          920,
+          1000
+        ],
+        "prediction_extent_local_l1": [
+          1088,
+          1152,
+          440,
+          584,
+          440,
+          520
+        ],
+        "score_global_l0": [
+          5632,
+          5760,
+          2176,
+          2304,
+          1856,
+          1984
+        ],
+        "score_global_l1": [
+          2816,
+          2880,
+          1088,
+          1152,
+          928,
+          992
+        ],
+        "score_local_l1": [
+          1088,
+          1152,
+          512,
+          576,
+          448,
+          512
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 128890,
+        "material_fraction_of_valid": 0.5477757897465756,
+        "recto_count": 64611,
+        "sampled_centerline_count": 2901,
+        "valid_count": 235297,
+        "valid_fraction": 0.8975868225097656,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1088,
+        512,
+        448
+      ],
+      "rank_sha256": "09898048759c5bd85c5a027c9ee701f5190698909afe84a33f12911fe377b9b1",
+      "receipt_file": "receipts/PHerc0139-z1088-y0512-x0448.json",
+      "scroll": "PHerc0139",
+      "selection_index": 30,
+      "visual_slice_global_l1": 2864,
+      "visual_slice_local_l1": 1136,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc0139-z0960-y0640-x1472.npz",
+      "block_id": "PHerc0139-z0960-y0640-x1472",
+      "geometry": {
+        "inference_bbox_l0": [
+          5312,
+          5568,
+          2224,
+          2640,
+          3824,
+          4112
+        ],
+        "prediction_extent_global_l0": [
+          5376,
+          5504,
+          2288,
+          2576,
+          3888,
+          4048
+        ],
+        "prediction_extent_global_l1": [
+          2688,
+          2752,
+          1144,
+          1288,
+          1944,
+          2024
+        ],
+        "prediction_extent_local_l1": [
+          960,
+          1024,
+          568,
+          712,
+          1464,
+          1544
+        ],
+        "score_global_l0": [
+          5376,
+          5504,
+          2432,
+          2560,
+          3904,
+          4032
+        ],
+        "score_global_l1": [
+          2688,
+          2752,
+          1216,
+          1280,
+          1952,
+          2016
+        ],
+        "score_local_l1": [
+          960,
+          1024,
+          640,
+          704,
+          1472,
+          1536
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 0,
+        "boundary_poor_fraction_of_material": 0.0,
+        "material_count": 124481,
+        "material_fraction_of_valid": 0.4982109695184426,
+        "recto_count": 63781,
+        "sampled_centerline_count": 2734,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        960,
+        640,
+        1472
+      ],
+      "rank_sha256": "098eb9b0df4f066d3fdfd924c7084dd077ca0daf5c15648e6e311c956d0f2450",
+      "receipt_file": "receipts/PHerc0139-z0960-y0640-x1472.json",
+      "scroll": "PHerc0139",
+      "selection_index": 31,
+      "visual_slice_global_l1": 2724,
+      "visual_slice_local_l1": 996,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0064-y1984-x0896.npz",
+      "block_id": "PHerc1203-z0064-y1984-x0896",
+      "geometry": {
+        "inference_bbox_l0": [
+          7936,
+          8192,
+          3760,
+          4176,
+          1712,
+          2000
+        ],
+        "prediction_extent_global_l0": [
+          8000,
+          8128,
+          3824,
+          4112,
+          1776,
+          1936
+        ],
+        "prediction_extent_global_l1": [
+          4000,
+          4064,
+          1912,
+          2056,
+          888,
+          968
+        ],
+        "prediction_extent_local_l1": [
+          64,
+          128,
+          1912,
+          2056,
+          888,
+          968
+        ],
+        "score_global_l0": [
+          8000,
+          8128,
+          3968,
+          4096,
+          1792,
+          1920
+        ],
+        "score_global_l1": [
+          4000,
+          4064,
+          1984,
+          2048,
+          896,
+          960
+        ],
+        "score_local_l1": [
+          64,
+          128,
+          1984,
+          2048,
+          896,
+          960
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 232902,
+        "boundary_poor_fraction_of_material": 1.0,
+        "material_count": 232902,
+        "material_fraction_of_valid": 0.9803593076508621,
+        "recto_count": 8852,
+        "sampled_centerline_count": 524,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        64,
+        1984,
+        896
+      ],
+      "rank_sha256": "00e0f672dcb07d0c117910a163a150cd5571e3b204525938cc478980cd43875c",
+      "receipt_file": "receipts/PHerc1203-z0064-y1984-x0896.json",
+      "scroll": "PHerc1203",
+      "selection_index": 0,
+      "visual_slice_global_l1": 4060,
+      "visual_slice_local_l1": 124,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0448-y2368-x1664.npz",
+      "block_id": "PHerc1203-z0448-y2368-x1664",
+      "geometry": {
+        "inference_bbox_l0": [
+          8704,
+          8960,
+          4528,
+          4944,
+          3248,
+          3536
+        ],
+        "prediction_extent_global_l0": [
+          8768,
+          8896,
+          4592,
+          4880,
+          3312,
+          3472
+        ],
+        "prediction_extent_global_l1": [
+          4384,
+          4448,
+          2296,
+          2440,
+          1656,
+          1736
+        ],
+        "prediction_extent_local_l1": [
+          448,
+          512,
+          2296,
+          2440,
+          1656,
+          1736
+        ],
+        "score_global_l0": [
+          8768,
+          8896,
+          4736,
+          4864,
+          3328,
+          3456
+        ],
+        "score_global_l1": [
+          4384,
+          4448,
+          2368,
+          2432,
+          1664,
+          1728
+        ],
+        "score_local_l1": [
+          448,
+          512,
+          2368,
+          2432,
+          1664,
+          1728
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 112512,
+        "boundary_poor_fraction_of_material": 0.550687184306355,
+        "material_count": 204312,
+        "material_fraction_of_valid": 0.8600148168103449,
+        "recto_count": 43138,
+        "sampled_centerline_count": 2036,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        448,
+        2368,
+        1664
+      ],
+      "rank_sha256": "0135a37b4ef7eba4549ecef00b7f985d48433caa2b8488c11ca59d4c70e26465",
+      "receipt_file": "receipts/PHerc1203-z0448-y2368-x1664.json",
+      "scroll": "PHerc1203",
+      "selection_index": 1,
+      "visual_slice_global_l1": 4436,
+      "visual_slice_local_l1": 500,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0448-y2112-x1152.npz",
+      "block_id": "PHerc1203-z0448-y2112-x1152",
+      "geometry": {
+        "inference_bbox_l0": [
+          8704,
+          8960,
+          4016,
+          4432,
+          2224,
+          2512
+        ],
+        "prediction_extent_global_l0": [
+          8768,
+          8896,
+          4080,
+          4368,
+          2288,
+          2448
+        ],
+        "prediction_extent_global_l1": [
+          4384,
+          4448,
+          2040,
+          2184,
+          1144,
+          1224
+        ],
+        "prediction_extent_local_l1": [
+          448,
+          512,
+          2040,
+          2184,
+          1144,
+          1224
+        ],
+        "score_global_l0": [
+          8768,
+          8896,
+          4224,
+          4352,
+          2304,
+          2432
+        ],
+        "score_global_l1": [
+          4384,
+          4448,
+          2112,
+          2176,
+          1152,
+          1216
+        ],
+        "score_local_l1": [
+          448,
+          512,
+          2112,
+          2176,
+          1152,
+          1216
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 231090,
+        "boundary_poor_fraction_of_material": 0.9994161530976322,
+        "material_count": 231225,
+        "material_fraction_of_valid": 0.9733002761314655,
+        "recto_count": 13060,
+        "sampled_centerline_count": 710,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        448,
+        2112,
+        1152
+      ],
+      "rank_sha256": "015315ea06f6eb13bbb071f4bb38ac6704141626da24e9f5e4ebdbdc1e6c324b",
+      "receipt_file": "receipts/PHerc1203-z0448-y2112-x1152.json",
+      "scroll": "PHerc1203",
+      "selection_index": 2,
+      "visual_slice_global_l1": 4408,
+      "visual_slice_local_l1": 472,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0320-y2112-x2048.npz",
+      "block_id": "PHerc1203-z0320-y2112-x2048",
+      "geometry": {
+        "inference_bbox_l0": [
+          8448,
+          8704,
+          4016,
+          4432,
+          4016,
+          4304
+        ],
+        "prediction_extent_global_l0": [
+          8512,
+          8640,
+          4080,
+          4368,
+          4080,
+          4240
+        ],
+        "prediction_extent_global_l1": [
+          4256,
+          4320,
+          2040,
+          2184,
+          2040,
+          2120
+        ],
+        "prediction_extent_local_l1": [
+          320,
+          384,
+          2040,
+          2184,
+          2040,
+          2120
+        ],
+        "score_global_l0": [
+          8512,
+          8640,
+          4224,
+          4352,
+          4096,
+          4224
+        ],
+        "score_global_l1": [
+          4256,
+          4320,
+          2112,
+          2176,
+          2048,
+          2112
+        ],
+        "score_local_l1": [
+          320,
+          384,
+          2112,
+          2176,
+          2048,
+          2112
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 62441,
+        "boundary_poor_fraction_of_material": 0.3286178168632342,
+        "material_count": 190011,
+        "material_fraction_of_valid": 0.7604820376536885,
+        "recto_count": 46076,
+        "sampled_centerline_count": 2407,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        320,
+        2112,
+        2048
+      ],
+      "rank_sha256": "02c6f63ddd75409324c187dcc540e30b73fd4e5981461f8474ba86cb0654635d",
+      "receipt_file": "receipts/PHerc1203-z0320-y2112-x2048.json",
+      "scroll": "PHerc1203",
+      "selection_index": 3,
+      "visual_slice_global_l1": 4296,
+      "visual_slice_local_l1": 360,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0448-y1472-x1792.npz",
+      "block_id": "PHerc1203-z0448-y1472-x1792",
+      "geometry": {
+        "inference_bbox_l0": [
+          8704,
+          8960,
+          2736,
+          3152,
+          3504,
+          3792
+        ],
+        "prediction_extent_global_l0": [
+          8768,
+          8896,
+          2800,
+          3088,
+          3568,
+          3728
+        ],
+        "prediction_extent_global_l1": [
+          4384,
+          4448,
+          1400,
+          1544,
+          1784,
+          1864
+        ],
+        "prediction_extent_local_l1": [
+          448,
+          512,
+          1400,
+          1544,
+          1784,
+          1864
+        ],
+        "score_global_l0": [
+          8768,
+          8896,
+          2944,
+          3072,
+          3584,
+          3712
+        ],
+        "score_global_l1": [
+          4384,
+          4448,
+          1472,
+          1536,
+          1792,
+          1856
+        ],
+        "score_local_l1": [
+          448,
+          512,
+          1472,
+          1536,
+          1792,
+          1856
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 222591,
+        "boundary_poor_fraction_of_material": 0.9795931839385991,
+        "material_count": 227228,
+        "material_fraction_of_valid": 0.956475619612069,
+        "recto_count": 17902,
+        "sampled_centerline_count": 823,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        448,
+        1472,
+        1792
+      ],
+      "rank_sha256": "02fd47ee05538760bf70d6d23a04a9a300576164dab543009f54fc36a17a48e7",
+      "receipt_file": "receipts/PHerc1203-z0448-y1472-x1792.json",
+      "scroll": "PHerc1203",
+      "selection_index": 4,
+      "visual_slice_global_l1": 4428,
+      "visual_slice_local_l1": 492,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0064-y1600-x1280.npz",
+      "block_id": "PHerc1203-z0064-y1600-x1280",
+      "geometry": {
+        "inference_bbox_l0": [
+          7936,
+          8192,
+          2992,
+          3408,
+          2480,
+          2768
+        ],
+        "prediction_extent_global_l0": [
+          8000,
+          8128,
+          3056,
+          3344,
+          2544,
+          2704
+        ],
+        "prediction_extent_global_l1": [
+          4000,
+          4064,
+          1528,
+          1672,
+          1272,
+          1352
+        ],
+        "prediction_extent_local_l1": [
+          64,
+          128,
+          1528,
+          1672,
+          1272,
+          1352
+        ],
+        "score_global_l0": [
+          8000,
+          8128,
+          3200,
+          3328,
+          2560,
+          2688
+        ],
+        "score_global_l1": [
+          4000,
+          4064,
+          1600,
+          1664,
+          1280,
+          1344
+        ],
+        "score_local_l1": [
+          64,
+          128,
+          1600,
+          1664,
+          1280,
+          1344
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 97569,
+        "boundary_poor_fraction_of_material": 0.5311207159343292,
+        "material_count": 183704,
+        "material_fraction_of_valid": 0.7732691271551724,
+        "recto_count": 40633,
+        "sampled_centerline_count": 1705,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        64,
+        1600,
+        1280
+      ],
+      "rank_sha256": "031d05d56e883df46080811e7a596aa937ec75f17f26a1b5a6b072d6365e78b8",
+      "receipt_file": "receipts/PHerc1203-z0064-y1600-x1280.json",
+      "scroll": "PHerc1203",
+      "selection_index": 5,
+      "visual_slice_global_l1": 4012,
+      "visual_slice_local_l1": 76,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0320-y1856-x2304.npz",
+      "block_id": "PHerc1203-z0320-y1856-x2304",
+      "geometry": {
+        "inference_bbox_l0": [
+          8448,
+          8704,
+          3504,
+          3920,
+          4528,
+          4816
+        ],
+        "prediction_extent_global_l0": [
+          8512,
+          8640,
+          3568,
+          3856,
+          4592,
+          4752
+        ],
+        "prediction_extent_global_l1": [
+          4256,
+          4320,
+          1784,
+          1928,
+          2296,
+          2376
+        ],
+        "prediction_extent_local_l1": [
+          320,
+          384,
+          1784,
+          1928,
+          2296,
+          2376
+        ],
+        "score_global_l0": [
+          8512,
+          8640,
+          3712,
+          3840,
+          4608,
+          4736
+        ],
+        "score_global_l1": [
+          4256,
+          4320,
+          1856,
+          1920,
+          2304,
+          2368
+        ],
+        "score_local_l1": [
+          320,
+          384,
+          1856,
+          1920,
+          2304,
+          2368
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 170369,
+        "boundary_poor_fraction_of_material": 0.7995353966726892,
+        "material_count": 213085,
+        "material_fraction_of_valid": 0.8528312307889344,
+        "recto_count": 28426,
+        "sampled_centerline_count": 1182,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        320,
+        1856,
+        2304
+      ],
+      "rank_sha256": "035916027b03562b98c34a0ad081d4eba0aa62f5c4d22613d2d8f33f16893515",
+      "receipt_file": "receipts/PHerc1203-z0320-y1856-x2304.json",
+      "scroll": "PHerc1203",
+      "selection_index": 6,
+      "visual_slice_global_l1": 4268,
+      "visual_slice_local_l1": 332,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0192-y1472-x1152.npz",
+      "block_id": "PHerc1203-z0192-y1472-x1152",
+      "geometry": {
+        "inference_bbox_l0": [
+          8192,
+          8448,
+          2736,
+          3152,
+          2224,
+          2512
+        ],
+        "prediction_extent_global_l0": [
+          8256,
+          8384,
+          2800,
+          3088,
+          2288,
+          2448
+        ],
+        "prediction_extent_global_l1": [
+          4128,
+          4192,
+          1400,
+          1544,
+          1144,
+          1224
+        ],
+        "prediction_extent_local_l1": [
+          192,
+          256,
+          1400,
+          1544,
+          1144,
+          1224
+        ],
+        "score_global_l0": [
+          8256,
+          8384,
+          2944,
+          3072,
+          2304,
+          2432
+        ],
+        "score_global_l1": [
+          4128,
+          4192,
+          1472,
+          1536,
+          1152,
+          1216
+        ],
+        "score_local_l1": [
+          192,
+          256,
+          1472,
+          1536,
+          1152,
+          1216
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 245707,
+        "boundary_poor_fraction_of_material": 1.0,
+        "material_count": 245707,
+        "material_fraction_of_valid": 0.9833944351946722,
+        "recto_count": 8424,
+        "sampled_centerline_count": 407,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        192,
+        1472,
+        1152
+      ],
+      "rank_sha256": "038ad16bf054dd238185d1f9972c808d445e8bcb537d21c42c5f722aea72bef9",
+      "receipt_file": "receipts/PHerc1203-z0192-y1472-x1152.json",
+      "scroll": "PHerc1203",
+      "selection_index": 7,
+      "visual_slice_global_l1": 4160,
+      "visual_slice_local_l1": 224,
+      "z_stratum": 0
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0576-y2496-x1536.npz",
+      "block_id": "PHerc1203-z0576-y2496-x1536",
+      "geometry": {
+        "inference_bbox_l0": [
+          8960,
+          9216,
+          4784,
+          5200,
+          2992,
+          3280
+        ],
+        "prediction_extent_global_l0": [
+          9024,
+          9152,
+          4848,
+          5136,
+          3056,
+          3216
+        ],
+        "prediction_extent_global_l1": [
+          4512,
+          4576,
+          2424,
+          2568,
+          1528,
+          1608
+        ],
+        "prediction_extent_local_l1": [
+          576,
+          640,
+          2424,
+          2568,
+          1528,
+          1608
+        ],
+        "score_global_l0": [
+          9024,
+          9152,
+          4992,
+          5120,
+          3072,
+          3200
+        ],
+        "score_global_l1": [
+          4512,
+          4576,
+          2496,
+          2560,
+          1536,
+          1600
+        ],
+        "score_local_l1": [
+          576,
+          640,
+          2496,
+          2560,
+          1536,
+          1600
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 208632,
+        "boundary_poor_fraction_of_material": 0.9860387738319171,
+        "material_count": 211586,
+        "material_fraction_of_valid": 0.8858270848248115,
+        "recto_count": 16044,
+        "sampled_centerline_count": 796,
+        "valid_count": 238857,
+        "valid_fraction": 0.9111671447753906,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        576,
+        2496,
+        1536
+      ],
+      "rank_sha256": "013803ba4a55d43ff370c1865c517ce6c90597c20277a307d29121e9e5893f21",
+      "receipt_file": "receipts/PHerc1203-z0576-y2496-x1536.json",
+      "scroll": "PHerc1203",
+      "selection_index": 8,
+      "visual_slice_global_l1": 4572,
+      "visual_slice_local_l1": 636,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0960-y1472-x1024.npz",
+      "block_id": "PHerc1203-z0960-y1472-x1024",
+      "geometry": {
+        "inference_bbox_l0": [
+          9728,
+          9984,
+          2736,
+          3152,
+          1968,
+          2256
+        ],
+        "prediction_extent_global_l0": [
+          9792,
+          9920,
+          2800,
+          3088,
+          2032,
+          2192
+        ],
+        "prediction_extent_global_l1": [
+          4896,
+          4960,
+          1400,
+          1544,
+          1016,
+          1096
+        ],
+        "prediction_extent_local_l1": [
+          960,
+          1024,
+          1400,
+          1544,
+          1016,
+          1096
+        ],
+        "score_global_l0": [
+          9792,
+          9920,
+          2944,
+          3072,
+          2048,
+          2176
+        ],
+        "score_global_l1": [
+          4896,
+          4960,
+          1472,
+          1536,
+          1024,
+          1088
+        ],
+        "score_local_l1": [
+          960,
+          1024,
+          1472,
+          1536,
+          1024,
+          1088
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 239171,
+        "boundary_poor_fraction_of_material": 0.9996280197274932,
+        "material_count": 239260,
+        "material_fraction_of_valid": 0.9575915727459017,
+        "recto_count": 10726,
+        "sampled_centerline_count": 333,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        960,
+        1472,
+        1024
+      ],
+      "rank_sha256": "01458ef616c551a460c0d08a195a519c73215754bbd9f00fc4516cbff197d80b",
+      "receipt_file": "receipts/PHerc1203-z0960-y1472-x1024.json",
+      "scroll": "PHerc1203",
+      "selection_index": 9,
+      "visual_slice_global_l1": 4912,
+      "visual_slice_local_l1": 976,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0704-y1216-x1536.npz",
+      "block_id": "PHerc1203-z0704-y1216-x1536",
+      "geometry": {
+        "inference_bbox_l0": [
+          9216,
+          9472,
+          2224,
+          2640,
+          2992,
+          3280
+        ],
+        "prediction_extent_global_l0": [
+          9280,
+          9408,
+          2288,
+          2576,
+          3056,
+          3216
+        ],
+        "prediction_extent_global_l1": [
+          4640,
+          4704,
+          1144,
+          1288,
+          1528,
+          1608
+        ],
+        "prediction_extent_local_l1": [
+          704,
+          768,
+          1144,
+          1288,
+          1528,
+          1608
+        ],
+        "score_global_l0": [
+          9280,
+          9408,
+          2432,
+          2560,
+          3072,
+          3200
+        ],
+        "score_global_l1": [
+          4640,
+          4704,
+          1216,
+          1280,
+          1536,
+          1600
+        ],
+        "score_local_l1": [
+          704,
+          768,
+          1216,
+          1280,
+          1536,
+          1600
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 203469,
+        "boundary_poor_fraction_of_material": 0.9777885636572461,
+        "material_count": 208091,
+        "material_fraction_of_valid": 0.8328437179815574,
+        "recto_count": 14151,
+        "sampled_centerline_count": 1063,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        704,
+        1216,
+        1536
+      ],
+      "rank_sha256": "027362b5440d93d81d595b984741d5ee645bd9efd0e6ea79430f13050172b264",
+      "receipt_file": "receipts/PHerc1203-z0704-y1216-x1536.json",
+      "scroll": "PHerc1203",
+      "selection_index": 10,
+      "visual_slice_global_l1": 4644,
+      "visual_slice_local_l1": 708,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0960-y2112-x2560.npz",
+      "block_id": "PHerc1203-z0960-y2112-x2560",
+      "geometry": {
+        "inference_bbox_l0": [
+          9728,
+          9984,
+          4016,
+          4432,
+          5040,
+          5328
+        ],
+        "prediction_extent_global_l0": [
+          9792,
+          9920,
+          4080,
+          4368,
+          5104,
+          5264
+        ],
+        "prediction_extent_global_l1": [
+          4896,
+          4960,
+          2040,
+          2184,
+          2552,
+          2632
+        ],
+        "prediction_extent_local_l1": [
+          960,
+          1024,
+          2040,
+          2184,
+          2552,
+          2632
+        ],
+        "score_global_l0": [
+          9792,
+          9920,
+          4224,
+          4352,
+          5120,
+          5248
+        ],
+        "score_global_l1": [
+          4896,
+          4960,
+          2112,
+          2176,
+          2560,
+          2624
+        ],
+        "score_local_l1": [
+          960,
+          1024,
+          2112,
+          2176,
+          2560,
+          2624
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 233010,
+        "boundary_poor_fraction_of_material": 0.9735400659304847,
+        "material_count": 239343,
+        "material_fraction_of_valid": 0.9579237640881147,
+        "recto_count": 15662,
+        "sampled_centerline_count": 795,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        960,
+        2112,
+        2560
+      ],
+      "rank_sha256": "031890d9b505a9273acb73d4387f1bf21ae1bff7526376d28c8a357ea146b273",
+      "receipt_file": "receipts/PHerc1203-z0960-y2112-x2560.json",
+      "scroll": "PHerc1203",
+      "selection_index": 11,
+      "visual_slice_global_l1": 4940,
+      "visual_slice_local_l1": 1004,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0832-y1984-x1792.npz",
+      "block_id": "PHerc1203-z0832-y1984-x1792",
+      "geometry": {
+        "inference_bbox_l0": [
+          9472,
+          9728,
+          3760,
+          4176,
+          3504,
+          3792
+        ],
+        "prediction_extent_global_l0": [
+          9536,
+          9664,
+          3824,
+          4112,
+          3568,
+          3728
+        ],
+        "prediction_extent_global_l1": [
+          4768,
+          4832,
+          1912,
+          2056,
+          1784,
+          1864
+        ],
+        "prediction_extent_local_l1": [
+          832,
+          896,
+          1912,
+          2056,
+          1784,
+          1864
+        ],
+        "score_global_l0": [
+          9536,
+          9664,
+          3968,
+          4096,
+          3584,
+          3712
+        ],
+        "score_global_l1": [
+          4768,
+          4832,
+          1984,
+          2048,
+          1792,
+          1856
+        ],
+        "score_local_l1": [
+          832,
+          896,
+          1984,
+          2048,
+          1792,
+          1856
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 124965,
+        "boundary_poor_fraction_of_material": 0.595145113204492,
+        "material_count": 209974,
+        "material_fraction_of_valid": 0.8838479929956896,
+        "recto_count": 36929,
+        "sampled_centerline_count": 1630,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        832,
+        1984,
+        1792
+      ],
+      "rank_sha256": "035f75b126791d89f18125416562cf03880fc15d5ac6daf6609f8033eebdf8d0",
+      "receipt_file": "receipts/PHerc1203-z0832-y1984-x1792.json",
+      "scroll": "PHerc1203",
+      "selection_index": 12,
+      "visual_slice_global_l1": 4776,
+      "visual_slice_local_l1": 840,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0576-y2240-x2432.npz",
+      "block_id": "PHerc1203-z0576-y2240-x2432",
+      "geometry": {
+        "inference_bbox_l0": [
+          8960,
+          9216,
+          4272,
+          4688,
+          4784,
+          5072
+        ],
+        "prediction_extent_global_l0": [
+          9024,
+          9152,
+          4336,
+          4624,
+          4848,
+          5008
+        ],
+        "prediction_extent_global_l1": [
+          4512,
+          4576,
+          2168,
+          2312,
+          2424,
+          2504
+        ],
+        "prediction_extent_local_l1": [
+          576,
+          640,
+          2168,
+          2312,
+          2424,
+          2504
+        ],
+        "score_global_l0": [
+          9024,
+          9152,
+          4480,
+          4608,
+          4864,
+          4992
+        ],
+        "score_global_l1": [
+          4512,
+          4576,
+          2240,
+          2304,
+          2432,
+          2496
+        ],
+        "score_local_l1": [
+          576,
+          640,
+          2240,
+          2304,
+          2432,
+          2496
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 241511,
+        "boundary_poor_fraction_of_material": 0.9998426820231092,
+        "material_count": 241549,
+        "material_fraction_of_valid": 0.9667528496413934,
+        "recto_count": 13659,
+        "sampled_centerline_count": 561,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        576,
+        2240,
+        2432
+      ],
+      "rank_sha256": "0381a215a50af6a1e5c3cb5ba1c4786fee2481d2ac8e5afd625c5955a142a30f",
+      "receipt_file": "receipts/PHerc1203-z0576-y2240-x2432.json",
+      "scroll": "PHerc1203",
+      "selection_index": 13,
+      "visual_slice_global_l1": 4540,
+      "visual_slice_local_l1": 604,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0576-y1728-x2432.npz",
+      "block_id": "PHerc1203-z0576-y1728-x2432",
+      "geometry": {
+        "inference_bbox_l0": [
+          8960,
+          9216,
+          3248,
+          3664,
+          4784,
+          5072
+        ],
+        "prediction_extent_global_l0": [
+          9024,
+          9152,
+          3312,
+          3600,
+          4848,
+          5008
+        ],
+        "prediction_extent_global_l1": [
+          4512,
+          4576,
+          1656,
+          1800,
+          2424,
+          2504
+        ],
+        "prediction_extent_local_l1": [
+          576,
+          640,
+          1656,
+          1800,
+          2424,
+          2504
+        ],
+        "score_global_l0": [
+          9024,
+          9152,
+          3456,
+          3584,
+          4864,
+          4992
+        ],
+        "score_global_l1": [
+          4512,
+          4576,
+          1728,
+          1792,
+          2432,
+          2496
+        ],
+        "score_local_l1": [
+          576,
+          640,
+          1728,
+          1792,
+          2432,
+          2496
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 236874,
+        "boundary_poor_fraction_of_material": 0.9998522639494489,
+        "material_count": 236909,
+        "material_fraction_of_valid": 0.948182152920082,
+        "recto_count": 21672,
+        "sampled_centerline_count": 829,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        576,
+        1728,
+        2432
+      ],
+      "rank_sha256": "04239673e17b501b50cc6cb2406f7e054d09cc113aa9787ef08e39625b514b39",
+      "receipt_file": "receipts/PHerc1203-z0576-y1728-x2432.json",
+      "scroll": "PHerc1203",
+      "selection_index": 14,
+      "visual_slice_global_l1": 4564,
+      "visual_slice_local_l1": 628,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc1203-z0576-y1600-x1536.npz",
+      "block_id": "PHerc1203-z0576-y1600-x1536",
+      "geometry": {
+        "inference_bbox_l0": [
+          8960,
+          9216,
+          2992,
+          3408,
+          2992,
+          3280
+        ],
+        "prediction_extent_global_l0": [
+          9024,
+          9152,
+          3056,
+          3344,
+          3056,
+          3216
+        ],
+        "prediction_extent_global_l1": [
+          4512,
+          4576,
+          1528,
+          1672,
+          1528,
+          1608
+        ],
+        "prediction_extent_local_l1": [
+          576,
+          640,
+          1528,
+          1672,
+          1528,
+          1608
+        ],
+        "score_global_l0": [
+          9024,
+          9152,
+          3200,
+          3328,
+          3072,
+          3200
+        ],
+        "score_global_l1": [
+          4512,
+          4576,
+          1600,
+          1664,
+          1536,
+          1600
+        ],
+        "score_local_l1": [
+          576,
+          640,
+          1600,
+          1664,
+          1536,
+          1600
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 55419,
+        "boundary_poor_fraction_of_material": 0.281590593830504,
+        "material_count": 196807,
+        "material_fraction_of_valid": 0.7876817046618853,
+        "recto_count": 56237,
+        "sampled_centerline_count": 2271,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        576,
+        1600,
+        1536
+      ],
+      "rank_sha256": "04e4409310947a0385160ea61d5f13a1ca4b85f21ab883242d8348aa549a3b99",
+      "receipt_file": "receipts/PHerc1203-z0576-y1600-x1536.json",
+      "scroll": "PHerc1203",
+      "selection_index": 15,
+      "visual_slice_global_l1": 4564,
+      "visual_slice_local_l1": 628,
+      "z_stratum": 1
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1216-y0832-x1280.npz",
+      "block_id": "PHerc1203-z1216-y0832-x1280",
+      "geometry": {
+        "inference_bbox_l0": [
+          10240,
+          10496,
+          1456,
+          1872,
+          2480,
+          2768
+        ],
+        "prediction_extent_global_l0": [
+          10304,
+          10432,
+          1520,
+          1808,
+          2544,
+          2704
+        ],
+        "prediction_extent_global_l1": [
+          5152,
+          5216,
+          760,
+          904,
+          1272,
+          1352
+        ],
+        "prediction_extent_local_l1": [
+          1216,
+          1280,
+          760,
+          904,
+          1272,
+          1352
+        ],
+        "score_global_l0": [
+          10304,
+          10432,
+          1664,
+          1792,
+          2560,
+          2688
+        ],
+        "score_global_l1": [
+          5152,
+          5216,
+          832,
+          896,
+          1280,
+          1344
+        ],
+        "score_local_l1": [
+          1216,
+          1280,
+          832,
+          896,
+          1280,
+          1344
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 31771,
+        "boundary_poor_fraction_of_material": 0.9627867511136701,
+        "material_count": 32999,
+        "material_fraction_of_valid": 0.469269055745165,
+        "recto_count": 5841,
+        "sampled_centerline_count": 397,
+        "valid_count": 70320,
+        "valid_fraction": 0.26824951171875,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1216,
+        832,
+        1280
+      ],
+      "rank_sha256": "00d86607214d620cbf989e3d7d337eb54424b4d02a54a3512290b9703996bb1d",
+      "receipt_file": "receipts/PHerc1203-z1216-y0832-x1280.json",
+      "scroll": "PHerc1203",
+      "selection_index": 16,
+      "visual_slice_global_l1": 5204,
+      "visual_slice_local_l1": 1268,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1344-y1216-x2560.npz",
+      "block_id": "PHerc1203-z1344-y1216-x2560",
+      "geometry": {
+        "inference_bbox_l0": [
+          10496,
+          10752,
+          2224,
+          2640,
+          5040,
+          5328
+        ],
+        "prediction_extent_global_l0": [
+          10560,
+          10688,
+          2288,
+          2576,
+          5104,
+          5264
+        ],
+        "prediction_extent_global_l1": [
+          5280,
+          5344,
+          1144,
+          1288,
+          2552,
+          2632
+        ],
+        "prediction_extent_local_l1": [
+          1344,
+          1408,
+          1144,
+          1288,
+          2552,
+          2632
+        ],
+        "score_global_l0": [
+          10560,
+          10688,
+          2432,
+          2560,
+          5120,
+          5248
+        ],
+        "score_global_l1": [
+          5280,
+          5344,
+          1216,
+          1280,
+          2560,
+          2624
+        ],
+        "score_local_l1": [
+          1344,
+          1408,
+          1216,
+          1280,
+          2560,
+          2624
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 217318,
+        "boundary_poor_fraction_of_material": 0.9070828411505182,
+        "material_count": 239579,
+        "material_fraction_of_valid": 0.9588683081454918,
+        "recto_count": 13479,
+        "sampled_centerline_count": 778,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1344,
+        1216,
+        2560
+      ],
+      "rank_sha256": "011dec83059b88a6008f1d452ecfa1daf006dd5dc873fef0abe47e2cf308466f",
+      "receipt_file": "receipts/PHerc1203-z1344-y1216-x2560.json",
+      "scroll": "PHerc1203",
+      "selection_index": 17,
+      "visual_slice_global_l1": 5288,
+      "visual_slice_local_l1": 1352,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1344-y1728-x1536.npz",
+      "block_id": "PHerc1203-z1344-y1728-x1536",
+      "geometry": {
+        "inference_bbox_l0": [
+          10496,
+          10752,
+          3248,
+          3664,
+          2992,
+          3280
+        ],
+        "prediction_extent_global_l0": [
+          10560,
+          10688,
+          3312,
+          3600,
+          3056,
+          3216
+        ],
+        "prediction_extent_global_l1": [
+          5280,
+          5344,
+          1656,
+          1800,
+          1528,
+          1608
+        ],
+        "prediction_extent_local_l1": [
+          1344,
+          1408,
+          1656,
+          1800,
+          1528,
+          1608
+        ],
+        "score_global_l0": [
+          10560,
+          10688,
+          3456,
+          3584,
+          3072,
+          3200
+        ],
+        "score_global_l1": [
+          5280,
+          5344,
+          1728,
+          1792,
+          1536,
+          1600
+        ],
+        "score_local_l1": [
+          1344,
+          1408,
+          1728,
+          1792,
+          1536,
+          1600
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 10378,
+        "boundary_poor_fraction_of_material": 0.05302608384640932,
+        "material_count": 195715,
+        "material_fraction_of_valid": 0.7833111872438525,
+        "recto_count": 58296,
+        "sampled_centerline_count": 2487,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1344,
+        1728,
+        1536
+      ],
+      "rank_sha256": "0221de9475c127e99c4ba90ad4679d7d8200634a57b499bf2f9cc2a9cdeb437c",
+      "receipt_file": "receipts/PHerc1203-z1344-y1728-x1536.json",
+      "scroll": "PHerc1203",
+      "selection_index": 18,
+      "visual_slice_global_l1": 5284,
+      "visual_slice_local_l1": 1348,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1344-y1472-x0896.npz",
+      "block_id": "PHerc1203-z1344-y1472-x0896",
+      "geometry": {
+        "inference_bbox_l0": [
+          10496,
+          10752,
+          2736,
+          3152,
+          1712,
+          2000
+        ],
+        "prediction_extent_global_l0": [
+          10560,
+          10688,
+          2800,
+          3088,
+          1776,
+          1936
+        ],
+        "prediction_extent_global_l1": [
+          5280,
+          5344,
+          1400,
+          1544,
+          888,
+          968
+        ],
+        "prediction_extent_local_l1": [
+          1344,
+          1408,
+          1400,
+          1544,
+          888,
+          968
+        ],
+        "score_global_l0": [
+          10560,
+          10688,
+          2944,
+          3072,
+          1792,
+          1920
+        ],
+        "score_global_l1": [
+          5280,
+          5344,
+          1472,
+          1536,
+          896,
+          960
+        ],
+        "score_local_l1": [
+          1344,
+          1408,
+          1472,
+          1536,
+          896,
+          960
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 231450,
+        "boundary_poor_fraction_of_material": 0.9974616336046958,
+        "material_count": 232039,
+        "material_fraction_of_valid": 0.9286909259733607,
+        "recto_count": 7847,
+        "sampled_centerline_count": 458,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1344,
+        1472,
+        896
+      ],
+      "rank_sha256": "028436026d9143743bd089a6628366096410d8a2e0c5a412f29400fa87f4981f",
+      "receipt_file": "receipts/PHerc1203-z1344-y1472-x0896.json",
+      "scroll": "PHerc1203",
+      "selection_index": 19,
+      "visual_slice_global_l1": 5336,
+      "visual_slice_local_l1": 1400,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1344-y1344-x1280.npz",
+      "block_id": "PHerc1203-z1344-y1344-x1280",
+      "geometry": {
+        "inference_bbox_l0": [
+          10496,
+          10752,
+          2480,
+          2896,
+          2480,
+          2768
+        ],
+        "prediction_extent_global_l0": [
+          10560,
+          10688,
+          2544,
+          2832,
+          2544,
+          2704
+        ],
+        "prediction_extent_global_l1": [
+          5280,
+          5344,
+          1272,
+          1416,
+          1272,
+          1352
+        ],
+        "prediction_extent_local_l1": [
+          1344,
+          1408,
+          1272,
+          1416,
+          1272,
+          1352
+        ],
+        "score_global_l0": [
+          10560,
+          10688,
+          2688,
+          2816,
+          2560,
+          2688
+        ],
+        "score_global_l1": [
+          5280,
+          5344,
+          1344,
+          1408,
+          1280,
+          1344
+        ],
+        "score_local_l1": [
+          1344,
+          1408,
+          1344,
+          1408,
+          1280,
+          1344
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 31530,
+        "boundary_poor_fraction_of_material": 0.21280472989390134,
+        "material_count": 148164,
+        "material_fraction_of_valid": 0.5929975665983607,
+        "recto_count": 51736,
+        "sampled_centerline_count": 1923,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1344,
+        1344,
+        1280
+      ],
+      "rank_sha256": "03f5d0037544ccfe536e141ea5e934ada464a8d6254e7326955bdd1cd7392a75",
+      "receipt_file": "receipts/PHerc1203-z1344-y1344-x1280.json",
+      "scroll": "PHerc1203",
+      "selection_index": 20,
+      "visual_slice_global_l1": 5336,
+      "visual_slice_local_l1": 1400,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1472-y1728-x2560.npz",
+      "block_id": "PHerc1203-z1472-y1728-x2560",
+      "geometry": {
+        "inference_bbox_l0": [
+          10752,
+          11008,
+          3248,
+          3664,
+          5040,
+          5328
+        ],
+        "prediction_extent_global_l0": [
+          10816,
+          10944,
+          3312,
+          3600,
+          5104,
+          5264
+        ],
+        "prediction_extent_global_l1": [
+          5408,
+          5472,
+          1656,
+          1800,
+          2552,
+          2632
+        ],
+        "prediction_extent_local_l1": [
+          1472,
+          1536,
+          1656,
+          1800,
+          2552,
+          2632
+        ],
+        "score_global_l0": [
+          10816,
+          10944,
+          3456,
+          3584,
+          5120,
+          5248
+        ],
+        "score_global_l1": [
+          5408,
+          5472,
+          1728,
+          1792,
+          2560,
+          2624
+        ],
+        "score_local_l1": [
+          1472,
+          1536,
+          1728,
+          1792,
+          2560,
+          2624
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 48510,
+        "boundary_poor_fraction_of_material": 0.563309954015514,
+        "material_count": 86116,
+        "material_fraction_of_valid": 0.3446625256147541,
+        "recto_count": 16439,
+        "sampled_centerline_count": 1009,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1472,
+        1728,
+        2560
+      ],
+      "rank_sha256": "03f7734cc3ec3c7f920396583177f076528385963a1718817e3ef0ec9cd5e48a",
+      "receipt_file": "receipts/PHerc1203-z1472-y1728-x2560.json",
+      "scroll": "PHerc1203",
+      "selection_index": 21,
+      "visual_slice_global_l1": 5456,
+      "visual_slice_local_l1": 1520,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1216-y2112-x1408.npz",
+      "block_id": "PHerc1203-z1216-y2112-x1408",
+      "geometry": {
+        "inference_bbox_l0": [
+          10240,
+          10496,
+          4016,
+          4432,
+          2736,
+          3024
+        ],
+        "prediction_extent_global_l0": [
+          10304,
+          10432,
+          4080,
+          4368,
+          2800,
+          2960
+        ],
+        "prediction_extent_global_l1": [
+          5152,
+          5216,
+          2040,
+          2184,
+          1400,
+          1480
+        ],
+        "prediction_extent_local_l1": [
+          1216,
+          1280,
+          2040,
+          2184,
+          1400,
+          1480
+        ],
+        "score_global_l0": [
+          10304,
+          10432,
+          4224,
+          4352,
+          2816,
+          2944
+        ],
+        "score_global_l1": [
+          5152,
+          5216,
+          2112,
+          2176,
+          1408,
+          1472
+        ],
+        "score_local_l1": [
+          1216,
+          1280,
+          2112,
+          2176,
+          1408,
+          1472
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 119105,
+        "boundary_poor_fraction_of_material": 0.6368808585499404,
+        "material_count": 187013,
+        "material_fraction_of_valid": 0.7871977707435345,
+        "recto_count": 36687,
+        "sampled_centerline_count": 1530,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1216,
+        2112,
+        1408
+      ],
+      "rank_sha256": "043f3dbc983a6ea27b7bc5fcb47a3b0d8e2c72f3f3c1e212e15fb99939e6c461",
+      "receipt_file": "receipts/PHerc1203-z1216-y2112-x1408.json",
+      "scroll": "PHerc1203",
+      "selection_index": 22,
+      "visual_slice_global_l1": 5176,
+      "visual_slice_local_l1": 1240,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1344-y1728-x1024.npz",
+      "block_id": "PHerc1203-z1344-y1728-x1024",
+      "geometry": {
+        "inference_bbox_l0": [
+          10496,
+          10752,
+          3248,
+          3664,
+          1968,
+          2256
+        ],
+        "prediction_extent_global_l0": [
+          10560,
+          10688,
+          3312,
+          3600,
+          2032,
+          2192
+        ],
+        "prediction_extent_global_l1": [
+          5280,
+          5344,
+          1656,
+          1800,
+          1016,
+          1096
+        ],
+        "prediction_extent_local_l1": [
+          1344,
+          1408,
+          1656,
+          1800,
+          1016,
+          1096
+        ],
+        "score_global_l0": [
+          10560,
+          10688,
+          3456,
+          3584,
+          2048,
+          2176
+        ],
+        "score_global_l1": [
+          5280,
+          5344,
+          1728,
+          1792,
+          1024,
+          1088
+        ],
+        "score_local_l1": [
+          1344,
+          1408,
+          1728,
+          1792,
+          1024,
+          1088
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 247451,
+        "boundary_poor_fraction_of_material": 1.0,
+        "material_count": 247451,
+        "material_fraction_of_valid": 0.9903744556864754,
+        "recto_count": 5804,
+        "sampled_centerline_count": 293,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1344,
+        1728,
+        1024
+      ],
+      "rank_sha256": "04dbbe9965a0f53f35348755a53795e5e493d89f7a7f3bf7562a92d718e77830",
+      "receipt_file": "receipts/PHerc1203-z1344-y1728-x1024.json",
+      "scroll": "PHerc1203",
+      "selection_index": 23,
+      "visual_slice_global_l1": 5312,
+      "visual_slice_local_l1": 1376,
+      "z_stratum": 2
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1728-y2112-x1536.npz",
+      "block_id": "PHerc1203-z1728-y2112-x1536",
+      "geometry": {
+        "inference_bbox_l0": [
+          11264,
+          11520,
+          4016,
+          4432,
+          2992,
+          3280
+        ],
+        "prediction_extent_global_l0": [
+          11328,
+          11456,
+          4080,
+          4368,
+          3056,
+          3216
+        ],
+        "prediction_extent_global_l1": [
+          5664,
+          5728,
+          2040,
+          2184,
+          1528,
+          1608
+        ],
+        "prediction_extent_local_l1": [
+          1728,
+          1792,
+          2040,
+          2184,
+          1528,
+          1608
+        ],
+        "score_global_l0": [
+          11328,
+          11456,
+          4224,
+          4352,
+          3072,
+          3200
+        ],
+        "score_global_l1": [
+          5664,
+          5728,
+          2112,
+          2176,
+          1536,
+          1600
+        ],
+        "score_local_l1": [
+          1728,
+          1792,
+          2112,
+          2176,
+          1536,
+          1600
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 195220,
+        "boundary_poor_fraction_of_material": 0.8222074344870575,
+        "material_count": 237434,
+        "material_fraction_of_valid": 0.9502833632172131,
+        "recto_count": 23774,
+        "sampled_centerline_count": 1048,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1728,
+        2112,
+        1536
+      ],
+      "rank_sha256": "004732a8401bf6bf47d7f878c082a7615d55526e4275db54f8cb31b1f8d2e23f",
+      "receipt_file": "receipts/PHerc1203-z1728-y2112-x1536.json",
+      "scroll": "PHerc1203",
+      "selection_index": 24,
+      "visual_slice_global_l1": 5672,
+      "visual_slice_local_l1": 1736,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1856-y1600-x2304.npz",
+      "block_id": "PHerc1203-z1856-y1600-x2304",
+      "geometry": {
+        "inference_bbox_l0": [
+          11520,
+          11776,
+          2992,
+          3408,
+          4528,
+          4816
+        ],
+        "prediction_extent_global_l0": [
+          11584,
+          11712,
+          3056,
+          3344,
+          4592,
+          4752
+        ],
+        "prediction_extent_global_l1": [
+          5792,
+          5856,
+          1528,
+          1672,
+          2296,
+          2376
+        ],
+        "prediction_extent_local_l1": [
+          1856,
+          1920,
+          1528,
+          1672,
+          2296,
+          2376
+        ],
+        "score_global_l0": [
+          11584,
+          11712,
+          3200,
+          3328,
+          4608,
+          4736
+        ],
+        "score_global_l1": [
+          5792,
+          5856,
+          1600,
+          1664,
+          2304,
+          2368
+        ],
+        "score_local_l1": [
+          1856,
+          1920,
+          1600,
+          1664,
+          2304,
+          2368
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 63368,
+        "boundary_poor_fraction_of_material": 0.3376331367252228,
+        "material_count": 187683,
+        "material_fraction_of_valid": 0.7511646708504098,
+        "recto_count": 48938,
+        "sampled_centerline_count": 2465,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1856,
+        1600,
+        2304
+      ],
+      "rank_sha256": "00a9b891a8a476b9f708ddcaada5a0905b870f0a39c42f49e55985bc9c6fa229",
+      "receipt_file": "receipts/PHerc1203-z1856-y1600-x2304.json",
+      "scroll": "PHerc1203",
+      "selection_index": 25,
+      "visual_slice_global_l1": 5832,
+      "visual_slice_local_l1": 1896,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1600-y1216-x2048.npz",
+      "block_id": "PHerc1203-z1600-y1216-x2048",
+      "geometry": {
+        "inference_bbox_l0": [
+          11008,
+          11264,
+          2224,
+          2640,
+          4016,
+          4304
+        ],
+        "prediction_extent_global_l0": [
+          11072,
+          11200,
+          2288,
+          2576,
+          4080,
+          4240
+        ],
+        "prediction_extent_global_l1": [
+          5536,
+          5600,
+          1144,
+          1288,
+          2040,
+          2120
+        ],
+        "prediction_extent_local_l1": [
+          1600,
+          1664,
+          1144,
+          1288,
+          2040,
+          2120
+        ],
+        "score_global_l0": [
+          11072,
+          11200,
+          2432,
+          2560,
+          4096,
+          4224
+        ],
+        "score_global_l1": [
+          5536,
+          5600,
+          1216,
+          1280,
+          2048,
+          2112
+        ],
+        "score_local_l1": [
+          1600,
+          1664,
+          1216,
+          1280,
+          2048,
+          2112
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 43778,
+        "boundary_poor_fraction_of_material": 0.21895897207620402,
+        "material_count": 199937,
+        "material_fraction_of_valid": 0.8415990369073276,
+        "recto_count": 49248,
+        "sampled_centerline_count": 2119,
+        "valid_count": 237568,
+        "valid_fraction": 0.90625,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1600,
+        1216,
+        2048
+      ],
+      "rank_sha256": "00da238902b89983559a92215b894aa31da0aa196170531431df575b890fb5f0",
+      "receipt_file": "receipts/PHerc1203-z1600-y1216-x2048.json",
+      "scroll": "PHerc1203",
+      "selection_index": 26,
+      "visual_slice_global_l1": 5552,
+      "visual_slice_local_l1": 1616,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1728-y2240-x2304.npz",
+      "block_id": "PHerc1203-z1728-y2240-x2304",
+      "geometry": {
+        "inference_bbox_l0": [
+          11264,
+          11520,
+          4272,
+          4688,
+          4528,
+          4816
+        ],
+        "prediction_extent_global_l0": [
+          11328,
+          11456,
+          4336,
+          4624,
+          4592,
+          4752
+        ],
+        "prediction_extent_global_l1": [
+          5664,
+          5728,
+          2168,
+          2312,
+          2296,
+          2376
+        ],
+        "prediction_extent_local_l1": [
+          1728,
+          1792,
+          2168,
+          2312,
+          2296,
+          2376
+        ],
+        "score_global_l0": [
+          11328,
+          11456,
+          4480,
+          4608,
+          4608,
+          4736
+        ],
+        "score_global_l1": [
+          5664,
+          5728,
+          2240,
+          2304,
+          2304,
+          2368
+        ],
+        "score_local_l1": [
+          1728,
+          1792,
+          2240,
+          2304,
+          2304,
+          2368
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 238179,
+        "boundary_poor_fraction_of_material": 0.9893496384110857,
+        "material_count": 240743,
+        "material_fraction_of_valid": 0.9635269915471312,
+        "recto_count": 13466,
+        "sampled_centerline_count": 578,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1728,
+        2240,
+        2304
+      ],
+      "rank_sha256": "0111eee403cf8868ac6a3eaa921ccf86b0be1b9ff67ed37fb855b3c9c4933a95",
+      "receipt_file": "receipts/PHerc1203-z1728-y2240-x2304.json",
+      "scroll": "PHerc1203",
+      "selection_index": 27,
+      "visual_slice_global_l1": 5688,
+      "visual_slice_local_l1": 1752,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1856-y2240-x1664.npz",
+      "block_id": "PHerc1203-z1856-y2240-x1664",
+      "geometry": {
+        "inference_bbox_l0": [
+          11520,
+          11776,
+          4272,
+          4688,
+          3248,
+          3536
+        ],
+        "prediction_extent_global_l0": [
+          11584,
+          11712,
+          4336,
+          4624,
+          3312,
+          3472
+        ],
+        "prediction_extent_global_l1": [
+          5792,
+          5856,
+          2168,
+          2312,
+          1656,
+          1736
+        ],
+        "prediction_extent_local_l1": [
+          1856,
+          1920,
+          2168,
+          2312,
+          1656,
+          1736
+        ],
+        "score_global_l0": [
+          11584,
+          11712,
+          4480,
+          4608,
+          3328,
+          3456
+        ],
+        "score_global_l1": [
+          5792,
+          5856,
+          2240,
+          2304,
+          1664,
+          1728
+        ],
+        "score_local_l1": [
+          1856,
+          1920,
+          2240,
+          2304,
+          1664,
+          1728
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 73327,
+        "boundary_poor_fraction_of_material": 0.37683013942206395,
+        "material_count": 194589,
+        "material_fraction_of_valid": 0.7788045914446722,
+        "recto_count": 47719,
+        "sampled_centerline_count": 1785,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1856,
+        2240,
+        1664
+      ],
+      "rank_sha256": "028c8038d4ea1ead2f2809c27187a6a5a77d303409e1942394f5befe0443b7f3",
+      "receipt_file": "receipts/PHerc1203-z1856-y2240-x1664.json",
+      "scroll": "PHerc1203",
+      "selection_index": 28,
+      "visual_slice_global_l1": 5816,
+      "visual_slice_local_l1": 1880,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1728-y1344-x1664.npz",
+      "block_id": "PHerc1203-z1728-y1344-x1664",
+      "geometry": {
+        "inference_bbox_l0": [
+          11264,
+          11520,
+          2480,
+          2896,
+          3248,
+          3536
+        ],
+        "prediction_extent_global_l0": [
+          11328,
+          11456,
+          2544,
+          2832,
+          3312,
+          3472
+        ],
+        "prediction_extent_global_l1": [
+          5664,
+          5728,
+          1272,
+          1416,
+          1656,
+          1736
+        ],
+        "prediction_extent_local_l1": [
+          1728,
+          1792,
+          1272,
+          1416,
+          1656,
+          1736
+        ],
+        "score_global_l0": [
+          11328,
+          11456,
+          2688,
+          2816,
+          3328,
+          3456
+        ],
+        "score_global_l1": [
+          5664,
+          5728,
+          1344,
+          1408,
+          1664,
+          1728
+        ],
+        "score_local_l1": [
+          1728,
+          1792,
+          1344,
+          1408,
+          1664,
+          1728
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 245711,
+        "boundary_poor_fraction_of_material": 0.9995931833807274,
+        "material_count": 245811,
+        "material_fraction_of_valid": 0.9838106749487705,
+        "recto_count": 7898,
+        "sampled_centerline_count": 488,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1728,
+        1344,
+        1664
+      ],
+      "rank_sha256": "02a3d72eb6dd122602c3175b7c7d85085a0ddc181c3d69161c97f25452b1d722",
+      "receipt_file": "receipts/PHerc1203-z1728-y1344-x1664.json",
+      "scroll": "PHerc1203",
+      "selection_index": 29,
+      "visual_slice_global_l1": 5692,
+      "visual_slice_local_l1": 1756,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1728-y1728-x1920.npz",
+      "block_id": "PHerc1203-z1728-y1728-x1920",
+      "geometry": {
+        "inference_bbox_l0": [
+          11264,
+          11520,
+          3248,
+          3664,
+          3760,
+          4048
+        ],
+        "prediction_extent_global_l0": [
+          11328,
+          11456,
+          3312,
+          3600,
+          3824,
+          3984
+        ],
+        "prediction_extent_global_l1": [
+          5664,
+          5728,
+          1656,
+          1800,
+          1912,
+          1992
+        ],
+        "prediction_extent_local_l1": [
+          1728,
+          1792,
+          1656,
+          1800,
+          1912,
+          1992
+        ],
+        "score_global_l0": [
+          11328,
+          11456,
+          3456,
+          3584,
+          3840,
+          3968
+        ],
+        "score_global_l1": [
+          5664,
+          5728,
+          1728,
+          1792,
+          1920,
+          1984
+        ],
+        "score_local_l1": [
+          1728,
+          1792,
+          1728,
+          1792,
+          1920,
+          1984
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 59029,
+        "boundary_poor_fraction_of_material": 0.32596138979082456,
+        "material_count": 181092,
+        "material_fraction_of_valid": 0.7247854764344263,
+        "recto_count": 47944,
+        "sampled_centerline_count": 1873,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1728,
+        1728,
+        1920
+      ],
+      "rank_sha256": "02f1af5f511100b00f1aa88affc7765e5ea3a739ef6c1f9a836c78e9ae07ae25",
+      "receipt_file": "receipts/PHerc1203-z1728-y1728-x1920.json",
+      "scroll": "PHerc1203",
+      "selection_index": 30,
+      "visual_slice_global_l1": 5696,
+      "visual_slice_local_l1": 1760,
+      "z_stratum": 3
+    },
+    {
+      "array_file": "arrays/PHerc1203-z1728-y1216-x2176.npz",
+      "block_id": "PHerc1203-z1728-y1216-x2176",
+      "geometry": {
+        "inference_bbox_l0": [
+          11264,
+          11520,
+          2224,
+          2640,
+          4272,
+          4560
+        ],
+        "prediction_extent_global_l0": [
+          11328,
+          11456,
+          2288,
+          2576,
+          4336,
+          4496
+        ],
+        "prediction_extent_global_l1": [
+          5664,
+          5728,
+          1144,
+          1288,
+          2168,
+          2248
+        ],
+        "prediction_extent_local_l1": [
+          1728,
+          1792,
+          1144,
+          1288,
+          2168,
+          2248
+        ],
+        "score_global_l0": [
+          11328,
+          11456,
+          2432,
+          2560,
+          4352,
+          4480
+        ],
+        "score_global_l1": [
+          5664,
+          5728,
+          1216,
+          1280,
+          2176,
+          2240
+        ],
+        "score_local_l1": [
+          1728,
+          1792,
+          1216,
+          1280,
+          2176,
+          2240
+        ]
+      },
+      "label_stats": {
+        "boundary_poor_count": 215992,
+        "boundary_poor_fraction_of_material": 0.9422953594597306,
+        "material_count": 229219,
+        "material_fraction_of_valid": 0.9174044249487705,
+        "recto_count": 19187,
+        "sampled_centerline_count": 719,
+        "valid_count": 249856,
+        "valid_fraction": 0.953125,
+        "voxel_count": 262144
+      },
+      "local_origin_l1": [
+        1728,
+        1216,
+        2176
+      ],
+      "rank_sha256": "02f95d5c83b71c5315743dc6fbee62b7e370e98b3bea9a84383da5820db4b58f",
+      "receipt_file": "receipts/PHerc1203-z1728-y1216-x2176.json",
+      "scroll": "PHerc1203",
+      "selection_index": 31,
+      "visual_slice_global_l1": 5724,
+      "visual_slice_local_l1": 1788,
+      "z_stratum": 3
+    }
+  ],
+  "content_sha256": "0af4dde99b6f84742038eeac95cc9c632ee281788596dae6205940c83738d011",
+  "implementation": {
+    "broken_reproduction_commit": "94ba215963afb6216e380fe2c86131fa5e724c3b",
+    "corrected_villa_commit": "f74929a643095ce422ea4d9b70c25ae2b233a000",
+    "files_sha256": {
+      "PHYSICAL_NORMALIZATION_AB_PREREG.md": "bc9634f6be2a98a21167399d5e006e5fa8d4c156e2750d77c4558f8c3326705d",
+      "physical_normalization_ab.py": "b758b650888e6ef0c9e57b18e59a55052c54efb818bf82ac76ec17129de83da5",
+      "requirements.txt": "bd9a4584d2150d74ec7030887eab61490f0987ac68fbc82c061471c2b581e83c",
+      "run_physical_normalization_ab.py": "31bf25add146eee2e580c722c7625602531abc79192c2b492129b45989e64a9f",
+      "test_physical_normalization_ab.py": "35cb48c63409f75a01ee80b09e9956532cc40f2ee130fd51af3348b18b817205"
+    },
+    "implementation_commit": "0527e8601dc45247a2699bf58c0f854662ffa948",
+    "physical_metric_reference_commit": "5408c48d9db0558a78118d24fe9919ee63b204ee",
+    "repo": "https://github.com/TAUIL-Abd-Elilah/vesuvius-repro"
+  },
+  "inputs": {
+    "labels": {
+      "PHerc0139": {
+        "archive": {
+          "bytes": 392693760,
+          "name": "labels0139_L1.tar",
+          "sha256": "42fe53b760c2c9347d9f215bafa68beec8e96121d03549dab56a52a9a0a9e8dd"
+        },
+        "origin_l1": [
+          1728,
+          576,
+          480
+        ],
+        "registration_heldout_um": 4.09,
+        "release": "https://github.com/7jycwjmbfn-eng/pherc0139-physical-audit/releases/tag/v1.0",
+        "shape_l1": [
+          1248,
+          2304,
+          2208
+        ],
+        "store": "labels0139_L1.zarr",
+        "zarray_sha256": "3e4c951534b0bb92f6d06743f3caab0f871480a048cdaaaffc2d6df11084425c",
+        "zattrs_sha256": "f19591650eb8436165ff26d9c1f1f94c86a4850b5186201e2ebc51643e35ffe0"
+      },
+      "PHerc1203": {
+        "archive": {
+          "bytes": 515379200,
+          "name": "labels1203_L1.tar",
+          "sha256": "32a09f6081342b0f015b258ec577d0296ff23a55892af9785689d8a55bff344c"
+        },
+        "origin_l1": [
+          3936,
+          0,
+          0
+        ],
+        "registration_heldout_um": 2.38,
+        "release": "https://github.com/7jycwjmbfn-eng/pherc0139-physical-audit/releases/tag/v1.0",
+        "shape_l1": [
+          2016,
+          3456,
+          3456
+        ],
+        "store": "labels1203_L1.zarr",
+        "zarray_sha256": "60d8d1696f543092a549991a926335a455085d58991256681501e7d52bc988f4",
+        "zattrs_sha256": "319b598e4136a75fc6ab1ea86d19c9099e287cf24854886fd1121febd3de56ab"
+      }
+    },
+    "model": {
+      "files": {
+        "dataset.json": {
+          "bytes": 244,
+          "sha256": "19b98ea3ce06e35f45afe0bb256d94f889af6b87a037e7024762c4eb5c3eb15e"
+        },
+        "fold_0/checkpoint_best.pth": {
+          "bytes": 820473701,
+          "sha256": "17465b77591b794638e671f1a9f79c4cf1e79821f302e6fc235e3725e5da7d7e"
+        },
+        "plans.json": {
+          "bytes": 10751,
+          "sha256": "5358b6973982815b727384d8ed3d6ef86db047c07ff00d85f8ae390f07c49fbc"
+        }
+      },
+      "foreground_intensity_properties_channel_0": {
+        "max": 255.0,
+        "mean": 87.54424285888672,
+        "median": 81.0,
+        "min": 0.0,
+        "percentile_00_5": 0.0,
+        "percentile_99_5": 212.0,
+        "std": 47.74376678466797
+      },
+      "normalization_schemes": [
+        "CTNormalization"
+      ],
+      "source": "https://huggingface.co/scrollprize/surface_m7_nnunet"
+    },
+    "scrolls": {
+      "PHerc0139": {
+        "ct_shape_l0": [
+          20974,
+          6621,
+          6621
+        ],
+        "ct_url": "https://vesuvius-challenge-open-data.s3.amazonaws.com/PHerc0139/volumes/20250728140407-9.362um-1.2m-113keV-masked.zarr/0",
+        "published_prediction_artifact": "20250728140407-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+        "published_prediction_url": "https://vesuvius-challenge-open-data.s3.amazonaws.com/PHerc0139/representations/predictions/surfaces/20250728140407-surface-20260413222639-surface-m7-L0-th0.2.zarr/0",
+        "published_threshold": 0.2
+      },
+      "PHerc1203": {
+        "ct_shape_l0": [
+          18977,
+          6844,
+          6844
+        ],
+        "ct_url": "https://vesuvius-challenge-open-data.s3.amazonaws.com/PHerc1203/volumes/20250820131727-9.362um-1.2m-113keV-masked.zarr/0",
+        "published_prediction_artifact": "20250820131727-surface-20260413222639-surface-m7-L0-th0.2.zarr",
+        "published_prediction_url": "https://vesuvius-challenge-open-data.s3.amazonaws.com/PHerc1203/representations/predictions/surfaces/20250820131727-surface-20260413222639-surface-m7-L0-th0.2.zarr/0",
+        "published_threshold": 0.2
+      }
+    }
+  },
+  "protocol_version": 1,
+  "question": "Does villa PR #1386 plans-driven CT normalization improve public m7 against two-scroll physical cross-scan truth?",
+  "sampling": {
+    "blocks_per_z_stratum": 8,
+    "candidate_stride_l1": 128,
+    "inference_trim_l0": 64,
+    "inventories": {
+      "PHerc0139": {
+        "eligible_by_z_stratum": {
+          "0": 314,
+          "1": 467,
+          "2": 313,
+          "3": 328
+        },
+        "eligible_count": 1422,
+        "eligible_quantiles": {
+          "boundary_poor_fraction_of_material": {
+            "max": 0.0,
+            "median": 0.0,
+            "min": 0.0,
+            "p25": 0.0,
+            "p75": 0.0
+          },
+          "material_fraction_of_valid": {
+            "max": 0.9144026959528688,
+            "median": 0.49721239433913933,
+            "min": 0.04889089655500345,
+            "p25": 0.39856122643884256,
+            "p75": 0.6077725041992093
+          },
+          "sampled_centerline_count": {
+            "max": 5862.0,
+            "median": 3153.0,
+            "min": 271.0,
+            "p25": 2507.75,
+            "p75": 3762.5
+          },
+          "valid_fraction": {
+            "max": 0.953125,
+            "median": 0.953125,
+            "min": 0.09579849243164062,
+            "p25": 0.90625,
+            "p75": 0.953125
+          }
+        },
+        "lattice_offsets_l1": [
+          64,
+          0,
+          64
+        ],
+        "raw_grid_count": 2754,
+        "rejected_centerline": 23,
+        "rejected_geometry": 153,
+        "rejected_valid": 1156
+      },
+      "PHerc1203": {
+        "eligible_by_z_stratum": {
+          "0": 647,
+          "1": 629,
+          "2": 669,
+          "3": 520
+        },
+        "eligible_count": 2465,
+        "eligible_quantiles": {
+          "boundary_poor_fraction_of_material": {
+            "max": 1.0,
+            "median": 0.8432049732343291,
+            "min": 0.0,
+            "p25": 0.4640633560790955,
+            "p75": 0.9899866488651535
+          },
+          "material_fraction_of_valid": {
+            "max": 0.9972344760237069,
+            "median": 0.8783139088114754,
+            "min": 0.056132332223360656,
+            "p25": 0.7563813308189655,
+            "p75": 0.9502673539959017
+          },
+          "sampled_centerline_count": {
+            "max": 4273.0,
+            "median": 1131.0,
+            "min": 258.0,
+            "p25": 659.0,
+            "p75": 1804.0
+          },
+          "valid_fraction": {
+            "max": 0.953125,
+            "median": 0.953125,
+            "min": 0.050609588623046875,
+            "p25": 0.90625,
+            "p75": 0.953125
+          }
+        },
+        "lattice_offsets_l1": [
+          64,
+          64,
+          0
+        ],
+        "raw_grid_count": 10935,
+        "rejected_centerline": 244,
+        "rejected_geometry": 1560,
+        "rejected_valid": 6666
+      }
+    },
+    "metric_halo_l1": 8,
+    "min_sampled_centerline": 256,
+    "min_valid_fraction": 0.05,
+    "null_shift_l1": 64,
+    "score_size_l1": 64,
+    "selection_seed": "vesuvius-physical-normalization-ab-v1-2026-08-11",
+    "z_sample_step": 4,
+    "z_strata": 4
+  },
+  "schema_version": 1,
+  "status": "preregistered_no_prediction_outcomes_read"
+}
