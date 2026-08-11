@@ -104,6 +104,98 @@ class CheckpointExportTests(unittest.TestCase):
                     E.export_checkpoint(source, destination, {})
 
 
+class TechnicalReportTests(unittest.TestCase):
+    def test_report_derives_all_seed_subgroup_and_figure_rows(self) -> None:
+        repo = Path(__file__).resolve().parent
+        plan = json.loads(
+            (repo / "results/crossscan_finetune/plan.json").read_text(encoding="utf-8")
+        )
+        lock = json.loads(
+            (repo / "results/crossscan_finetune/execution_lock.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        rows = []
+        comparisons = {}
+        for offset, seed in enumerate(range(40, 46), 1):
+            delta = offset / 1000
+            rows.append({
+                "seed": seed,
+                "primary_initial_ap": 0.5,
+                "primary_finetuned_ap": 0.5 + delta,
+                "primary_delta": delta,
+                "safety_initial_ap": 0.6,
+                "safety_finetuned_ap": 0.6 + delta / 2,
+                "safety_delta": delta / 2,
+            })
+            comparisons[str(seed)] = {
+                "primary": {
+                    "by_z_stratum": {
+                        str(z): {"average_precision_delta": delta + z / 10000}
+                        for z in range(4)
+                    },
+                    "by_difficulty_bin": {
+                        "0": {"average_precision_delta": delta},
+                        "1": {"average_precision_delta": delta / 2},
+                    },
+                },
+                "safety": {
+                    "by_z_stratum": {
+                        str(z): {"average_precision_delta": delta / 2 + z / 10000}
+                        for z in range(4)
+                    },
+                },
+            }
+        figures = []
+        for visual in lock["resolved_protocol"]["visual_cases"]:
+            figures.append({
+                **visual,
+                "file": {"path": f"figures/{visual['case_id']}.png"},
+            })
+        result = {
+            "status": "POSITIVE_DEPLOYABLE",
+            "content_sha256": "f" * 64,
+            "pilot_verdict_content_sha256": "p" * 64,
+            "selected_steps": 2000,
+            "gates": {
+                "primary_effect": 0.01,
+                "minimum_positive_seeds": 5,
+                "alpha_two_sided": 0.05,
+                "safety_noninferiority_margin": 0.005,
+            },
+            "primary_summary": {
+                "mean": 0.0035, "ci95": [0.001, 0.006],
+                "two_sided_p": 0.01, "positive_seeds": 6,
+            },
+            "safety_summary": {
+                "mean": 0.00175, "ci95": [0.0005, 0.003],
+                "two_sided_p": 0.02, "positive_seeds": 6,
+            },
+            "seed_rows": rows,
+            "comparisons": comparisons,
+            "figures": figures,
+        }
+        report = E.technical_report(result, plan, lock, [{}] * 12)
+        self.assertIn("POSITIVE_DEPLOYABLE", report)
+        self.assertIn(plan["content_sha256"], report)
+        self.assertIn(lock["content_sha256"], report)
+        for seed in range(40, 46):
+            self.assertIn(f"| {seed} |", report)
+        for z in range(4):
+            self.assertIn(f"| z{z} |", report)
+        self.assertEqual(report.count("![Fixed cross-scan panel"), 8)
+        self.assertNotIn("TODO", report)
+
+    def test_report_rejects_seed_reordering(self) -> None:
+        with self.assertRaisesRegex(ValueError, "six frozen seed rows"):
+            E.technical_report(
+                {"seed_rows": [{"seed": 45}]},
+                {},
+                {},
+                [],
+            )
+
+
 class ManifestTests(unittest.TestCase):
     def test_manifest_content_hash_is_order_stable(self) -> None:
         value = {"status": "PASS", "models": [1, 2], "content_sha256": "ignored"}
@@ -160,6 +252,7 @@ class ManifestTests(unittest.TestCase):
             plans = record("model/plans.json", b"plans")
             evidence = record("evidence/final_result.json", b"result")
             tooling = record("README.md", b"card")
+            report = record("TECHNICAL_REPORT.md", b"report")
             manifest = {
                 "status": "PASS",
                 "ensemble": {
@@ -171,6 +264,7 @@ class ManifestTests(unittest.TestCase):
                 "model_files": {"plans": plans},
                 "artifacts": [evidence],
                 "tooling": [tooling],
+                "reports": [report],
             }
             manifest["content_sha256"] = P.content_hash(manifest)
             (root / "release_manifest.json").write_text(
@@ -178,7 +272,7 @@ class ManifestTests(unittest.TestCase):
             )
             loaded = P.load_release_manifest(root)
             self.assertEqual(P.verify_release_files(root, loaded), list(range(12)))
-            (root / "model" / "plans.json").write_bytes(b"tampered")
+            (root / "TECHNICAL_REPORT.md").write_bytes(b"tampered")
             with self.assertRaisesRegex(ValueError, "release file hash mismatch"):
                 P.verify_release_files(root, loaded)
 

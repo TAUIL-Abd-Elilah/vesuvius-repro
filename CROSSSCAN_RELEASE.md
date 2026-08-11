@@ -15,6 +15,8 @@ standard nnU-Net model folder with folds 0..11. It:
 - removes optimizer, gradient-scaler, logger, and best-EMA state;
 - maps the experiment-local dynamic trainer name to standard `nnUNetTrainer` for inference;
 - copies the result, fixed figures, plan, lock, pilot record, and training receipts;
+- derives a technical report directly from the sealed result, including every seed,
+  fixed subgroup, and preselected visual panel, with no hand-copied metrics;
 - writes a content-hashed manifest and Apache-2.0 model card; and
 - reloads every exported fold through nnU-Net's official model-folder API with a strict
   state-dict load before sealing the release.
@@ -53,9 +55,11 @@ python -m unittest -v \
   test_score_crossscan_finetune.py
 ```
 
-The current suite has 44 tests. It includes a counterexample proving that the probability
+The current suite has 46 tests. It includes a counterexample proving that the probability
 ensemble is not silently equivalent to logit averaging and an export round trip proving
-that training state is removed while aliased network tensors remain identical.
+that training state is removed while aliased network tensors remain identical. It also
+checks that the generated report contains all six seed rows, all fixed strata, and all
+eight preselected panels, and refuses a reordered seed result.
 
 After a qualifying final result, build the local release with:
 

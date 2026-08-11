@@ -230,12 +230,221 @@ differ, those govern.
 """
 
 
+def technical_report(
+    result: dict[str, Any], plan: dict[str, Any], lock: dict[str, Any],
+    records: list[dict[str, Any]],
+) -> str:
+    """Render the sealed result without hand-transcribing any quantitative field."""
+
+    seeds = list(C.INFERENTIAL_SEEDS)
+    if [row.get("seed") for row in result.get("seed_rows", [])] != seeds:
+        raise ValueError("technical report requires the six frozen seed rows in order")
+    if set(result.get("comparisons", {})) != {str(seed) for seed in seeds}:
+        raise ValueError("technical report requires exactly the six frozen comparisons")
+    if len(records) != 2 * len(seeds):
+        raise ValueError("technical report requires all twelve release checkpoints")
+    visual_fields = ("case_id", "scroll", "z_stratum", "score_slice_l1")
+    expected_visuals = [
+        tuple(visual[field] for field in visual_fields)
+        for visual in lock["resolved_protocol"]["visual_cases"]
+    ]
+    actual_visuals = [
+        tuple(visual[field] for field in visual_fields)
+        for visual in result.get("figures", [])
+    ]
+    if actual_visuals != expected_visuals or len(actual_visuals) != 8:
+        raise ValueError("technical report requires the eight locked visual panels in order")
+    primary = result["primary_summary"]
+    safety = result["safety_summary"]
+
+    seed_rows = []
+    for row in result["seed_rows"]:
+        seed_rows.append(
+            f"| {row['seed']} | {row['primary_initial_ap']:.6f} | "
+            f"{row['primary_finetuned_ap']:.6f} | {row['primary_delta']:+.6f} | "
+            f"{row['safety_initial_ap']:.6f} | {row['safety_finetuned_ap']:.6f} | "
+            f"{row['safety_delta']:+.6f} |"
+        )
+
+    subgroup_rows = []
+    for stratum in range(C.Z_STRATA):
+        primary_values = [
+            float(result["comparisons"][str(seed)]["primary"]
+                  ["by_z_stratum"][str(stratum)]["average_precision_delta"])
+            for seed in seeds
+        ]
+        safety_values = [
+            float(result["comparisons"][str(seed)]["safety"]
+                  ["by_z_stratum"][str(stratum)]["average_precision_delta"])
+            for seed in seeds
+        ]
+        subgroup_rows.append(
+            f"| z{stratum} | {sum(primary_values) / len(primary_values):+.6f} | "
+            f"{sum(value > 0 for value in primary_values)}/6 | "
+            f"{sum(safety_values) / len(safety_values):+.6f} | "
+            f"{sum(value > 0 for value in safety_values)}/6 |"
+        )
+
+    first_primary = result["comparisons"][str(seeds[0])]["primary"]
+    difficulty_keys = set(first_primary["by_difficulty_bin"])
+    if any(
+        set(result["comparisons"][str(seed)]["primary"]["by_difficulty_bin"])
+        != difficulty_keys
+        for seed in seeds[1:]
+    ):
+        raise ValueError("physical-difficulty bins differ across frozen seeds")
+    difficulty_rows = []
+    for key in sorted(first_primary["by_difficulty_bin"], key=int):
+        values = [
+            float(result["comparisons"][str(seed)]["primary"]
+                  ["by_difficulty_bin"][key]["average_precision_delta"])
+            for seed in seeds
+        ]
+        difficulty_rows.append(
+            f"| {key} | {sum(values) / len(values):+.6f} | "
+            f"{min(values):+.6f} | {max(values):+.6f} | "
+            f"{sum(value > 0 for value in values)}/6 |"
+        )
+
+    figures = []
+    for index, figure in enumerate(result["figures"], 1):
+        source_name = Path(figure["file"]["path"]).name
+        figures.append(
+            f"### Fixed panel {index}: `{figure['case_id']}`\n\n"
+            f"Scroll `{figure['scroll']}`, z stratum {figure['z_stratum']}, "
+            f"preselected slice {figure['score_slice_l1']}.\n\n"
+            f"![Fixed cross-scan panel {index}](evidence/figures/{source_name})"
+        )
+
+    fold_lines = []
+    for name in ("even", "odd"):
+        fold = plan["folds"][name]
+        fold_lines.append(
+            f"- **{name}:** train z strata {fold['train_z_strata']}; held-out z strata "
+            f"{fold['held_out_z_strata']}; {len(fold['train_case_ids'])} training and "
+            f"{len(fold['internal_validation_case_ids'])} internal-validation cases."
+        )
+
+    return f"""# Cross-scan physical-truth fine-tuning: sealed technical report
+
+Generated from `final_result.json`; no metric in this report is manually entered.
+
+## Result
+
+The frozen terminal bucket is **{result['status']}**. Fine-tuning the released surface-m7
+model on model-independent PHerc1203 physical recto truth changed the held-out,
+cross-fitted pooled average precision by **{primary['mean']:+.6f}** on average over six
+training seeds. The 95% seed-level t interval is **[{primary['ci95'][0]:+.6f},
+{primary['ci95'][1]:+.6f}]**, the two-sided p-value is
+**{primary['two_sided_p']:.6g}**, and **{primary['positive_seeds']}/6** seed effects are
+positive. On the untouched PHerc0139 safety scroll, the mean AP delta is
+**{safety['mean']:+.6f}**, with 95% interval **[{safety['ci95'][0]:+.6f},
+{safety['ci95'][1]:+.6f}]**.
+
+This is a sampled physical-truth result, not a whole-scroll segmentation or reading claim.
+
+## Contribution
+
+- A direct intervention on a core virtual-unwrapping stage: the released m7 surface model.
+- 288 physical-truth training/internal-validation crops selected without model output.
+- Complementary spatial cross-fitting, a separate seed-39 learnability gate, six frozen
+  inferential seeds, 32 held-out PHerc1203 blocks, and 32 untouched PHerc0139 blocks.
+- Eight visual panels selected and locked before any model outcome.
+- {len(records)} optimizer-free standard nnU-Net checkpoints, with no best-seed selection.
+
+## Prospective provenance
+
+| artifact | content SHA-256 |
+|---|---|
+| plan | `{plan['content_sha256']}` |
+| execution lock | `{lock['content_sha256']}` |
+| pilot verdict | `{result['pilot_verdict_content_sha256']}` |
+| final result | `{result['content_sha256']}` |
+
+The plan and implementation were public before materialization, training, inference, or
+scoring. Selected training length: **{result['selected_steps']} optimizer steps**. Primary
+effect gate: **{result['gates']['primary_effect']:+.3f} AP**; minimum positive seeds:
+**{result['gates']['minimum_positive_seeds']}/6**; two-sided alpha:
+**{result['gates']['alpha_two_sided']}**; untouched-scroll safety mean-delta floor:
+**-{result['gates']['safety_noninferiority_margin']:.3f} AP**.
+
+## Spatial cross-fitting
+
+{chr(10).join(fold_lines)}
+
+Every PHerc1203 evaluation block is scored only with the complementary fold that did not
+train on its z stratum. PHerc0139 was never used for fine-tuning, model selection, retry
+selection, or threshold selection; its two fold predictions are averaged within seed.
+
+## Six-seed results
+
+| seed | primary initial AP | primary fine-tuned AP | primary delta | safety initial AP | safety fine-tuned AP | safety delta |
+|---:|---:|---:|---:|---:|---:|---:|
+{chr(10).join(seed_rows)}
+
+The seed is the inferential unit. Evaluation voxels and blocks are not treated as
+independent replicates.
+
+## Descriptive z-stratum consistency
+
+| stratum | primary mean delta | positive primary seeds | safety mean delta | positive safety seeds |
+|---|---:|---:|---:|---:|
+{chr(10).join(subgroup_rows)}
+
+These subgroup rows are descriptive; the frozen decision uses the pooled primary endpoint.
+
+## Descriptive physical-difficulty consistency
+
+| difficulty bin | mean primary delta | minimum seed delta | maximum seed delta | positive seeds |
+|---:|---:|---:|---:|---:|
+{chr(10).join(difficulty_rows)}
+
+Difficulty bins were fixed from physical-label geometry before outcome. They are not
+post-hoc model-error bins.
+
+## Fixed visual evidence
+
+Each panel shows CT, physical truth, initial m7 probability, fine-tuned probability,
+probability additions, and removals for all six seeds plus their mean. All eight are shown.
+
+{chr(10).join(figures)}
+
+## Reusable release
+
+`model/` contains release folds 0..11 in standard nnU-Net layout, ordered as seeds 40..45
+and even then odd within each seed. Export preserves network tensors exactly while removing
+optimizer, gradient-scaler, logger, and best-EMA state. The included probability-ensemble
+runner avoids silently substituting nnU-Net's usual logit averaging for the experiment's
+probability-space visual ensemble.
+
+## Limitations
+
+- Evaluation covers 64 fixed 64-cubed L1 score blocks, not either complete scroll.
+- The primary endpoint is recto physical truth with supervised negatives; it does not
+  measure ink detection, mesh topology, surface ordering, or readable text.
+- PHerc1203 primary estimates are cross-fitted within one scroll. PHerc0139 is the separate
+  safety scroll, not a claim of universal cross-scroll generalization.
+- Seed-level uncertainty measures optimization variability under this recipe, not the full
+  uncertainty over all papyri, scanners, or physical-label constructions.
+- The released twelve-model probability ensemble is computationally expensive; no smaller
+  model was selected after inspecting results.
+
+## Reproduction
+
+See `evidence/` for the sealed plan, lock, pilot, final result, training receipts, and every
+fixed panel. `release_manifest.json` binds every copied artifact and checkpoint by SHA-256.
+The public training/materialization/scoring implementation remains the authoritative source
+for exact commands and environment identity.
+"""
+
+
 def verify_release_files(root: Path, manifest: dict[str, Any]) -> None:
     records = []
     for model in manifest["models"]:
         records.append(model["checkpoint"])
     records.extend(manifest["artifacts"])
     records.extend(manifest["tooling"])
+    records.extend(manifest.get("reports", []))
     records.extend((manifest["model_files"][name] for name in sorted(manifest["model_files"])))
     for record in records:
         path = R.resolve_data_path(root, record["path"])
@@ -372,7 +581,11 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
 
     card = staging / "README.md"
     card.write_text(model_card(result, records), encoding="utf-8")
-    tooling.append(relative_record(staging, card))
+    report = staging / "TECHNICAL_REPORT.md"
+    report.write_text(
+        technical_report(result, plan, lock, records), encoding="utf-8"
+    )
+    reports = [relative_record(staging, card), relative_record(staging, report)]
 
     model_files = {
         "plans": relative_record(staging, model_root / "plans.json"),
@@ -400,6 +613,7 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
         "model_files": model_files,
         "artifacts": evidence,
         "tooling": tooling,
+        "reports": reports,
     }
     manifest["content_sha256"] = C.content_hash_without_field(manifest)
     R.atomic_write_json(staging / "release_manifest.json", manifest)

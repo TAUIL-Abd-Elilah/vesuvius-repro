@@ -74,6 +74,7 @@ def verify_release_files(release_dir: Path, manifest: dict) -> list[int]:
     supporting = list(manifest.get("model_files", {}).values())
     supporting += list(manifest.get("artifacts", []))
     supporting += list(manifest.get("tooling", []))
+    supporting += list(manifest.get("reports", []))
     for expected in supporting:
         relative = Path(expected["path"])
         if relative.is_absolute() or ".." in relative.parts:
