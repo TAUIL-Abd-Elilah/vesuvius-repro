@@ -5450,7 +5450,7 @@
       "z_stratum": 3
     }
   ],
-  "content_sha256": "0af4dde99b6f84742038eeac95cc9c632ee281788596dae6205940c83738d011",
+  "content_sha256": "38a4c9888d0e35ab2cb913b8bc2117701f211ea5e5abb4fb0e3043c5a256d9a2",
   "implementation": {
     "broken_reproduction_commit": "94ba215963afb6216e380fe2c86131fa5e724c3b",
     "corrected_villa_commit": "f74929a643095ce422ea4d9b70c25ae2b233a000",
@@ -5458,10 +5458,10 @@
       "PHYSICAL_NORMALIZATION_AB_PREREG.md": "bc9634f6be2a98a21167399d5e006e5fa8d4c156e2750d77c4558f8c3326705d",
       "physical_normalization_ab.py": "b758b650888e6ef0c9e57b18e59a55052c54efb818bf82ac76ec17129de83da5",
       "requirements.txt": "bd9a4584d2150d74ec7030887eab61490f0987ac68fbc82c061471c2b581e83c",
-      "run_physical_normalization_ab.py": "31bf25add146eee2e580c722c7625602531abc79192c2b492129b45989e64a9f",
-      "test_physical_normalization_ab.py": "35cb48c63409f75a01ee80b09e9956532cc40f2ee130fd51af3348b18b817205"
+      "run_physical_normalization_ab.py": "8f3623bfcd0303d6f141b299f03eb2053e135a282a7906eb7151a70bb2775ac6",
+      "test_physical_normalization_ab.py": "1c9b8980b69bf38de6e249e63372dd153065a166d9a036b07be767afe640029d"
     },
-    "implementation_commit": "0527e8601dc45247a2699bf58c0f854662ffa948",
+    "implementation_commit": "fa4145d0a21c3c1fdbb2c0cb0b823d5aa28a5e73",
     "physical_metric_reference_commit": "5408c48d9db0558a78118d24fe9919ee63b204ee",
     "repo": "https://github.com/TAUIL-Abd-Elilah/vesuvius-repro"
   },
