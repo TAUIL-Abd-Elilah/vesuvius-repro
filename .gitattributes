@@ -12,3 +12,8 @@
 /run_physical_released_baseline_comparison.py text eol=lf
 /test_physical_released_baseline_comparison.py text eol=lf
 /results/physical_released_baseline_comparison/*.json text eol=lf
+
+/CROSSSCAN_FINETUNE_PREREG.md text eol=lf
+/crossscan_finetune.py text eol=lf
+/test_crossscan_finetune.py text eol=lf
+/results/crossscan_finetune/*.json text eol=lf

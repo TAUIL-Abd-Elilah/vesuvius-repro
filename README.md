@@ -16,6 +16,12 @@ it needs comes from `catalog.json`, so it works for any scroll with a published 
 > A [separate operational comparison](PHYSICAL_RELEASED_BASELINE_COMPARISON_PREREG.md)
 > is now publicly locked: exact PR #1386 output versus the released binary artifacts on
 > the same 64 truth-only-selected blocks. It makes no causal-normalization claim.
+>
+> **Next core-model experiment:** the
+> [cross-scan physical-truth fine-tuning design](CROSSSCAN_FINETUNE_PREREG.md) uses the new
+> model-independent PHerc1203 recto labels, complementary z-stratum cross-fitting, six
+> inferential seeds, and untouched PHerc0139 safety evaluation. The outcome-blind planner
+> and tests are public; no pilot or fine-tuned prediction exists at this design stage.
 
 ## Try it in 30 seconds (no GPU, no downloads)
 
