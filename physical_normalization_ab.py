@@ -28,13 +28,15 @@ from typing import Any, Iterable
 import numpy as np
 
 
-PROTOCOL_VERSION = 1
+PROTOCOL_VERSION = 2
+MANIFEST_STATUS = "preregistered_no_real_arm_scores_protocol_v2"
 SELECTION_SEED = "vesuvius-physical-normalization-ab-v1-2026-08-11"
 BOOTSTRAP_SEED = 20260811
 SCORE_SIZE_L1 = 64
 CANDIDATE_STRIDE_L1 = 128
 BLOCKS_PER_Z_STRATUM = 8
 Z_STRATA = 4
+BLOCKS_PER_SCROLL = BLOCKS_PER_Z_STRATUM * Z_STRATA
 Z_SAMPLE_STEP = 4
 MIN_VALID_FRACTION = 0.05
 MIN_SAMPLED_CENTERLINE = 256
@@ -400,6 +402,8 @@ def build_manifest(repo: Path, labels_root: Path, model_dir: Path) -> dict[str, 
         "run_physical_normalization_ab.py",
         "test_physical_normalization_ab.py",
         "PHYSICAL_NORMALIZATION_AB_PREREG.md",
+        "PHYSICAL_NORMALIZATION_AB_AMENDMENT_01.md",
+        "results/physical_normalization_ab/truth_power_audit.json",
         "requirements.txt",
     ):
         p = repo / name
@@ -423,7 +427,7 @@ def build_manifest(repo: Path, labels_root: Path, model_dir: Path) -> dict[str, 
     manifest = {
         "schema_version": 1,
         "protocol_version": PROTOCOL_VERSION,
-        "status": "preregistered_no_prediction_outcomes_read",
+        "status": MANIFEST_STATUS,
         "question": (
             "Does villa PR #1386 plans-driven CT normalization improve public m7 against "
             "two-scroll physical cross-scan truth?"
@@ -465,9 +469,9 @@ def build_manifest(repo: Path, labels_root: Path, model_dir: Path) -> dict[str, 
             "matched_mass_scope": "one truth-blind valid-mask threshold per scroll",
             "bootstrap_seed": BOOTSTRAP_SEED,
             "bootstrap_draws": BOOTSTRAP_DRAWS,
-            "primary_metric": "arc_recall_minus_shifted_null_arc_recall",
+            "primary_metric": "recall_37um_minus_shifted_null_recall_37um",
             "far37_noninferiority_margin_absolute": FP_NONINFERIORITY_MARGIN,
-            "minimum_arc_blocks_per_scroll": 24,
+            "minimum_point_blocks_per_scroll": 32,
         },
         "blocks": blocks,
     }
@@ -895,6 +899,118 @@ def _stratified_bootstrap(
     }
 
 
+def compare_and_gate(
+    per_block: list[dict[str, Any]],
+) -> tuple[dict[str, Any], dict[str, float | int | None], dict[str, bool]]:
+    """Build the frozen v2 comparisons and claim gates from block-level metrics."""
+
+    comparisons: dict[str, Any] = {}
+    for scroll in SCROLLS:
+        rows = [r for r in per_block if r["scroll"] == scroll]
+        comparisons[scroll] = {}
+        for corrected in ("corrected_fixed", "corrected_matched"):
+            point_diffs_by_stratum: dict[str, list[float]] = defaultdict(list)
+            arc_diffs_by_stratum: dict[str, list[float]] = defaultdict(list)
+            for row in rows:
+                corrected_point = row["arms"][corrected]["point_skill"]
+                baseline_point = row["arms"]["published"]["point_skill"]
+                if corrected_point is not None and baseline_point is not None:
+                    point_diffs_by_stratum[str(row["z_stratum"])].append(
+                        corrected_point - baseline_point
+                    )
+                corrected_arc = row["arms"][corrected]["arc_skill"]
+                baseline_arc = row["arms"]["published"]["arc_skill"]
+                if corrected_arc is not None and baseline_arc is not None:
+                    arc_diffs_by_stratum[str(row["z_stratum"])].append(
+                        corrected_arc - baseline_arc
+                    )
+            fp_diffs = [
+                r["arms"][corrected]["pred_far37_fraction"]
+                - r["arms"]["published"]["pred_far37_fraction"]
+                for r in rows
+            ]
+            comparisons[scroll][corrected] = {
+                "point_skill_delta": _stratified_bootstrap(
+                    dict(point_diffs_by_stratum),
+                    BOOTSTRAP_SEED + (0 if scroll == "PHerc0139" else 100)
+                    + (0 if corrected == "corrected_fixed" else 1),
+                ),
+                "arc_skill_delta_secondary": _stratified_bootstrap(
+                    dict(arc_diffs_by_stratum),
+                    BOOTSTRAP_SEED + 10_000 + (0 if scroll == "PHerc0139" else 100)
+                    + (0 if corrected == "corrected_fixed" else 1),
+                ),
+                "far37_fraction_delta_macro_mean": (
+                    float(np.mean(fp_diffs)) if fp_diffs else None
+                ),
+            }
+
+    pooled_diffs_by_scroll_stratum: dict[str, list[float]] = defaultdict(list)
+    for scroll in SCROLLS:
+        for row in (r for r in per_block if r["scroll"] == scroll):
+            corrected_skill = row["arms"]["corrected_fixed"]["point_skill"]
+            baseline_skill = row["arms"]["published"]["point_skill"]
+            if corrected_skill is not None and baseline_skill is not None:
+                pooled_diffs_by_scroll_stratum[
+                    f"{scroll}:z{row['z_stratum']}"
+                ].append(corrected_skill - baseline_skill)
+    pooled = _stratified_bootstrap(
+        dict(pooled_diffs_by_scroll_stratum), BOOTSTRAP_SEED + 999
+    )
+
+    gates = {
+        "fixed_point_skill_positive_each_scroll": all(
+            comparisons[s]["corrected_fixed"]["point_skill_delta"]["mean"] is not None
+            and comparisons[s]["corrected_fixed"]["point_skill_delta"]["mean"] > 0
+            for s in SCROLLS
+        ),
+        "pooled_fixed_ci_excludes_zero": (
+            pooled["ci95_low"] is not None and pooled["ci95_low"] > 0
+        ),
+        "far37_noninferior_each_scroll": all(
+            comparisons[s]["corrected_fixed"]["far37_fraction_delta_macro_mean"]
+            is not None
+            and comparisons[s]["corrected_fixed"]["far37_fraction_delta_macro_mean"]
+            <= FP_NONINFERIORITY_MARGIN
+            for s in SCROLLS
+        ),
+        "matched_point_skill_nonnegative_each_scroll": all(
+            comparisons[s]["corrected_matched"]["point_skill_delta"]["mean"] is not None
+            and comparisons[s]["corrected_matched"]["point_skill_delta"]["mean"] >= 0
+            for s in SCROLLS
+        ),
+        "all_32_point_blocks_each_scroll": all(
+            sum(
+                r["scroll"] == s
+                and r["arms"]["published"]["n_centerline"]
+                == r["label_stats"]["sampled_centerline_count"]
+                and r["arms"]["published"]["n_centerline"] >= MIN_SAMPLED_CENTERLINE
+                for r in per_block
+            )
+            == BLOCKS_PER_SCROLL
+            for s in SCROLLS
+        ),
+    }
+    gates["primary_claim_passes"] = all(gates.values())
+    return comparisons, pooled, gates
+
+
+def verify_manifest_implementation(manifest: dict[str, Any]) -> None:
+    """Refuse scoring if any frozen implementation or protocol file has drifted."""
+
+    repo = Path(__file__).resolve().parent
+    expected = manifest.get("implementation", {}).get("files_sha256")
+    if not isinstance(expected, dict) or not expected:
+        raise SystemExit("manifest does not freeze implementation file hashes")
+    for name, digest in sorted(expected.items()):
+        path = repo / name
+        if not path.is_file():
+            raise SystemExit(f"missing frozen implementation file: {path}")
+        actual = sha256_file(path)
+        if actual != digest:
+            raise SystemExit(f"implementation drift: {name} SHA {actual} != {digest}")
+
+
 def score_command(args: argparse.Namespace) -> None:
     manifest_path = Path(args.manifest).resolve()
     manifest = load_json(manifest_path)
@@ -905,6 +1021,9 @@ def score_command(args: argparse.Namespace) -> None:
         raise SystemExit(f"manifest content hash mismatch: {recorded} != {actual}")
     if manifest.get("protocol_version") != PROTOCOL_VERSION:
         raise SystemExit("unsupported protocol version")
+    if manifest.get("status") != MANIFEST_STATUS:
+        raise SystemExit("manifest is not the frozen v2 preregistration")
+    verify_manifest_implementation(manifest)
 
     labels_root = Path(args.labels_root).resolve()
     arrays_root = Path(args.arrays_root).resolve()
@@ -989,75 +1108,7 @@ def score_command(args: argparse.Namespace) -> None:
         )
     per_block.sort(key=lambda row: row["block_id"])
 
-    comparisons: dict[str, Any] = {}
-    for scroll in SCROLLS:
-        rows = [r for r in per_block if r["scroll"] == scroll]
-        comparisons[scroll] = {}
-        for corrected in ("corrected_fixed", "corrected_matched"):
-            arc_diffs_by_stratum: dict[str, list[float]] = defaultdict(list)
-            for row in rows:
-                corrected_skill = row["arms"][corrected]["arc_skill"]
-                baseline_skill = row["arms"]["published"]["arc_skill"]
-                if corrected_skill is not None and baseline_skill is not None:
-                    arc_diffs_by_stratum[str(row["z_stratum"])].append(
-                        corrected_skill - baseline_skill
-                    )
-            fp_diffs = [
-                r["arms"][corrected]["pred_far37_fraction"]
-                - r["arms"]["published"]["pred_far37_fraction"]
-                for r in rows
-            ]
-            comparisons[scroll][corrected] = {
-                "arc_skill_delta": _stratified_bootstrap(
-                    dict(arc_diffs_by_stratum),
-                    BOOTSTRAP_SEED + (0 if scroll == "PHerc0139" else 100)
-                    + (0 if corrected == "corrected_fixed" else 1),
-                ),
-                "far37_fraction_delta_macro_mean": float(np.mean(fp_diffs)),
-            }
-
-    pooled_diffs_by_scroll_stratum: dict[str, list[float]] = defaultdict(list)
-    for scroll in SCROLLS:
-        rows = [r for r in per_block if r["scroll"] == scroll]
-        for row in rows:
-            corrected_skill = row["arms"]["corrected_fixed"]["arc_skill"]
-            baseline_skill = row["arms"]["published"]["arc_skill"]
-            if corrected_skill is not None and baseline_skill is not None:
-                pooled_diffs_by_scroll_stratum[
-                    f"{scroll}:z{row['z_stratum']}"
-                ].append(corrected_skill - baseline_skill)
-    pooled = _stratified_bootstrap(
-        dict(pooled_diffs_by_scroll_stratum), BOOTSTRAP_SEED + 999
-    )
-
-    gates = {
-        "fixed_arc_skill_positive_each_scroll": all(
-            comparisons[s]["corrected_fixed"]["arc_skill_delta"]["mean"] is not None
-            and comparisons[s]["corrected_fixed"]["arc_skill_delta"]["mean"] > 0
-            for s in SCROLLS
-        ),
-        "pooled_fixed_ci_excludes_zero": (
-            pooled["ci95_low"] is not None and pooled["ci95_low"] > 0
-        ),
-        "far37_noninferior_each_scroll": all(
-            comparisons[s]["corrected_fixed"]["far37_fraction_delta_macro_mean"]
-            <= FP_NONINFERIORITY_MARGIN
-            for s in SCROLLS
-        ),
-        "matched_arc_skill_nonnegative_each_scroll": all(
-            comparisons[s]["corrected_matched"]["arc_skill_delta"]["mean"] is not None
-            and comparisons[s]["corrected_matched"]["arc_skill_delta"]["mean"] >= 0
-            for s in SCROLLS
-        ),
-        "at_least_24_arc_blocks_each_scroll": all(
-            sum(
-                r["scroll"] == s and r["arms"]["published"]["n_arcs"] > 0
-                for r in per_block
-            ) >= 24
-            for s in SCROLLS
-        ),
-    }
-    gates["primary_claim_passes"] = all(gates.values())
+    comparisons, pooled, gates = compare_and_gate(per_block)
 
     result = {
         "schema_version": 1,
@@ -1070,7 +1121,7 @@ def score_command(args: argparse.Namespace) -> None:
         },
         "per_block": per_block,
         "comparisons": comparisons,
-        "pooled_fixed_arc_skill_delta": pooled,
+        "pooled_fixed_point_skill_delta": pooled,
         "gates": gates,
         "side_metrics_computed": not args.no_side,
     }

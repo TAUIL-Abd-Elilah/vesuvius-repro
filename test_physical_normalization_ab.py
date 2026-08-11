@@ -135,6 +135,51 @@ class PhysicalNormalizationABTests(unittest.TestCase):
         self.assertEqual(result["ci95_low"], 1.0)
         self.assertEqual(result["ci95_high"], 1.0)
 
+    def test_v2_decision_uses_powered_point_skill_and_keeps_arcs_secondary(self) -> None:
+        rows = []
+        for scroll in P.SCROLLS:
+            for stratum in range(P.Z_STRATA):
+                for index in range(P.BLOCKS_PER_Z_STRATUM):
+                    def arm(point_skill: float) -> dict[str, float | int | None]:
+                        return {
+                            "point_skill": point_skill,
+                            "arc_skill": None,
+                            "pred_far37_fraction": 0.0,
+                            "n_centerline": P.MIN_SAMPLED_CENTERLINE,
+                        }
+
+                    rows.append(
+                        {
+                            "block_id": f"{scroll}-z{stratum}-{index}",
+                            "scroll": scroll,
+                            "z_stratum": stratum,
+                            "label_stats": {
+                                "sampled_centerline_count": P.MIN_SAMPLED_CENTERLINE
+                            },
+                            "arms": {
+                                "published": arm(0.10),
+                                "corrected_fixed": arm(0.20),
+                                "corrected_matched": arm(0.10),
+                            },
+                        }
+                    )
+
+        comparisons, pooled, gates = P.compare_and_gate(rows)
+        for scroll in P.SCROLLS:
+            fixed = comparisons[scroll]["corrected_fixed"]
+            self.assertEqual(fixed["point_skill_delta"]["n"], P.BLOCKS_PER_SCROLL)
+            self.assertEqual(fixed["point_skill_delta"]["groups"], P.Z_STRATA)
+            self.assertAlmostEqual(fixed["point_skill_delta"]["mean"], 0.10)
+            self.assertEqual(fixed["arc_skill_delta_secondary"]["n"], 0)
+        self.assertEqual(pooled["n"], len(rows))
+        self.assertEqual(pooled["groups"], len(P.SCROLLS) * P.Z_STRATA)
+        self.assertTrue(gates["primary_claim_passes"])
+
+        rows[0]["arms"]["published"]["n_centerline"] = 1
+        _, _, underpowered = P.compare_and_gate(rows)
+        self.assertFalse(underpowered["all_32_point_blocks_each_scroll"])
+        self.assertFalse(underpowered["primary_claim_passes"])
+
     def test_l0_max_pool_matches_binary_any(self) -> None:
         array = np.zeros((4, 6, 8), dtype=np.float32)
         array[1, 3, 5] = 0.9
@@ -196,6 +241,17 @@ class PhysicalNormalizationABTests(unittest.TestCase):
             )
             with self.assertRaises(SystemExit):
                 P._load_block_arrays(path, block, "abc")
+
+    def test_scorer_is_fail_closed_on_implementation_drift(self) -> None:
+        manifest = {
+            "implementation": {
+                "files_sha256": {
+                    "physical_normalization_ab.py": "0" * 64,
+                }
+            }
+        }
+        with self.assertRaises(SystemExit):
+            P.verify_manifest_implementation(manifest)
 
     def test_normal_field_recovers_stripe_orientation(self) -> None:
         yy, xx = np.mgrid[0:200, 0:200].astype(np.float32)

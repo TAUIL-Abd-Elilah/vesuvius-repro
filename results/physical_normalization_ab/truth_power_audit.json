@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "audit_type": "empty_prediction_truth_support_only",
+  "real_model_outcomes_read": false,
+  "source_manifest_content_sha256": "38a4c9888d0e35ab2cb913b8bc2117701f211ea5e5abb4fb0e3043c5a256d9a2",
+  "synthetic_score_content_sha256": "f525b4d599ec99a8db08d5fe5c1f33e9bd63b49b7a630645fcbea425183c336b",
+  "synthetic_arms": {
+    "published": "all zeros",
+    "corrected_fixed": "all zeros",
+    "corrected_matched": "all zeros"
+  },
+  "scrolls": {
+    "PHerc0139": {
+      "blocks": 32,
+      "blocks_with_arcs": 26,
+      "arcs": 249,
+      "sampled_centerline_voxels": 106628,
+      "by_z_stratum": [
+        {"z_stratum": 0, "blocks_with_arcs": 6, "arcs": 29},
+        {"z_stratum": 1, "blocks_with_arcs": 6, "arcs": 63},
+        {"z_stratum": 2, "blocks_with_arcs": 8, "arcs": 88},
+        {"z_stratum": 3, "blocks_with_arcs": 6, "arcs": 69}
+      ]
+    },
+    "PHerc1203": {
+      "blocks": 32,
+      "blocks_with_arcs": 4,
+      "arcs": 7,
+      "sampled_centerline_voxels": 38022,
+      "by_z_stratum": [
+        {"z_stratum": 0, "blocks_with_arcs": 1, "arcs": 4},
+        {"z_stratum": 1, "blocks_with_arcs": 1, "arcs": 1},
+        {"z_stratum": 2, "blocks_with_arcs": 1, "arcs": 1},
+        {"z_stratum": 3, "blocks_with_arcs": 1, "arcs": 1}
+      ]
+    }
+  },
+  "decision": "promote null-controlled point skill to common primary; keep arcs secondary",
+  "coordinates_changed": false
+}

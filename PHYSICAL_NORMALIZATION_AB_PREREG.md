@@ -1,7 +1,9 @@
 # Physical normalization A/B: preregistered protocol
 
-Status: protocol draft; no corrected prediction has been scored against either physical
-label volume. The sample manifest must be committed and pushed before inference starts.
+Status: publicly frozen protocol v2; no real model arm has been scored against either
+physical label volume. Protocol v1 was superseded before inference after the truth-only power
+audit documented in `PHYSICAL_NORMALIZATION_AB_AMENDMENT_01.md`. All 64 coordinates are
+unchanged.
 
 ## Question
 
@@ -114,33 +116,41 @@ are both retained.
 
 The primary block statistic is:
 
-`arc_skill = arc_recall - shifted_null_arc_recall`.
+`point_skill = recall_37um - shifted_null_recall_37um`.
 
 For each scroll, compare corrected fixed-threshold minus published baseline on the same 32
 blocks. Report the macro mean difference and a deterministic 10,000-draw paired block
 bootstrap 95% interval. Also report a pooled, z-stratified paired bootstrap in which each
 scroll has equal weight.
 
+The original v1 draft named arc skill as primary. Before any real-arm inference, an empty-
+prediction rehearsal measured truth support only and found arc-bearing blocks in 26/32
+PHerc0139 samples but just 4/32 PHerc1203 samples (7 arcs total there). The common primary was
+therefore amended to null-controlled point skill, which has a frozen minimum of 256 sampled
+centerline voxels per block. Arc skill remains a prespecified secondary endpoint, strong on
+PHerc0139 and descriptive on PHerc1203.
+
 A positive core-improvement claim requires all of the following:
 
-1. mean arc-skill improvement is positive on both scrolls;
+1. mean point-skill improvement is positive on both scrolls;
 2. the pooled paired-bootstrap 95% interval excludes zero;
 3. the fraction of predictions farther than 37 um from material does not worsen by more than
    1.0 percentage point on either scroll;
-4. corrected matched-mass arc skill is non-inferior on both scrolls;
+4. corrected matched-mass point skill is non-inferior on both scrolls;
 5. all 64 frozen blocks complete, or a pre-outcome technical failure is repaired and rerun
    under a receipt that preserves the same block and parameters.
 
-Fully missed arcs, point-recall margin over null, 75 um false positives, side placement,
+Arc skill and fully missed arcs, 19/56 um point recall, 75 um false positives, side placement,
 prediction mass, boundary-poor subgroup results, and fixed visual overlays are secondary.
-They cannot rescue a failed primary rule. If fewer than 24 blocks on either scroll contain a
-truth-defined arc of at least 20 centerline points, the arc claim is considered underpowered
-and no primary win is declared.
+They cannot rescue a failed primary rule. Arc results must always carry the number of
+arc-bearing blocks; no cross-scroll arc claim is allowed from the sparse PHerc1203 support.
 
 ## No-tuning and stop rules
 
-- The model, normalization, threshold 0.2, selection seed, samples, metric tolerances, null
-  displacement, bootstrap seed, and decision rule cannot change after the manifest commit.
+- After the public v2 replacement manifest, the model, normalization, threshold 0.2,
+  selection seed, samples, metric tolerances, null displacement, bootstrap seed, and decision
+  rule cannot change. The v1-to-v2 amendment is preserved in public history and was based only
+  on empty-prediction truth support before any real-arm inference.
 - The matched-mass threshold may use prediction mass and the released `valid` bit only. It may
   not inspect material, centerline, recto, boundary-poor, or any score.
 - A failed block may be rerun only for an objective technical failure (network error, nonzero

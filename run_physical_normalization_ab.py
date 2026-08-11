@@ -73,7 +73,7 @@ def load_and_verify_manifest(path: Path) -> dict[str, Any]:
     manifest["content_sha256"] = recorded
     if recorded != actual:
         raise SystemExit(f"manifest content SHA mismatch: {recorded} != {actual}")
-    if manifest.get("status") != "preregistered_no_prediction_outcomes_read":
+    if manifest.get("status") != P.MANIFEST_STATUS:
         raise SystemExit(f"manifest status is not preregistered: {manifest.get('status')}")
     if len(manifest.get("blocks", [])) != 64:
         raise SystemExit(f"manifest must freeze 64 blocks, got {len(manifest.get('blocks', []))}")
