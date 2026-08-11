@@ -156,7 +156,7 @@ class TechnicalReportTests(unittest.TestCase):
             "status": "POSITIVE_DEPLOYABLE",
             "content_sha256": "f" * 64,
             "pilot_verdict_content_sha256": "p" * 64,
-            "selected_steps": 2000,
+            "selected_steps": 4000,
             "gates": {
                 "primary_effect": 0.01,
                 "minimum_positive_seeds": 5,
