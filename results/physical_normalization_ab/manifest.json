@@ -5450,23 +5450,26 @@
       "z_stratum": 3
     }
   ],
-  "content_sha256": "ef84062fab6adf29539e67bd6f0ac9e2354c2850dfd60e615a95eec26123a703",
+  "content_sha256": "20e3349c08f30df357eaba8f83249bef794fb972f15f53c6bafeaaff54127a98",
   "implementation": {
     "broken_reproduction_commit": "94ba215963afb6216e380fe2c86131fa5e724c3b",
     "corrected_villa_commit": "f74929a643095ce422ea4d9b70c25ae2b233a000",
     "files_sha256": {
       "PHYSICAL_NORMALIZATION_AB_AMENDMENT_01.md": "714c2ea423b948dd666a274eb0a14e8c13fee778410c2b32283e647726f0e523",
-      "PHYSICAL_NORMALIZATION_AB_PREREG.md": "2df65027f33ec3c2f5f53cf5d50a24783e3a745c4b00a708c930156e2628bba9",
-      "physical_normalization_ab.py": "6a8cca862d099785ed274d99e6a0b6ddb0d6f269fca317fd2a5a611adcf79326",
+      "PHYSICAL_NORMALIZATION_AB_AMENDMENT_02.md": "60e5be73a01cbf3c52499e242567a708913a23530b3fe50cbe9d965dc507219d",
+      "PHYSICAL_NORMALIZATION_AB_PREREG.md": "345febc1988811a390a3c706b785ec82ed9be03743cebb774a69f49bd979df34",
+      "physical_normalization_ab.py": "9d69db93da4449e2a83da46759c81fa02a261a3f65a3989bb19f5d813390a2fe",
       "requirements.txt": "bd9a4584d2150d74ec7030887eab61490f0987ac68fbc82c061471c2b581e83c",
+      "results/physical_normalization_ab/sentinel_failure_01.json": "daeda3fc3c32c0879ab55b85d541c2552f368e99cdccad3985b603567bdc4be7",
       "results/physical_normalization_ab/truth_power_audit.json": "cd0c4ecc63c38d6f9a5ebf0d4e08e4d50ba82e0f969262cf9339ea98eee1832c",
-      "run_physical_normalization_ab.py": "114f38b63186c5e658c57516212538510d2d9fa0059bf2dd08744871aff85dd5",
-      "test_physical_normalization_ab.py": "8a016ebd9effc02ea9f5e2c9fa5c1b3d4a251f7924791e45015829556529c164"
+      "run_physical_normalization_ab.py": "06a6e9bddedb61d69c2b6c2a359b819931b8a1d9fe12df14252b64bd9aa99da0",
+      "test_physical_normalization_ab.py": "e4903c9589e833bda1f0904d86e814779da601d5c58f7f4b015fb0ce5a3b7ee0"
     },
-    "implementation_commit": "5f9f5aa365e76e3e9d394aa8b634c26f73be7140",
+    "implementation_commit": "7d57bfde9289378cc900b52ddf46085d960cecf1",
     "physical_metric_reference_commit": "5408c48d9db0558a78118d24fe9919ee63b204ee",
     "repo": "https://github.com/TAUIL-Abd-Elilah/vesuvius-repro"
   },
+  "implementation_revision": 2,
   "inputs": {
     "labels": {
       "PHerc0139": {
