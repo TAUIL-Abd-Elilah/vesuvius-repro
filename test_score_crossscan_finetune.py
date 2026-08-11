@@ -155,6 +155,11 @@ class InferenceIdentityTests(unittest.TestCase):
 
 
 class VerdictTests(unittest.TestCase):
+    def test_machine_plan_fixes_inferential_steps_at_4000(self) -> None:
+        self.assertEqual(
+            PLAN["training"]["inferential_steps"], C.PILOT_RETRY_STEPS
+        )
+
     def test_pilot_attempt_cannot_be_overwritten(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
