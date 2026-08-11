@@ -441,11 +441,19 @@ class FilesAndConfigurationTests(unittest.TestCase):
     def test_pilot_authorization_is_content_hashed_and_step_bound(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            verdict = R._with_content_hash({"status": "PASS", "selected_steps": 2000})
+            verdict = R._with_content_hash({"status": "PASS", "selected_steps": 4000})
             C.write_json(root / "pilot_verdict.json", verdict)
-            self.assertEqual(R.require_pilot_authorization(root, 2000)["status"], "PASS")
+            self.assertEqual(R.require_pilot_authorization(root, 4000)["status"], "PASS")
+            self.assertEqual(R.require_any_pilot_authorization(root)["status"], "PASS")
             with self.assertRaises(SystemExit):
-                R.require_pilot_authorization(root, 4000)
+                R.require_pilot_authorization(root, 2000)
+
+            invalid = R._with_content_hash({"status": "PASS", "selected_steps": 2000})
+            C.write_json(root / "pilot_verdict.json", invalid)
+            with self.assertRaisesRegex(SystemExit, "frozen 4,000-step"):
+                R.require_pilot_authorization(root, 2000)
+            with self.assertRaisesRegex(SystemExit, "frozen 4,000-step"):
+                R.require_any_pilot_authorization(root)
 
 
 if __name__ == "__main__":

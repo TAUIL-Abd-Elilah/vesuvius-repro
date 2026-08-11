@@ -593,6 +593,7 @@ def build_plan(
             "inferential_seeds": INFERENTIAL_SEEDS,
             "pilot_steps": PILOT_STEPS,
             "single_permitted_retry_steps": PILOT_RETRY_STEPS,
+            "inferential_steps": PILOT_RETRY_STEPS,
             "checkpoint_for_scoring": "final epoch only",
         },
         "evaluation": {

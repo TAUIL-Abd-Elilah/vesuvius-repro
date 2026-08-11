@@ -23437,7 +23437,7 @@
       }
     ]
   },
-  "content_sha256": "ab0128fa294c3f7cdb6188253c83f62e31cddc074708673aa974841289265da5",
+  "content_sha256": "3f001515f55f289199350ce807eb89b3a09510307b9c200780f195a6e8b11698",
   "evaluation": {
     "minimum_same_sign_seeds": 5,
     "paired_test": "two-sided one-sample t test over six seed deltas, alpha 0.05",
@@ -23848,11 +23848,11 @@
   },
   "implementation": {
     "branch": "physical-crossscan-finetune",
-    "commit": "5e34f27d2678b4227e4095b9d315ead5016d930b",
+    "commit": "ca05944855584b8e27b1c70feaf5e8a40f50fa32",
     "planner": {
-      "bytes": 27791,
+      "bytes": 27843,
       "path": "crossscan_finetune.py",
-      "sha256": "c3bc23a9210dde1803b4fc8a8783606fbd74e5f6475666a88061c1e2b397268b"
+      "sha256": "1b4e703e2ca47125d14e690157c7aa7e5f2f1c00a1f3e4bfd955ea4ff35f81e4"
     },
     "preregistration": {
       "bytes": 9239,
@@ -24045,6 +24045,7 @@
       44,
       45
     ],
+    "inferential_steps": 4000,
     "initial_checkpoint": "surface-m7 fold_0 checkpoint_best.pth",
     "initial_lr": 0.0001,
     "minimum_lr": 1e-06,

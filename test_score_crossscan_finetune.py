@@ -155,12 +155,41 @@ class InferenceIdentityTests(unittest.TestCase):
 
 
 class VerdictTests(unittest.TestCase):
+    def test_machine_plan_fixes_inferential_steps_at_4000(self) -> None:
+        self.assertEqual(
+            PLAN["training"]["inferential_steps"], C.PILOT_RETRY_STEPS
+        )
+
     def test_pilot_attempt_cannot_be_overwritten(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             C.write_json(root / "pilot_attempt_steps-2000.json", {"sentinel": 1})
             with self.assertRaisesRegex(SystemExit, "attempt already exists"):
                 S.score_pilot(root, {}, {}, 2000)
+
+    def test_2000_step_pilot_pass_authorizes_frozen_4000_step_inference(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            result = {
+                "overall": {"average_precision_delta": C.PILOT_AP_GATE},
+                "by_z_stratum": {
+                    str(index): {"average_precision_delta": 0.0}
+                    for index in range(C.Z_STRATA)
+                },
+            }
+            plan = {"content_sha256": "plan", "cases": {"pilot": []}}
+            lock = {"content_sha256": "lock"}
+            with mock.patch.object(S, "load_comparison", return_value=result):
+                attempt = S.score_pilot(root, plan, lock, C.PILOT_STEPS)
+            verdict = C.load_json(root / "pilot_verdict.json")
+            self.assertEqual(attempt["decision"], "PASS")
+            self.assertEqual(attempt["steps"], C.PILOT_STEPS)
+            self.assertEqual(verdict["status"], "PASS")
+            self.assertEqual(verdict["selected_steps"], C.PILOT_RETRY_STEPS)
+            self.assertEqual(verdict["attempt_content_sha256"], attempt["content_sha256"])
+            self.assertEqual(
+                verdict["content_sha256"], C.content_hash_without_field(verdict)
+            )
 
     def test_t_summary_and_positive_bucket(self) -> None:
         primary = S.t_summary([0.011, 0.012, 0.013, 0.014, 0.015, 0.016])

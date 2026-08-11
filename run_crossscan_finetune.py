@@ -49,6 +49,7 @@ LOCKED_IMPLEMENTATION_FILES = (
     "CROSSSCAN_FINETUNE_AMENDMENT_04.md",
     "CROSSSCAN_FINETUNE_AMENDMENT_05.md",
     "CROSSSCAN_FINETUNE_AMENDMENT_06.md",
+    "CROSSSCAN_FINETUNE_AMENDMENT_07.md",
     "CROSSSCAN_FINETUNE_PREREG.md",
     "CROSSSCAN_FINETUNE_RUNBOOK.md",
     "crossscan_training_memory_smoke.py",
@@ -61,6 +62,7 @@ LOCKED_IMPLEMENTATION_FILES = (
     "test_score_crossscan_finetune.py",
     "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining.json",
     "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining-v2.json",
+    "results/crossscan_finetune/execution_lock.superseded-20260811-preverdict-step-selection-v3.json",
     "results/crossscan_finetune/execution_lock.withdrawn-20260811-release-attributes.json",
     "results/crossscan_finetune/execution_lock.withdrawn-20260811-ci-portability.json",
     "results/crossscan_finetune/preprocess_smoke.json",
@@ -1150,7 +1152,13 @@ def require_pilot_authorization(
     if not verdict_path.is_file():
         raise SystemExit("inferential runs require a public-protocol pilot_verdict.json")
     verdict = load_content_hashed(verdict_path, "PASS")
-    if int(verdict.get("selected_steps", -1)) != int(steps):
+    selected_steps = int(verdict.get("selected_steps", -1))
+    if selected_steps != C.PILOT_RETRY_STEPS:
+        raise SystemExit(
+            "passing pilot verdict must authorize the frozen 4,000-step "
+            "inferential recipe"
+        )
+    if selected_steps != int(steps):
         raise SystemExit(
             f"pilot selected {verdict.get('selected_steps')} steps, requested {steps}"
         )
@@ -1171,6 +1179,11 @@ def require_any_pilot_authorization(
     if not verdict_path.is_file():
         raise SystemExit("primary and safety inference require a passing pilot verdict")
     verdict = load_content_hashed(verdict_path, "PASS")
+    if int(verdict.get("selected_steps", -1)) != C.PILOT_RETRY_STEPS:
+        raise SystemExit(
+            "passing pilot verdict must authorize the frozen 4,000-step "
+            "inferential recipe"
+        )
     if (plan_content_sha256 is not None
             and verdict.get("plan_content_sha256") != plan_content_sha256):
         raise SystemExit("pilot verdict belongs to a different plan")
