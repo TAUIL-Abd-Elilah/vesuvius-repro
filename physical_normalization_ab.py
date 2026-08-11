@@ -29,6 +29,7 @@ import numpy as np
 
 
 PROTOCOL_VERSION = 2
+IMPLEMENTATION_REVISION = 2
 MANIFEST_STATUS = "preregistered_no_real_arm_scores_protocol_v2"
 SELECTION_SEED = "vesuvius-physical-normalization-ab-v1-2026-08-11"
 BOOTSTRAP_SEED = 20260811
@@ -403,6 +404,8 @@ def build_manifest(repo: Path, labels_root: Path, model_dir: Path) -> dict[str, 
         "test_physical_normalization_ab.py",
         "PHYSICAL_NORMALIZATION_AB_PREREG.md",
         "PHYSICAL_NORMALIZATION_AB_AMENDMENT_01.md",
+        "PHYSICAL_NORMALIZATION_AB_AMENDMENT_02.md",
+        "results/physical_normalization_ab/sentinel_failure_01.json",
         "results/physical_normalization_ab/truth_power_audit.json",
         "requirements.txt",
     ):
@@ -427,6 +430,7 @@ def build_manifest(repo: Path, labels_root: Path, model_dir: Path) -> dict[str, 
     manifest = {
         "schema_version": 1,
         "protocol_version": PROTOCOL_VERSION,
+        "implementation_revision": IMPLEMENTATION_REVISION,
         "status": MANIFEST_STATUS,
         "question": (
             "Does villa PR #1386 plans-driven CT normalization improve public m7 against "
@@ -1021,6 +1025,8 @@ def score_command(args: argparse.Namespace) -> None:
         raise SystemExit(f"manifest content hash mismatch: {recorded} != {actual}")
     if manifest.get("protocol_version") != PROTOCOL_VERSION:
         raise SystemExit("unsupported protocol version")
+    if manifest.get("implementation_revision") != IMPLEMENTATION_REVISION:
+        raise SystemExit("unsupported implementation revision")
     if manifest.get("status") != MANIFEST_STATUS:
         raise SystemExit("manifest is not the frozen v2 preregistration")
     verify_manifest_implementation(manifest)

@@ -32,6 +32,29 @@ NORMALIZATION_LOG_TOKEN = (
     "Using model-declared normalization 'ct' instead of CLI value 'instance_zscore'."
 )
 
+# The frozen pre-fix villa commit predates villa's Zarr-3 writer repair. Under the current
+# declared dependency range (zarr<4), reproduce Zarr-2 writer semantics without editing either
+# villa worktree: restore the former Blosc re-export and explicitly select format 2 whenever a
+# v2 numcodecs compressor is supplied. This is a no-op under Zarr 2 and is applied identically
+# to inference and blending for both model arms.
+ZARR2_COMPAT_SHIM = (
+    "import numcodecs,zarr\n"
+    "if not hasattr(zarr,'Blosc'): zarr.Blosc=numcodecs.Blosc\n"
+    "_physical_ab_zarr_open=zarr.open\n"
+    "def _physical_ab_zarr_open_v2(*args,**kwargs):\n"
+    "    if kwargs.get('compressor') is not None and 'zarr_format' not in kwargs:\n"
+    "        kwargs['zarr_format']=2\n"
+    "    return _physical_ab_zarr_open(*args,**kwargs)\n"
+    "zarr.open=_physical_ab_zarr_open_v2\n"
+)
+MODULE_BOOTSTRAP = ZARR2_COMPAT_SHIM + (
+    "import runpy,sys\n"
+    "_physical_ab_module=sys.argv[1]\n"
+    "sys.argv=sys.argv[1:]\n"
+    "runpy.run_module(_physical_ab_module,run_name='__main__')\n"
+)
+ZARR2_COMPAT_SHA256 = P.sha256_bytes(ZARR2_COMPAT_SHIM.encode("utf-8"))
+
 
 def utc_now() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
@@ -75,6 +98,11 @@ def load_and_verify_manifest(path: Path) -> dict[str, Any]:
         raise SystemExit(f"manifest content SHA mismatch: {recorded} != {actual}")
     if manifest.get("status") != P.MANIFEST_STATUS:
         raise SystemExit(f"manifest status is not preregistered: {manifest.get('status')}")
+    if manifest.get("implementation_revision") != P.IMPLEMENTATION_REVISION:
+        raise SystemExit(
+            "manifest implementation revision is not current: "
+            f"{manifest.get('implementation_revision')}"
+        )
     if len(manifest.get("blocks", [])) != 64:
         raise SystemExit(f"manifest must freeze 64 blocks, got {len(manifest.get('blocks', []))}")
     return manifest
@@ -314,10 +342,7 @@ def infer_probability_extent(
     """Run one ROI and return max-pooled L1 probabilities plus provenance."""
 
     logits = work / "logits"
-    command = [
-        str(Path(args.python).resolve()),
-        "-m",
-        "vesuvius.models.run.inference",
+    module_args = [
         "--model_path",
         str(Path(args.model_dir).resolve()),
         "--input_dir",
@@ -341,11 +366,23 @@ def infer_probability_extent(
         ),
     ]
     if normalization_override is not None:
-        command.extend(["--normalization", normalization_override])
+        module_args.extend(["--normalization", normalization_override])
+    command = [
+        str(Path(args.python).resolve()),
+        "-c",
+        MODULE_BOOTSTRAP,
+        "vesuvius.models.run.inference",
+        *module_args,
+    ]
     evidence: dict[str, Any] = {
         "predict_command": command,
+        "predict_module_args": module_args,
         "required_normalization_log_token": required_log_token,
         "normalization_override": normalization_override,
+        "zarr2_compatibility": {
+            "shim_sha256": ZARR2_COMPAT_SHA256,
+            "applied_to": ["inference", "blending"],
+        },
     }
     if args.dry_run:
         print(command_text(command))
@@ -376,11 +413,14 @@ def infer_probability_extent(
         raise RuntimeError("predict wrote no logits directory")
 
     merged = work / "merged.zarr"
-    blend_code = (
-        "import sys; from vesuvius.models.run import blending; "
-        f"sys.argv=['blending',r'{logits}',r'{merged}']; blending.main()"
-    )
-    blend_command = [str(Path(args.python).resolve()), "-c", blend_code]
+    blend_command = [
+        str(Path(args.python).resolve()),
+        "-c",
+        MODULE_BOOTSTRAP,
+        "vesuvius.models.run.blending",
+        str(logits),
+        str(merged),
+    ]
     blend = run_text(blend_command, villa_root, env)
     blend_stdout = work / "blend.stdout.log"
     blend_stderr = work / "blend.stderr.log"

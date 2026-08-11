@@ -1,9 +1,11 @@
 # Physical normalization A/B: preregistered protocol
 
-Status: publicly frozen protocol v2; no real model arm has been scored against either
-physical label volume. Protocol v1 was superseded before inference after the truth-only power
-audit documented in `PHYSICAL_NORMALIZATION_AB_AMENDMENT_01.md`. All 64 coordinates are
-unchanged.
+Status: publicly frozen protocol v2, implementation r2; no real model arm has been scored
+against either physical label volume. Protocol v1 was superseded before inference after the
+truth-only power audit documented in `PHYSICAL_NORMALIZATION_AB_AMENDMENT_01.md`. All 64
+coordinates are unchanged. The initial v2 runner was superseded after a pre-prediction Zarr
+compatibility failure documented in `PHYSICAL_NORMALIZATION_AB_AMENDMENT_02.md`; this changed
+runtime store creation only, not the statistical protocol.
 
 ## Question
 
@@ -179,3 +181,8 @@ python physical_normalization_ab.py figures ...
 
 The public freeze commit, implementation-file hashes, environment versions, commands,
 stdout/stderr hashes, elapsed times, and every generated array hash are included in receipts.
+
+Both arms run under one frozen Zarr compatibility bootstrap. Under Zarr 3 it restores the
+former `zarr.Blosc -> numcodecs.Blosc` alias and requests Zarr format 2 whenever the legacy
+writer supplies a v2 compressor. Under Zarr 2 those operations preserve native behavior. The
+bootstrap is applied to inference and blending and its SHA-256 is recorded in every receipt.

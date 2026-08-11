@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import json
+import os
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -198,6 +200,25 @@ class PhysicalNormalizationABTests(unittest.TestCase):
         changed = b'{\r\n "value": 2\r\n}\r\n'
         self.assertEqual(R.normalized_text_bytes(committed), R.normalized_text_bytes(checkout))
         self.assertNotEqual(R.normalized_text_bytes(committed), R.normalized_text_bytes(changed))
+
+    def test_zarr3_runtime_shim_writes_the_required_v2_store(self) -> None:
+        probe = R.ZARR2_COMPAT_SHIM + (
+            "import sys\n"
+            "a=zarr.open(sys.argv[1],mode='w',shape=(2,),chunks=(2,),dtype='f4',"
+            "compressor=zarr.Blosc(cname='zstd',clevel=1,shuffle=zarr.Blosc.SHUFFLE))\n"
+            "a[:]=[1,2]\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "probe.zarr"
+            result = R.run_text(
+                [sys.executable, "-c", probe, str(path)],
+                Path.cwd(),
+                os.environ.copy(),
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            metadata = json.loads((path / ".zarray").read_text(encoding="utf-8"))
+            self.assertEqual(metadata["zarr_format"], 2)
+            self.assertEqual(metadata["compressor"]["id"], "blosc")
 
     def test_candidate_selection_is_hash_ordered_per_stratum(self) -> None:
         candidates = []
