@@ -66,7 +66,6 @@ def main() -> None:
 
         import torch
         from torch.optim.lr_scheduler import CosineAnnealingLR
-        from nnunetv2.run.load_pretrained_weights import load_pretrained_weights
         from nnunetv2.training.nnUNetTrainer.nnUNetTrainer import nnUNetTrainer
 
         if not torch.cuda.is_available():
@@ -131,7 +130,12 @@ def main() -> None:
         trainer_hyperparameters = R.coerce_locked_training_hyperparameters(trainer)
         trainer.initialize()
         checkpoint = model_dir / "fold_0" / "checkpoint_best.pth"
-        load_pretrained_weights(trainer.network, str(checkpoint), verbose=True)
+        checkpoint_load = R.load_frozen_pretrained_weights(
+            trainer.network,
+            checkpoint,
+            plan["inputs"]["model"]["fold_0/checkpoint_best.pth"],
+            verbose=True,
+        )
 
         patch = tuple(int(v) for v in trainer.configuration_manager.patch_size)
         if patch != (192, 192, 192) or trainer.batch_size != 1:
@@ -177,6 +181,7 @@ def main() -> None:
             "implementation_commit": lock["implementation"]["commit"],
             "smoke_script": R.file_record(Path(__file__).resolve()),
             "model_checkpoint": R.file_record(checkpoint),
+            "checkpoint_load": checkpoint_load,
             "gpu": torch.cuda.get_device_name(0),
             "gpu_total_bytes": int(total),
             "gpu_free_before_bytes": int(free_before),

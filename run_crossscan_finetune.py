@@ -46,6 +46,8 @@ LOCKED_IMPLEMENTATION_FILES = (
     "CROSSSCAN_FINETUNE_AMENDMENT_01.md",
     "CROSSSCAN_FINETUNE_AMENDMENT_02.md",
     "CROSSSCAN_FINETUNE_AMENDMENT_03.md",
+    "CROSSSCAN_FINETUNE_AMENDMENT_04.md",
+    "CROSSSCAN_FINETUNE_AMENDMENT_05.md",
     "CROSSSCAN_FINETUNE_PREREG.md",
     "CROSSSCAN_FINETUNE_RUNBOOK.md",
     "crossscan_training_memory_smoke.py",
@@ -57,8 +59,15 @@ LOCKED_IMPLEMENTATION_FILES = (
     "test_run_crossscan_finetune.py",
     "test_score_crossscan_finetune.py",
     "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining.json",
+    "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining-v2.json",
+    "results/crossscan_finetune/execution_lock.withdrawn-20260811-release-attributes.json",
     "results/crossscan_finetune/preprocess_smoke.json",
     "results/crossscan_finetune/plan.json",
+)
+
+TRUSTED_CHECKPOINT_STATIC_UNSAFE_GLOBALS = (
+    "numpy._core.multiarray.scalar",
+    "numpy.dtype",
 )
 
 
@@ -89,6 +98,66 @@ def coerce_locked_training_hyperparameters(trainer: Any) -> dict[str, float]:
         setattr(trainer, name, value)
         normalized[name] = value
     return normalized
+
+
+def trusted_checkpoint_safe_types() -> tuple[type, ...]:
+    """Return the narrow allowlist required by the frozen released checkpoint."""
+    return (
+        np.dtype,
+        np._core.multiarray.scalar,
+        type(np.dtype(np.float32)),
+        type(np.dtype(np.float64)),
+        type(np.dtype(np.int64)),
+    )
+
+
+def trusted_checkpoint_load_record(expected: dict[str, Any]) -> dict[str, Any]:
+    safe_types = trusted_checkpoint_safe_types()
+    return {
+        "mode": "torch-default-weights-only-with-safe-globals",
+        "static_unsafe_globals": list(TRUSTED_CHECKPOINT_STATIC_UNSAFE_GLOBALS),
+        "allowlisted_types": [f"{value.__module__}.{value.__name__}" for value in safe_types],
+        "checkpoint": {
+            "bytes": int(expected["bytes"]),
+            "sha256": str(expected["sha256"]),
+        },
+    }
+
+
+def load_frozen_pretrained_weights(
+    network: Any,
+    checkpoint: Path,
+    expected: dict[str, Any],
+    *,
+    verbose: bool = False,
+) -> dict[str, Any]:
+    """Hash-bind and narrowly allowlist the trusted released nnU-Net checkpoint.
+
+    Villa's pinned loader calls ``torch.load`` without a ``weights_only`` argument.
+    The locked PyTorch runtime therefore uses its restricted default. The checkpoint
+    contains two statically discoverable NumPy globals and three constructed dtype
+    classes; no other pickle global is accepted.
+    """
+    expected_file = {
+        "bytes": int(expected["bytes"]),
+        "sha256": str(expected["sha256"]),
+    }
+    actual = file_record(checkpoint)
+    if actual != expected_file:
+        raise ValueError(f"frozen checkpoint identity mismatch: {actual} != {expected_file}")
+
+    import torch
+    from nnunetv2.run.load_pretrained_weights import load_pretrained_weights
+
+    unsafe = tuple(sorted(torch.serialization.get_unsafe_globals_in_checkpoint(checkpoint)))
+    if unsafe != TRUSTED_CHECKPOINT_STATIC_UNSAFE_GLOBALS:
+        raise ValueError(
+            "frozen checkpoint unsafe globals changed: "
+            f"{unsafe} != {TRUSTED_CHECKPOINT_STATIC_UNSAFE_GLOBALS}"
+        )
+    with torch.serialization.safe_globals(trusted_checkpoint_safe_types()):
+        load_pretrained_weights(network, str(checkpoint), verbose=verbose)
+    return trusted_checkpoint_load_record(expected)
 
 
 def utc_now() -> str:
@@ -1152,6 +1221,9 @@ def load_training_receipt(
         "initial_checkpoint_sha256": plan["inputs"]["model"][
             "fold_0/checkpoint_best.pth"
         ]["sha256"],
+        "initial_checkpoint_load": trusted_checkpoint_load_record(
+            plan["inputs"]["model"]["fold_0/checkpoint_best.pth"]
+        ),
     }
     mismatches = [key for key, value in expected.items() if receipt.get(key) != value]
     if mismatches:
@@ -1223,7 +1295,6 @@ def train_model(
     set_deterministic_seed(seed)
     import torch
     from torch.optim.lr_scheduler import CosineAnnealingLR
-    from nnunetv2.run.load_pretrained_weights import load_pretrained_weights
     from nnunetv2.training.nnUNetTrainer.nnUNetTrainer import nnUNetTrainer
 
     class CrossScanPhysicalTrainer(nnUNetTrainer):
@@ -1285,8 +1356,11 @@ def train_model(
     )
     trainer_hyperparameters = coerce_locked_training_hyperparameters(trainer)
     trainer.initialize()
-    load_pretrained_weights(
-        trainer.network, str(model_dir / "fold_0" / "checkpoint_best.pth"), verbose=True
+    initial_checkpoint_load = load_frozen_pretrained_weights(
+        trainer.network,
+        model_dir / "fold_0" / "checkpoint_best.pth",
+        plan["inputs"]["model"]["fold_0/checkpoint_best.pth"],
+        verbose=True,
     )
     started = utc_now()
     trainer.run_training()
@@ -1322,6 +1396,7 @@ def train_model(
             **file_record(checkpoint),
         },
         "initial_checkpoint_sha256": plan["inputs"]["model"]["fold_0/checkpoint_best.pth"]["sha256"],
+        "initial_checkpoint_load": initial_checkpoint_load,
         "python": sys.version,
         "platform": platform.platform(),
         "torch": torch.__version__,
