@@ -79,6 +79,32 @@ class ArrayTests(unittest.TestCase):
 
 
 class FilesAndConfigurationTests(unittest.TestCase):
+    def test_dataset_fingerprint_validation_is_case_bound(self) -> None:
+        fingerprint = {
+            "spacings": [[1.0, 1.0, 1.0]],
+            "shapes_after_crop": [[192, 192, 192]],
+            "median_relative_size_after_cropping": 1.0,
+            "foreground_intensity_properties_per_channel": {
+                "0": {
+                    "mean": 100.0,
+                    "median": 101.0,
+                    "std": 20.0,
+                    "min": 1.0,
+                    "max": 255.0,
+                    "percentile_99_5": 250.0,
+                    "percentile_00_5": 2.0,
+                },
+            },
+        }
+        summary = R.validate_dataset_fingerprint(fingerprint, 1)
+        self.assertEqual(summary["case_count"], 1)
+        self.assertEqual(summary["unique_shapes_after_crop"], [[192, 192, 192]])
+        with self.assertRaisesRegex(ValueError, "case count mismatch"):
+            R.validate_dataset_fingerprint(fingerprint, 2)
+        fingerprint["spacings"][0][0] = 0.0
+        with self.assertRaisesRegex(ValueError, "positive finite"):
+            R.validate_dataset_fingerprint(fingerprint, 1)
+
     def test_one_case_training_materialization_round_trip(self) -> None:
         import tifffile
         import zarr
@@ -249,23 +275,28 @@ class FilesAndConfigurationTests(unittest.TestCase):
             }
             lock = {"content_sha256": "lock"}
             receipt = R._with_content_hash({
-                "schema_version": "crossscan-preprocessing-v1",
+                "schema_version": "crossscan-preprocessing-v2",
                 "status": "PASS",
                 "plan_content_sha256": "plan",
                 "execution_lock_content_sha256": "lock",
                 "dataset_name": R.DATASET_NAME,
                 "configuration": R.CONFIGURATION,
                 "case_count": 0,
+                "fingerprint_receipt_content_sha256": "fingerprint-receipt",
                 "files": R.preprocessed_file_records(root),
             })
             C.write_json(root / "preprocessing_receipt.json", receipt)
-            self.assertEqual(
-                R.verify_preprocessed(plan, lock, root)["content_sha256"],
-                receipt["content_sha256"],
-            )
-            artifact.write_bytes(b"changed")
-            with self.assertRaisesRegex(ValueError, "differ from receipt"):
-                R.verify_preprocessed(plan, lock, root)
+            with mock.patch.object(
+                R, "verify_dataset_fingerprint",
+                return_value={"content_sha256": "fingerprint-receipt"},
+            ):
+                self.assertEqual(
+                    R.verify_preprocessed(plan, lock, root)["content_sha256"],
+                    receipt["content_sha256"],
+                )
+                artifact.write_bytes(b"changed")
+                with self.assertRaisesRegex(ValueError, "differ from receipt"):
+                    R.verify_preprocessed(plan, lock, root)
 
     def test_training_receipt_uses_locked_relative_checkpoint(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

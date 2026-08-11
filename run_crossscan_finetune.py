@@ -33,16 +33,24 @@ CONFIGURATION = "3d_fullres"
 ITERATIONS_PER_EPOCH = 40
 VALIDATION_ITERATIONS_PER_EPOCH = 10
 TRAINER_NAME = "CrossScanPhysicalTrainer"
+FINGERPRINT_FOREGROUND_VOXEL_BUDGET = 100_000_000
+FINGERPRINT_EXTRACTOR = (
+    "nnunetv2.experiment_planning.dataset_fingerprint.fingerprint_extractor."
+    "DatasetFingerprintExtractor"
+)
 LOCKED_IMPLEMENTATION_FILES = (
     "CROSSSCAN_FINETUNE_AMENDMENT_01.md",
+    "CROSSSCAN_FINETUNE_AMENDMENT_02.md",
     "CROSSSCAN_FINETUNE_PREREG.md",
     "CROSSSCAN_FINETUNE_RUNBOOK.md",
+    "crossscan_preprocess_smoke.py",
     "crossscan_finetune.py",
     "run_crossscan_finetune.py",
     "score_crossscan_finetune.py",
     "test_crossscan_finetune.py",
     "test_run_crossscan_finetune.py",
     "test_score_crossscan_finetune.py",
+    "results/crossscan_finetune/preprocess_smoke.json",
     "results/crossscan_finetune/plan.json",
 )
 
@@ -677,6 +685,231 @@ def verify_materialized_training(
         raise RuntimeError("training materialization invalid:\n- " + "\n- ".join(errors))
 
 
+def training_receipts_content_sha256(plan: dict[str, Any], data_root: Path) -> str:
+    receipts = data_root / "materialization" / "training_receipts"
+    records = []
+    for case in training_cases(plan):
+        receipt = load_content_hashed(receipts / f"{case['case_id']}.json", "PASS")
+        records.append({
+            "case_id": case["case_id"],
+            "content_sha256": receipt["content_sha256"],
+        })
+    return C.sha256_bytes(C.canonical_json(records).encode("ascii"))
+
+
+def validate_dataset_fingerprint(
+    fingerprint: dict[str, Any], case_count: int,
+) -> dict[str, Any]:
+    if case_count < 1:
+        raise ValueError("fingerprint requires at least one training case")
+    required = {
+        "spacings",
+        "shapes_after_crop",
+        "foreground_intensity_properties_per_channel",
+        "median_relative_size_after_cropping",
+    }
+    missing = sorted(required - set(fingerprint))
+    if missing:
+        raise ValueError(f"dataset fingerprint missing keys: {missing}")
+    spacings = fingerprint["spacings"]
+    shapes = fingerprint["shapes_after_crop"]
+    if len(spacings) != case_count or len(shapes) != case_count:
+        raise ValueError(
+            "dataset fingerprint case count mismatch: "
+            f"spacings={len(spacings)}, shapes={len(shapes)}, expected={case_count}"
+        )
+    for name, values, require_integer in (
+        ("spacing", spacings, False),
+        ("shape", shapes, True),
+    ):
+        for index, triplet in enumerate(values):
+            if not isinstance(triplet, (list, tuple)) or len(triplet) != 3:
+                raise ValueError(f"fingerprint {name} {index} is not a triplet")
+            for value in triplet:
+                if isinstance(value, bool) or not isinstance(value, (int, float)):
+                    raise ValueError(f"fingerprint {name} {index} is nonnumeric")
+                number = float(value)
+                if not np.isfinite(number) or number <= 0:
+                    raise ValueError(f"fingerprint {name} {index} is not positive finite")
+                if require_integer and number != int(number):
+                    raise ValueError(f"fingerprint shape {index} is not integral")
+    relative = fingerprint["median_relative_size_after_cropping"]
+    if (isinstance(relative, bool) or not isinstance(relative, (int, float))
+            or not np.isfinite(float(relative)) or not 0 < float(relative) <= 1):
+        raise ValueError("invalid median_relative_size_after_cropping")
+    properties = fingerprint["foreground_intensity_properties_per_channel"]
+    if not isinstance(properties, dict):
+        raise ValueError("fingerprint intensity properties are not a mapping")
+    channel = properties.get("0", properties.get(0))
+    if not isinstance(channel, dict):
+        raise ValueError("fingerprint is missing CT channel 0 statistics")
+    statistic_names = (
+        "mean", "median", "std", "min", "max",
+        "percentile_99_5", "percentile_00_5",
+    )
+    for name in statistic_names:
+        value = channel.get(name)
+        if (isinstance(value, bool) or not isinstance(value, (int, float))
+                or not np.isfinite(float(value))):
+            raise ValueError(f"invalid fingerprint CT statistic: {name}")
+    if float(channel["std"]) < 0 or float(channel["min"]) > float(channel["max"]):
+        raise ValueError("inconsistent fingerprint CT statistics")
+    unique_shapes = sorted({tuple(int(v) for v in shape) for shape in shapes})
+    unique_spacings = sorted({tuple(float(v) for v in spacing) for spacing in spacings})
+    return {
+        "case_count": case_count,
+        "median_relative_size_after_cropping": float(relative),
+        "unique_shapes_after_crop": [list(v) for v in unique_shapes],
+        "unique_spacings": [list(v) for v in unique_spacings],
+    }
+
+
+def fingerprint_artifact_paths(data_root: Path) -> tuple[Path, Path, Path]:
+    base = data_root / "nnUNet_preprocessed" / DATASET_NAME
+    return (
+        base / "dataset_fingerprint.json",
+        base / "fingerprint_generation_intent.json",
+        base / "fingerprint_generation_receipt.json",
+    )
+
+
+def fingerprint_intent_fields(
+    plan: dict[str, Any], lock: dict[str, Any], data_root: Path,
+    num_processes: int,
+) -> dict[str, Any]:
+    case_count = len(training_cases(plan))
+    if case_count < 1:
+        raise ValueError("cannot fingerprint an empty training dataset")
+    return {
+        "schema_version": "crossscan-fingerprint-intent-v1",
+        "status": "LOCKED",
+        "plan_content_sha256": plan["content_sha256"],
+        "execution_lock_content_sha256": lock["content_sha256"],
+        "dataset_name": DATASET_NAME,
+        "case_count": case_count,
+        "extractor": FINGERPRINT_EXTRACTOR,
+        "extractor_seed_per_case": 1234,
+        "foreground_voxel_budget": FINGERPRINT_FOREGROUND_VOXEL_BUDGET,
+        "foreground_samples_per_case": (
+            FINGERPRINT_FOREGROUND_VOXEL_BUDGET // case_count
+        ),
+        "num_processes": num_processes,
+        "training_receipts_content_sha256": training_receipts_content_sha256(
+            plan, data_root
+        ),
+        "plans_policy": (
+            "generate the standard fingerprint for dataset provenance; retain the "
+            "frozen pretrained m7 plans without replanning"
+        ),
+    }
+
+
+def verify_dataset_fingerprint(
+    plan: dict[str, Any], lock: dict[str, Any], data_root: Path,
+) -> dict[str, Any]:
+    fingerprint_path, intent_path, receipt_path = fingerprint_artifact_paths(data_root)
+    for path in (fingerprint_path, intent_path, receipt_path):
+        if not path.is_file():
+            raise FileNotFoundError(f"missing fingerprint artifact: {path}")
+    intent = load_content_hashed(intent_path, "LOCKED")
+    num_processes = intent.get("num_processes")
+    if isinstance(num_processes, bool) or not isinstance(num_processes, int) or num_processes < 1:
+        raise ValueError("fingerprint intent has invalid num_processes")
+    expected_intent = fingerprint_intent_fields(
+        plan, lock, data_root, num_processes
+    )
+    mismatches = [
+        key for key, value in expected_intent.items() if intent.get(key) != value
+    ]
+    if mismatches:
+        raise ValueError(f"fingerprint intent mismatch: {mismatches}")
+    fingerprint = C.load_json(fingerprint_path)
+    summary = validate_dataset_fingerprint(fingerprint, len(training_cases(plan)))
+    receipt = load_content_hashed(receipt_path, "PASS")
+    expected_receipt = {
+        "schema_version": "crossscan-fingerprint-receipt-v1",
+        "plan_content_sha256": plan["content_sha256"],
+        "execution_lock_content_sha256": lock["content_sha256"],
+        "dataset_name": DATASET_NAME,
+        "case_count": len(training_cases(plan)),
+        "intent_content_sha256": intent["content_sha256"],
+        "training_receipts_content_sha256": intent[
+            "training_receipts_content_sha256"
+        ],
+        "fingerprint_summary": summary,
+    }
+    mismatches = [
+        key for key, value in expected_receipt.items() if receipt.get(key) != value
+    ]
+    if mismatches:
+        raise ValueError(f"fingerprint receipt mismatch: {mismatches}")
+    if receipt.get("fingerprint_file") != file_record(fingerprint_path):
+        raise ValueError("dataset fingerprint file differs from its receipt")
+    return receipt
+
+
+def generate_dataset_fingerprint(
+    plan: dict[str, Any], lock: dict[str, Any], data_root: Path,
+    num_processes: int,
+) -> dict[str, Any]:
+    if num_processes < 1:
+        raise ValueError("num_processes must be positive")
+    fingerprint_path, intent_path, receipt_path = fingerprint_artifact_paths(data_root)
+    if receipt_path.is_file():
+        return verify_dataset_fingerprint(plan, lock, data_root)
+    if fingerprint_path.is_file() and not intent_path.is_file():
+        raise RuntimeError(
+            "unreceipted dataset fingerprint exists without a generation intent"
+        )
+    expected_intent = fingerprint_intent_fields(
+        plan, lock, data_root, num_processes
+    )
+    if intent_path.is_file():
+        intent = load_content_hashed(intent_path, "LOCKED")
+        mismatches = [
+            key for key, value in expected_intent.items() if intent.get(key) != value
+        ]
+        if mismatches:
+            raise ValueError(f"fingerprint generation intent mismatch: {mismatches}")
+    else:
+        intent = _with_content_hash({
+            **expected_intent,
+            "created_utc": utc_now(),
+            "command": [sys.executable, *sys.argv],
+        })
+        atomic_write_json(intent_path, intent)
+    from nnunetv2.experiment_planning.dataset_fingerprint.fingerprint_extractor import (
+        DatasetFingerprintExtractor,
+    )
+    extractor = DatasetFingerprintExtractor(
+        DATASET_ID, num_processes=num_processes, verbose=False
+    )
+    extractor.num_foreground_voxels_for_intensitystats = (
+        FINGERPRINT_FOREGROUND_VOXEL_BUDGET
+    )
+    extractor.run(overwrite_existing=True)
+    summary = validate_dataset_fingerprint(
+        C.load_json(fingerprint_path), len(training_cases(plan))
+    )
+    receipt = _with_content_hash({
+        "schema_version": "crossscan-fingerprint-receipt-v1",
+        "status": "PASS",
+        "created_utc": utc_now(),
+        "plan_content_sha256": plan["content_sha256"],
+        "execution_lock_content_sha256": lock["content_sha256"],
+        "dataset_name": DATASET_NAME,
+        "case_count": len(training_cases(plan)),
+        "intent_content_sha256": intent["content_sha256"],
+        "training_receipts_content_sha256": intent[
+            "training_receipts_content_sha256"
+        ],
+        "fingerprint_summary": summary,
+        "fingerprint_file": file_record(fingerprint_path),
+    })
+    atomic_write_json(receipt_path, receipt)
+    return verify_dataset_fingerprint(plan, lock, data_root)
+
+
 def preprocessed_dataset_folder(data_root: Path) -> Path:
     base = data_root / "nnUNet_preprocessed" / DATASET_NAME
     plans = C.load_json(base / f"{PLANS_IDENTIFIER}.json")
@@ -698,14 +931,18 @@ def verify_preprocessed(
     receipt_path = data_root / "preprocessing_receipt.json"
     if not receipt_path.is_file():
         raise FileNotFoundError(f"missing preprocessing receipt: {receipt_path}")
+    fingerprint_receipt = verify_dataset_fingerprint(plan, lock, data_root)
     receipt = load_content_hashed(receipt_path, "PASS")
     expected = {
-        "schema_version": "crossscan-preprocessing-v1",
+        "schema_version": "crossscan-preprocessing-v2",
         "plan_content_sha256": plan["content_sha256"],
         "execution_lock_content_sha256": lock["content_sha256"],
         "dataset_name": DATASET_NAME,
         "configuration": CONFIGURATION,
         "case_count": len(training_cases(plan)),
+        "fingerprint_receipt_content_sha256": fingerprint_receipt[
+            "content_sha256"
+        ],
     }
     mismatches = [key for key, value in expected.items() if receipt.get(key) != value]
     if mismatches:
@@ -736,6 +973,9 @@ def preprocess_dataset(plan: dict[str, Any], lock: dict[str, Any], data_root: Pa
     os.environ["nnUNet_raw"] = str(data_root / "nnUNet_raw")
     os.environ["nnUNet_preprocessed"] = str(data_root / "nnUNet_preprocessed")
     os.environ["nnUNet_results"] = str(data_root / "nnUNet_results_unused")
+    fingerprint_receipt = generate_dataset_fingerprint(
+        plan, lock, data_root, num_processes
+    )
     from nnunetv2.experiment_planning.plan_and_preprocess_api import preprocess_dataset as run
     run(
         DATASET_ID,
@@ -754,7 +994,7 @@ def preprocess_dataset(plan: dict[str, Any], lock: dict[str, Any], data_root: Pa
     if missing:
         raise RuntimeError(f"preprocessing missing {len(missing)} cases, first={missing[:5]}")
     receipt = {
-        "schema_version": "crossscan-preprocessing-v1",
+        "schema_version": "crossscan-preprocessing-v2",
         "status": "PASS",
         "created_utc": utc_now(),
         "plan_content_sha256": plan["content_sha256"],
@@ -762,6 +1002,9 @@ def preprocess_dataset(plan: dict[str, Any], lock: dict[str, Any], data_root: Pa
         "dataset_name": DATASET_NAME,
         "configuration": CONFIGURATION,
         "case_count": len(cases),
+        "fingerprint_receipt_content_sha256": fingerprint_receipt[
+            "content_sha256"
+        ],
         "output_folder": relative_data_path(data_root, folder),
         "files": preprocessed_file_records(data_root),
     }

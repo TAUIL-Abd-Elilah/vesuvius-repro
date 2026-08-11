@@ -31,6 +31,15 @@ Run all offline tests and verify every local model/label/source hash:
 & $python crossscan_finetune.py verify results/crossscan_finetune/plan.json --labels-root $labels --source-manifest results/physical_normalization_ab/manifest.json --model-dir $model
 ```
 
+The execution lock includes `results/crossscan_finetune/preprocess_smoke.json`, produced by a
+real one-case run of villa's fingerprint extractor and default preprocessor with the released m7
+plans. To reproduce that integration check without overwriting the public receipt:
+
+```powershell
+$smoke = Join-Path ([IO.Path]::GetTempPath()) ("crossscan-smoke-" + [guid]::NewGuid() + ".json")
+& $python crossscan_preprocess_smoke.py --villa-root $villa --model-dir $model --out $smoke
+```
+
 The maintainer creates the execution lock only after its implementation commit is public. Once
 results/crossscan_finetune/execution_lock.json is committed, every command below verifies it.
 
@@ -45,8 +54,11 @@ This reads the fixed public CT boxes and local released labels. It creates 288 n
 ```
 
 Both stages are resumable by content-hashed per-case receipts. A mismatching partial case is an
-error, not silently overwritten. Preprocessing hashes its complete case dataset; every training
-run verifies that receipt before loading a batch.
+error, not silently overwritten. Before preprocessing, the runtime creates the standard nnU-Net
+fingerprint from all 288 cases with the fixed 100,000,000-voxel sampling budget. Its intent and
+receipt bind the training receipts, while the released m7 plans remain frozen (no replanning).
+Preprocessing hashes its complete case dataset; every training run verifies the fingerprint and
+preprocessing chain before loading a batch.
 
 ## 3. Run the pilot only
 
