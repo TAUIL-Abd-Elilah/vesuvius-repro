@@ -20,8 +20,9 @@ it needs comes from `catalog.json`, so it works for any scroll with a published 
 > **Next core-model experiment:** the
 > [cross-scan physical-truth fine-tuning design](CROSSSCAN_FINETUNE_PREREG.md) uses the new
 > model-independent PHerc1203 recto labels, complementary z-stratum cross-fitting, six
-> inferential seeds, and untouched PHerc0139 safety evaluation. The outcome-blind planner
-> and tests are public; no pilot or fine-tuned prediction exists at this design stage.
+> inferential seeds, and untouched PHerc0139 safety evaluation. The outcome-blind plan,
+> tested execution runtime, scorer, and [runbook](CROSSSCAN_FINETUNE_RUNBOOK.md) are public;
+> no pilot or fine-tuned prediction exists at this implementation stage.
 
 ## Try it in 30 seconds (no GPU, no downloads)
 
