@@ -1,6 +1,6 @@
 {
-  "content_sha256": "f2006d6e435c50aaaf6b3b63e2654e90d0c9c71e714c52d1b8f367ae2b8cb8bd",
-  "created_utc": "2026-08-11T19:05:41.141645+00:00",
+  "content_sha256": "65549866725f03ea74647a1f23248d70888ccec90ebaba3211ec39857fb5ae5e",
+  "created_utc": "2026-08-11T19:59:44.561155+00:00",
   "environment": {
     "blosc2": "4.9.1",
     "nnunetv2_module": "nnunetv2/__init__.py",
@@ -15,8 +15,12 @@
   },
   "implementation": {
     "branch": "physical-crossscan-finetune",
-    "commit": "9ac72b77fb33ac047832b1be773f67ee79bcb0d6",
+    "commit": "92c2d79795779a01b2df524de9ae85277910d698",
     "files": {
+      ".gitattributes": {
+        "bytes": 1111,
+        "sha256": "d9d66be374c235ad8db6b590cd14b08c1ad7c4af49dcad4d2ce13f57b2d0fca8"
+      },
       "CROSSSCAN_FINETUNE_AMENDMENT_01.md": {
         "bytes": 4896,
         "sha256": "d31c227155cda84f6bd1b92ebe8f136d7e0d6f4d64543c24478492713cd3f9a2"
@@ -28,6 +32,10 @@
       "CROSSSCAN_FINETUNE_AMENDMENT_03.md": {
         "bytes": 2876,
         "sha256": "ad860d9283944be9645cc3f0cb1010cbda769c76ffdc56d8eb7569c832a1ddfc"
+      },
+      "CROSSSCAN_FINETUNE_AMENDMENT_04.md": {
+        "bytes": 3033,
+        "sha256": "00c949b04011f19b714b3b28d3e3227dc59162bd9f28091d14a5bda230a91961"
       },
       "CROSSSCAN_FINETUNE_PREREG.md": {
         "bytes": 9239,
@@ -46,8 +54,12 @@
         "sha256": "70429d3c8cd8059655ad6e042ba4e5b1572b08c4daad3adeee554db00d4160ba"
       },
       "crossscan_training_memory_smoke.py": {
-        "bytes": 8668,
-        "sha256": "f3ada6cffeea6cc1cf669091336d8fff25987738d18e019be99ff381ee0db2ba"
+        "bytes": 8771,
+        "sha256": "fb5192495f2df103706fa1f2e3ed5cb8b3d15ad82df3f04c3b50e85597b75ab7"
+      },
+      "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining-v2.json": {
+        "bytes": 5709,
+        "sha256": "df32646a83cc45b1e9c3722253ac0703b109b98636c4737cc827a062299ede84"
       },
       "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining.json": {
         "bytes": 5153,
@@ -62,8 +74,8 @@
         "sha256": "73f7db990e147e4d6963ab60e0dc8dfc44dae40750e00e6c271c7516a4760117"
       },
       "run_crossscan_finetune.py": {
-        "bytes": 71037,
-        "sha256": "326b02b9c9194152ac49f742eec4d0707931357876a3f0d850ebd84af149de24"
+        "bytes": 73809,
+        "sha256": "0a4cfd28ff51261dff1efae19617e7c31310e6449252ba73dc856aa0fd3da245"
       },
       "score_crossscan_finetune.py": {
         "bytes": 25754,
@@ -74,15 +86,15 @@
         "sha256": "fcb76ebabe9f46c87d499d258559c9b42c4aeef050332f6a02132a78f3bf6d0b"
       },
       "test_run_crossscan_finetune.py": {
-        "bytes": 17981,
-        "sha256": "af53d1257e85d0a43d2a160c6c71d343b60f9dde57576a62f35af97705c5c75d"
+        "bytes": 20247,
+        "sha256": "5de8e406cce9c850f39f81561e146a85ecaa99f74b537812dc98553a3baf07fe"
       },
       "test_score_crossscan_finetune.py": {
         "bytes": 9845,
         "sha256": "4cd0bd9934327eb8778680c4b00016c59ca6bafb445e3f91199d24a0c43072a5"
       }
     },
-    "remote_commit": "9ac72b77fb33ac047832b1be773f67ee79bcb0d6",
+    "remote_commit": "92c2d79795779a01b2df524de9ae85277910d698",
     "repo": "https://github.com/TAUIL-Abd-Elilah/vesuvius-repro"
   },
   "plan": {
