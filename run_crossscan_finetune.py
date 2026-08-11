@@ -11,6 +11,7 @@ import argparse
 import copy
 import datetime as dt
 import json
+import math
 import os
 import platform
 import random
@@ -33,6 +34,9 @@ CONFIGURATION = "3d_fullres"
 ITERATIONS_PER_EPOCH = 40
 VALIDATION_ITERATIONS_PER_EPOCH = 10
 TRAINER_NAME = "CrossScanPhysicalTrainer"
+INITIAL_LR = 0.0001
+WEIGHT_DECAY = 0.00001
+MINIMUM_LR = 0.000001
 FINGERPRINT_FOREGROUND_VOXEL_BUDGET = 100_000_000
 FINGERPRINT_EXTRACTOR = (
     "nnunetv2.experiment_planning.dataset_fingerprint.fingerprint_extractor."
@@ -41,8 +45,10 @@ FINGERPRINT_EXTRACTOR = (
 LOCKED_IMPLEMENTATION_FILES = (
     "CROSSSCAN_FINETUNE_AMENDMENT_01.md",
     "CROSSSCAN_FINETUNE_AMENDMENT_02.md",
+    "CROSSSCAN_FINETUNE_AMENDMENT_03.md",
     "CROSSSCAN_FINETUNE_PREREG.md",
     "CROSSSCAN_FINETUNE_RUNBOOK.md",
+    "crossscan_training_memory_smoke.py",
     "crossscan_preprocess_smoke.py",
     "crossscan_finetune.py",
     "run_crossscan_finetune.py",
@@ -50,9 +56,39 @@ LOCKED_IMPLEMENTATION_FILES = (
     "test_crossscan_finetune.py",
     "test_run_crossscan_finetune.py",
     "test_score_crossscan_finetune.py",
+    "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining.json",
     "results/crossscan_finetune/preprocess_smoke.json",
     "results/crossscan_finetune/plan.json",
 )
+
+
+def coerce_locked_training_hyperparameters(trainer: Any) -> dict[str, float]:
+    """Validate and normalize values after nnU-Net's JSON-via-PyYAML boundary.
+
+    PyYAML can resolve JSON scientific notation such as ``1e-05`` as text. The
+    values are therefore converted only after checking that they are finite and
+    exactly equal to the preregistered numeric hyperparameters.
+    """
+    expected = {
+        "initial_lr": INITIAL_LR,
+        "weight_decay": WEIGHT_DECAY,
+    }
+    normalized: dict[str, float] = {}
+    for name, locked in expected.items():
+        raw = getattr(trainer, name)
+        if isinstance(raw, (bool, np.bool_)):
+            raise TypeError(f"{name} must be numeric, not boolean")
+        try:
+            value = float(raw)
+        except (TypeError, ValueError) as exc:
+            raise TypeError(f"{name} is not numeric: {raw!r}") from exc
+        if not math.isfinite(value):
+            raise ValueError(f"{name} must be finite, got {raw!r}")
+        if value != locked:
+            raise ValueError(f"{name} {value!r} != locked value {locked!r}")
+        setattr(trainer, name, value)
+        normalized[name] = value
+    return normalized
 
 
 def utc_now() -> str:
@@ -124,6 +160,7 @@ def runtime_environment(villa_root: Path) -> dict[str, str]:
     import scipy
     import tifffile
     import torch
+    import yaml
     import zarr
 
     module = Path(nnunetv2.__file__).resolve()
@@ -141,6 +178,7 @@ def runtime_environment(villa_root: Path) -> dict[str, str]:
         "torch": torch.__version__,
         "torch_cuda": str(torch.version.cuda),
         "tifffile": tifffile.__version__,
+        "pyyaml": yaml.__version__,
         "zarr": zarr.__version__,
         "blosc2": getattr(blosc2, "__version__", "unknown"),
         "nnunetv2_module": relative_module,
@@ -1106,6 +1144,10 @@ def load_training_receipt(
         "fold": fold,
         "steps": steps,
         "epochs": steps // ITERATIONS_PER_EPOCH,
+        "trainer_hyperparameters": {
+            "initial_lr": INITIAL_LR,
+            "weight_decay": WEIGHT_DECAY,
+        },
         "preprocessing_receipt_content_sha256": preprocessing["content_sha256"],
         "initial_checkpoint_sha256": plan["inputs"]["model"][
             "fold_0/checkpoint_best.pth"
@@ -1191,7 +1233,7 @@ def train_model(
                 weight_decay=self.weight_decay,
             )
             scheduler = CosineAnnealingLR(
-                optimizer, T_max=max(self.num_epochs - 1, 1), eta_min=0.000001
+                optimizer, T_max=max(self.num_epochs - 1, 1), eta_min=MINIMUM_LR
             )
             return optimizer, scheduler
 
@@ -1223,8 +1265,8 @@ def train_model(
         "dataset": DATASET_NAME,
         "wandb_enabled": 0,
         "num_epochs": epochs,
-        "initial_lr": 0.0001,
-        "weight_decay": 0.00001,
+        "initial_lr": INITIAL_LR,
+        "weight_decay": WEIGHT_DECAY,
         "num_iterations_per_epoch": ITERATIONS_PER_EPOCH,
         "num_val_iterations_per_epoch": VALIDATION_ITERATIONS_PER_EPOCH,
         "oversample_foreground_percent": 0.5,
@@ -1241,6 +1283,7 @@ def train_model(
         device=torch.device("cuda"),
         yaml_config_path=str(config_path),
     )
+    trainer_hyperparameters = coerce_locked_training_hyperparameters(trainer)
     trainer.initialize()
     load_pretrained_weights(
         trainer.network, str(model_dir / "fold_0" / "checkpoint_best.pth"), verbose=True
@@ -1267,6 +1310,7 @@ def train_model(
         "fold": fold,
         "steps": steps,
         "epochs": epochs,
+        "trainer_hyperparameters": trainer_hyperparameters,
         "command": [sys.executable, *sys.argv],
         "preprocessing_receipt_content_sha256": preprocessing["content_sha256"],
         "training_config": {

@@ -79,6 +79,37 @@ class ArrayTests(unittest.TestCase):
 
 
 class FilesAndConfigurationTests(unittest.TestCase):
+    def test_json_via_pyyaml_hyperparameters_are_exactly_normalized(self) -> None:
+        import yaml
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "training_config.json"
+            C.write_json(path, {
+                "initial_lr": R.INITIAL_LR,
+                "weight_decay": R.WEIGHT_DECAY,
+            })
+            loaded = yaml.safe_load(path.read_text(encoding="utf-8"))
+
+        trainer = mock.Mock()
+        trainer.initial_lr = loaded["initial_lr"]
+        trainer.weight_decay = loaded["weight_decay"]
+        normalized = R.coerce_locked_training_hyperparameters(trainer)
+        self.assertEqual(normalized, {
+            "initial_lr": R.INITIAL_LR,
+            "weight_decay": R.WEIGHT_DECAY,
+        })
+        self.assertIs(type(trainer.initial_lr), float)
+        self.assertIs(type(trainer.weight_decay), float)
+
+        trainer.weight_decay = "1e-05"
+        R.coerce_locked_training_hyperparameters(trainer)
+        self.assertIs(type(trainer.weight_decay), float)
+        for invalid in (True, "nan", 0.01):
+            trainer.initial_lr = R.INITIAL_LR
+            trainer.weight_decay = invalid
+            with self.assertRaises((TypeError, ValueError)):
+                R.coerce_locked_training_hyperparameters(trainer)
+
     def test_dataset_fingerprint_validation_is_case_bound(self) -> None:
         fingerprint = {
             "spacings": [[1.0, 1.0, 1.0]],
@@ -318,6 +349,10 @@ class FilesAndConfigurationTests(unittest.TestCase):
                 "fold": "even",
                 "steps": 2000,
                 "epochs": 50,
+                "trainer_hyperparameters": {
+                    "initial_lr": R.INITIAL_LR,
+                    "weight_decay": R.WEIGHT_DECAY,
+                },
                 "preprocessing_receipt_content_sha256": preprocessing["content_sha256"],
                 "initial_checkpoint_sha256": PLAN["inputs"]["model"][
                     "fold_0/checkpoint_best.pth"
