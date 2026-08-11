@@ -48,6 +48,7 @@ LOCKED_IMPLEMENTATION_FILES = (
     "CROSSSCAN_FINETUNE_AMENDMENT_03.md",
     "CROSSSCAN_FINETUNE_AMENDMENT_04.md",
     "CROSSSCAN_FINETUNE_AMENDMENT_05.md",
+    "CROSSSCAN_FINETUNE_AMENDMENT_06.md",
     "CROSSSCAN_FINETUNE_PREREG.md",
     "CROSSSCAN_FINETUNE_RUNBOOK.md",
     "crossscan_training_memory_smoke.py",
@@ -61,6 +62,7 @@ LOCKED_IMPLEMENTATION_FILES = (
     "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining.json",
     "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining-v2.json",
     "results/crossscan_finetune/execution_lock.withdrawn-20260811-release-attributes.json",
+    "results/crossscan_finetune/execution_lock.withdrawn-20260811-ci-portability.json",
     "results/crossscan_finetune/preprocess_smoke.json",
     "results/crossscan_finetune/plan.json",
 )

@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
+import types
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -116,44 +118,54 @@ class FilesAndConfigurationTests(unittest.TestCase):
             checkpoint.write_bytes(b"frozen-checkpoint")
             expected = R.file_record(checkpoint)
             network = mock.Mock()
-            with (
-                mock.patch(
-                    "torch.serialization.get_unsafe_globals_in_checkpoint",
-                    return_value=list(R.TRUSTED_CHECKPOINT_STATIC_UNSAFE_GLOBALS),
-                ),
-                mock.patch("torch.serialization.safe_globals") as safe_globals,
-                mock.patch(
-                    "nnunetv2.run.load_pretrained_weights.load_pretrained_weights"
-                ) as loader,
-            ):
-                record = R.load_frozen_pretrained_weights(
-                    network, checkpoint, expected, verbose=True
+            loader = mock.Mock()
+            nnunet_package = types.ModuleType("nnunetv2")
+            nnunet_package.__path__ = []
+            run_package = types.ModuleType("nnunetv2.run")
+            run_package.__path__ = []
+            loader_module = types.ModuleType("nnunetv2.run.load_pretrained_weights")
+            loader_module.load_pretrained_weights = loader
+            fake_nnunet_modules = {
+                "nnunetv2": nnunet_package,
+                "nnunetv2.run": run_package,
+                "nnunetv2.run.load_pretrained_weights": loader_module,
+            }
+            with mock.patch.dict(sys.modules, fake_nnunet_modules):
+                with (
+                    mock.patch(
+                        "torch.serialization.get_unsafe_globals_in_checkpoint",
+                        return_value=list(R.TRUSTED_CHECKPOINT_STATIC_UNSAFE_GLOBALS),
+                    ),
+                    mock.patch("torch.serialization.safe_globals") as safe_globals,
+                ):
+                    record = R.load_frozen_pretrained_weights(
+                        network, checkpoint, expected, verbose=True
+                    )
+                loader.assert_called_once_with(network, str(checkpoint), verbose=True)
+                safe_globals.assert_called_once_with(R.trusted_checkpoint_safe_types())
+                self.assertEqual(record, R.trusted_checkpoint_load_record(expected))
+                self.assertEqual(
+                    record["allowlisted_types"],
+                    [
+                        "numpy.dtype",
+                        "numpy._core.multiarray.scalar",
+                        "numpy.dtypes.Float32DType",
+                        "numpy.dtypes.Float64DType",
+                        "numpy.dtypes.Int64DType",
+                    ],
                 )
-            loader.assert_called_once_with(network, str(checkpoint), verbose=True)
-            safe_globals.assert_called_once_with(R.trusted_checkpoint_safe_types())
-            self.assertEqual(record, R.trusted_checkpoint_load_record(expected))
-            self.assertEqual(
-                record["allowlisted_types"],
-                [
-                    "numpy.dtype",
-                    "numpy._core.multiarray.scalar",
-                    "numpy.dtypes.Float32DType",
-                    "numpy.dtypes.Float64DType",
-                    "numpy.dtypes.Int64DType",
-                ],
-            )
 
-            bad = dict(expected)
-            bad["sha256"] = "0" * 64
-            with self.assertRaisesRegex(ValueError, "identity mismatch"):
-                R.load_frozen_pretrained_weights(network, checkpoint, bad)
+                bad = dict(expected)
+                bad["sha256"] = "0" * 64
+                with self.assertRaisesRegex(ValueError, "identity mismatch"):
+                    R.load_frozen_pretrained_weights(network, checkpoint, bad)
 
-            with mock.patch(
-                "torch.serialization.get_unsafe_globals_in_checkpoint",
-                return_value=["builtins.eval"],
-            ):
-                with self.assertRaisesRegex(ValueError, "unsafe globals changed"):
-                    R.load_frozen_pretrained_weights(network, checkpoint, expected)
+                with mock.patch(
+                    "torch.serialization.get_unsafe_globals_in_checkpoint",
+                    return_value=["builtins.eval"],
+                ):
+                    with self.assertRaisesRegex(ValueError, "unsafe globals changed"):
+                        R.load_frozen_pretrained_weights(network, checkpoint, expected)
 
     def test_dataset_fingerprint_validation_is_case_bound(self) -> None:
         fingerprint = {
