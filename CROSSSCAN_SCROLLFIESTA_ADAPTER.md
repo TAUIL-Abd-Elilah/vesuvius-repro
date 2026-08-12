@@ -1,115 +1,190 @@
 # Cross-scan probability to ScrollFiesta adapter
 
-Status: outcome-blind implementation of the downstream interface locked in
+Status: implementation of the outcome-blind downstream protocol in
 `crossscan_scrollfiesta_downstream_lock.json` v2 (content SHA-256
-`06142dc819c193a462f37d08a4769024c41ab551411013d40dda72db148457f6`). It does
-not authorize candidate inference or a downstream-improvement claim. Those remain contingent on
-the registered final result being `POSITIVE_DEPLOYABLE`.
+`06142dc819c193a462f37d08a4769024c41ab551411013d40dda72db148457f6`). Candidate
+execution and any improvement claim remain forbidden unless the registered terminal result is
+`POSITIVE_DEPLOYABLE`.
 
-The adapter deliberately ends at ScrollFiesta's documented `cubes_PRED/` and `cubes_RAW/`
-interface. It does not duplicate ScrollFiesta's mesher, weld, or audit code.
+The adapter ends at ScrollFiesta's documented `cubes_PRED/` and `cubes_RAW/` interface. It reuses
+the pinned ScrollFiesta mesher rather than duplicating it.
 
-## Semantic source-label gate
+## Trust chain
 
-Villa issue #191 exposed a downstream tool that reproducibly hashed the right PHerc1203 archive
-while reading its Blosc-compressed chunks as raw label bytes. Byte provenance was correct and the
-scientific values were not. Before releasing a model trained from these labels, run the exact
-decoded-volume gate:
+A `PASS` grid set now proves this complete chain:
+
+1. The two physical-label tarballs match their pinned identities, every extracted compressed-Zarr
+   byte matches the tar member, and all 30,427,840,512 voxels match the codec-decoded upstream
+   census.
+2. The RAW/inference context is the fixed public PHerc0139 level-0 Zarr window
+   `[3776:4160,3648:4032,1280:1664]`. Its canonical uint8 array SHA-256 is
+   `b654ba8428beb5f24378efb2d9e8f5d516cec60410871682bdbff5535b6b665f`; the
+   canonical array SHA-256 of each of its eight retained RAW cubes is also pinned and rechecked
+   from every final TIFF.
+3. Baseline inference rehashes the released m7 fold-0 checkpoint. Candidate inference rehashes
+   the promoted release manifest and every one of its twelve checkpoints. Both use the exact m7
+   normalization, tile step `0.5`, Gaussian blending, and no mirroring. Manifest paths must be the
+   exact checkpoint/plans/dataset paths the runner opens. Candidate accumulation is a float64
+   arithmetic mean of exactly twelve class probabilities.
+4. The retained `256^3` probability, every Zarr chunk, all eight RAW TIFFs, all 24 PRED TIFFs, the
+   positive result, execution lock, semantic audit, model source, and the complete local Python
+   import closure are content/hash bound.
+5. A final set verifier requires exactly `baseline-fixed`, `candidate-fixed`, and
+   `candidate-matched-mass`; identical RAW, context, promotion, and semantic sources; the same
+   candidate probability in both candidate arms; identical pinned software, nnU-Net tree, CUDA
+   device/driver, determinism settings, and tooling bytes across both inferences; and byte-for-byte
+   equality between all PRED TIFFs and masks recomputed from the verified probability stores.
+
+The RAW window fingerprint is an input-integrity addition, not an outcome-selected region or a
+changed acceptance gate. The region and all scientific gates remain those frozen in v2.
+
+## 1. Validate label semantics
 
 ```powershell
 python verify_physical_label_semantics.py `
   --labels-root D:\path\to\physical_truth `
-  --output D:\path\to\physical_label_semantic_audit.json
+  --output D:\evidence\physical_label_semantic_audit.json
 ```
 
-The command:
+The validator cites the corrected upstream census commit
+`4277710452578e802c23244a6ab385a048aed100` and the
+[Villa issue #191 correction](https://github.com/ScrollPrize/villa/issues/191#issuecomment-5261207396).
+It rejects the compressed-byte failure mode; it does not use the retracted thickness map.
 
-- verifies the two release-v1.0 tarball sizes and SHA-256 values;
-- opens each Zarr through its declared codec and requires 3-D `uint8` blocks;
-- counts all 30,427,840,512 decoded voxels;
-- requires the exact bit-plane and containment census published at upstream commit
-  `4277710452578e802c23244a6ab385a048aed100`; and
-- creates a content-hashed, no-replace `PASS` receipt.
+The model release command requires this receipt explicitly:
 
-This gate cites the [upstream census](https://github.com/7jycwjmbfn-eng/pherc0139-physical-audit/blob/4277710452578e802c23244a6ab385a048aed100/results/bit_census.json)
-and the [compressed-byte correction](https://github.com/ScrollPrize/villa/issues/191#issuecomment-5261207396).
-It does not use the retracted thickness map.
+```powershell
+python export_crossscan_release.py `
+  --villa-root D:\path\to\villa `
+  --labels-root D:\path\to\physical_truth `
+  --model-dir D:\path\to\surface_m7 `
+  --data-root D:\path\to\completed_run `
+  --semantic-audit D:\evidence\physical_label_semantic_audit.json `
+  --out D:\release\crossscan_model
+```
 
-## Export a probability ROI
+## 2. Carve one shared public CT source
 
-The input is the locked central `256 x 256 x 256` foreground-probability ROI, not a thresholded
-mask. `.npy` is accepted directly. An `.npz` must contain a unique array or use `--npz-key`; a
-two-class `2 x 256 x 256 x 256` array selects class 1.
+```powershell
+python crossscan_scrollfiesta_adapter.py carve-raw `
+  --output locked_pherc0139_raw
+```
+
+The source URI, level, metadata, context/grid boxes, and array hash are non-configurable. The
+command writes one `context.npy`, exactly eight native `128^3` RAW TIFFs, and a no-replace receipt.
+The verifier reopens every TIFF and compares it to the correct slice of the pinned context.
+
+## 3. Run the two locked inferences
+
+Both commands require the same positive terminal receipt, semantic audit, and original pre-outcome
+execution lock. `--villa-root` must be the clean pinned Villa commit
+`94ba215963afb6216e380fe2c86131fa5e724c3b` with nnU-Net tree
+`24941bfa19e7239db6458287c2a39b9ad4bd7f4a`. The runner rejects any different locked package
+versions, forces `nnUNet_compile=0`, `cudnn.benchmark=False`, and
+`cudnn.deterministic=True`, explicitly locks the source environment's TF32/matmul flags, and
+records GPU UUID/driver identity. `--model-role` only selects the
+execution path; subsequent verifiers derive and recheck the role from the model bytes and receipt.
+
+```powershell
+python run_crossscan_scrollfiesta_inference.py `
+  --model-role baseline `
+  --model-source D:\models\surface_m7 `
+  --raw-carve locked_pherc0139_raw `
+  --promotion-receipt D:\completed_run\final_result.json `
+  --execution-lock results\crossscan_finetune\execution_lock.json `
+  --villa-root D:\path\to\pinned-villa `
+  --semantic-audit D:\evidence\physical_label_semantic_audit.json `
+  --output baseline_inference
+
+python run_crossscan_scrollfiesta_inference.py `
+  --model-role candidate `
+  --model-source D:\release\crossscan_model `
+  --raw-carve locked_pherc0139_raw `
+  --promotion-receipt D:\completed_run\final_result.json `
+  --execution-lock results\crossscan_finetune\execution_lock.json `
+  --villa-root D:\path\to\pinned-villa `
+  --semantic-audit D:\evidence\physical_label_semantic_audit.json `
+  --output candidate_inference
+```
+
+Each output contains the exact float32 probability, complete provenance receipts, and copies of
+all eight local modules imported by the inference/validation path. Reverification deliberately
+also requires the external model source and shared RAW carve so their full bytes—not merely an
+embedded assertion—are rechecked.
+
+## 4. Export immutable probability stores
 
 ```powershell
 python crossscan_scrollfiesta_adapter.py export-zarr `
-  --probability candidate_probability.npy `
-  --source-receipt final_result.json `
-  --origin 3840 3712 1344 `
+  --inference-run baseline_inference `
+  --model-source D:\models\surface_m7 `
+  --raw-carve locked_pherc0139_raw `
+  --output baseline_probability.zarr
+
+python crossscan_scrollfiesta_adapter.py export-zarr `
+  --inference-run candidate_inference `
+  --model-source D:\release\crossscan_model `
+  --raw-carve locked_pherc0139_raw `
   --output candidate_probability.zarr
 ```
 
-The output is OME-NGFF Zarr v2 with axes `z,y,x`, float32 probabilities, `128^3` uncompressed
-chunks, unit level-0 scale, and explicit world translation. Every chunk has a sidecar SHA-256
-receipt bound to the complete input probability hash. A final immutable receipt binds the exact
-chunk universe and a byte-for-byte round trip. Existing output is rejected. `--resume` accepts
-only an incomplete store whose metadata and every existing chunk/receipt pair match the current
-input; a completed store remains immutable.
+The OME-NGFF Zarr v2 stores use axes `z,y,x`, float32, `128^3` uncompressed chunks, unit level-0
+scale, and fixed translation `[3840,3712,1344]`. Chunk sidecars and the final receipt bind the
+entire probability and provenance universe. `--resume` accepts only a matching incomplete export;
+a completed store is immutable.
 
-## Prepare the locked RAW cubes
-
-Reuse ScrollFiesta PR #12 at commit
-`f0d9d2e54823e7ba2460725e81290eead8ed6e5e`, rather than adding another cloud reader. Its existing
-`carve_grid_tifs.py` can carve the RAW source while its temporary PRED output is ignored:
-
-```powershell
-python <scrollfiesta>\python\scripts\carve_grid_tifs.py `
-  --pred-zarr s3://vesuvius-challenge-open-data/PHerc0139/representations/predictions/surfaces/20250728140407-surface-20260413222639-surface-m7-L0-th0.2.zarr `
-  --raw-zarr s3://vesuvius-challenge-open-data/PHerc0139/volumes/20250728140407-9.362um-1.2m-113keV-masked.zarr `
-  --bbox 3840 4096 3712 3968 1344 1600 `
-  --out locked_raw_carve
-```
-
-## Materialize a native grid
-
-Fixed threshold:
+## 5. Materialize and jointly verify all three grids
 
 ```powershell
 python crossscan_scrollfiesta_adapter.py make-grid `
+  --probability-zarr baseline_probability.zarr `
+  --raw-carve locked_pherc0139_raw `
+  --arm baseline-fixed `
+  --output baseline_fixed_grid
+
+python crossscan_scrollfiesta_adapter.py make-grid `
   --probability-zarr candidate_probability.zarr `
-  --raw-cubes locked_raw_carve\cubes_RAW `
-  --arm fixed --threshold 0.2 `
+  --raw-carve locked_pherc0139_raw `
+  --arm candidate-fixed `
   --output candidate_fixed_grid
-```
 
-Matched mass uses the foreground count recorded by the baseline fixed arm:
-
-```powershell
 python crossscan_scrollfiesta_adapter.py make-grid `
   --probability-zarr candidate_probability.zarr `
-  --raw-cubes locked_raw_carve\cubes_RAW `
-  --arm matched-mass --foreground-count <BASELINE_N> `
+  --raw-carve locked_pherc0139_raw `
+  --arm candidate-matched-mass `
+  --baseline-fixed-manifest baseline_fixed_grid\manifest.json `
   --output candidate_matched_grid
+
+python crossscan_scrollfiesta_adapter.py verify-grid-set `
+  --baseline-probability-zarr baseline_probability.zarr `
+  --candidate-probability-zarr candidate_probability.zarr `
+  --baseline-fixed-grid baseline_fixed_grid `
+  --candidate-fixed-grid candidate_fixed_grid `
+  --candidate-matched-grid candidate_matched_grid `
+  --output crossscan_scrollfiesta_grid_set.json
 ```
 
-The matched-mass rule is stable descending probability followed by C-order index for exact ties.
-Each grid contains all eight native `128^3` uint8 TIFFs in both trees, with filenames at their
-world origins. PRED is exactly 0/255. RAW inputs are shape/dtype checked, copied byte-for-byte,
-and hash bound. The grid manifest is content hashed and the output directory is no-replace.
+The fixed rule is inclusive `probability >= 0.2`. Matched mass derives `N` from the fully verified
+baseline grid; callers cannot provide it. All TIFFs are uint8, PRED is exactly 0/255, and every
+output is create-no-replace.
 
-Only after registered promotion may the three frozen arms be passed to the pinned
-`grid_pipeline.exe`. Pipeline exit zero is not a topology certificate: the v2 downstream lock
-also requires independent OBJ and weld-report checks for non-manifold edges, pinch vertices,
-same-direction pairs, world extent, and internal-seam unpaired edges.
+Only the set receipt may advance to the pinned `grid_pipeline.exe`. Exit zero is not a topology
+certificate: the downstream lock additionally requires independent OBJ/weld checks for
+non-manifold edges, pinch vertices, same-direction pairs, world extent, and internal-seam
+unpaired edges.
 
 ## Tests
 
 ```powershell
 python -m unittest -v `
+  test_crossscan_release.py `
+  test_run_crossscan_scrollfiesta_inference.py `
   test_crossscan_scrollfiesta_adapter.py `
   test_verify_physical_label_semantics.py
 ```
 
-The focused suite covers OME-Zarr compatibility and round trips, interrupted resume, orphan and
-tampered chunks, immutable completion, inclusive thresholding, stable matched mass, exact native
-TIFF layout, decoded bit census logic, and rejection of encoded/non-`uint8` input.
+The tests include minimal/fabricated promotion rejection, exact executable model-path and byte
+revalidation, false semantic-fraction rejection, RAW/checkpoint/chunk tampering, strict float32
+inference-file semantics, real Blosc tar/Zarr decoding, deterministic runtime setup, centered
+baseline cropping, exact twelve-member probability averaging, stable matched mass, cross-arm
+source/runtime/tool equality, and recomputation of all three masks from the final Zarr stores.

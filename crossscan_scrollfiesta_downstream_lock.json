@@ -1,0 +1,192 @@
+{
+  "schema_version": "crossscan-scrollfiesta-downstream-lock-v2",
+  "status": "preoutcome_lock_no_terminal_pilot_or_final_result_inspected",
+  "created_utc": "2026-08-12T00:32:47.446200+00:00",
+  "amended_utc": "2026-08-12T00:40:24+00:00",
+  "supersedes_content_sha256": "709740293e44aef3b616eb1d8f520f8614131f58870a4a21ce88fc95c8fb2491",
+  "amendment_reason": "Preoutcome pinned-source audit found that grid_pipeline can return success after a nonfatal weld-audit warning, pinch_verts was omitted, and candidate-only same_dir_pairs == 0 was asymmetric despite same-direction pairs being cosmetic in grid_weld. The v2 lock therefore reads weld_report.json directly, adds pinch validity, makes same-direction pairs baseline-relative with zero retained as a secondary clean-mesh result, and adds an internal-seam unpaired-edge comparison.",
+  "amendment_blindness_evidence": "At 2026-08-12T00:40:24Z the seed-39 odd-fold training process and all three watchers were alive; no pilot verdict, final result, or release manifest existed or was inspected.",
+  "question": "Does the registered physical-label fine-tuning treatment improve an untouched PHerc0139 surface-probability grid without worsening topology, and does the improvement survive ScrollFiesta meshing and seam welding?",
+  "source_experiment": {
+    "execution_head": "e636f1110cca7b4f70ef82e8b3eddb565aa53b50",
+    "implementation_commit": "448dc04c0521f2b6e742122a8fc76312a654b772",
+    "plan_content_sha256": "3f001515f55f289199350ce807eb89b3a09510307b9c200780f195a6e8b11698",
+    "execution_lock_content_sha256": "e682279a19f1f5e6d98df6e1978ce3533025b51b9b8a632789f43f22ab09805f",
+    "released_m7_checkpoint_sha256": "17465b77591b794638e671f1a9f79c4cf1e79821f302e6fc235e3725e5da7d7e"
+  },
+  "consumer": {
+    "repository": "https://github.com/Hob3rMallow/scrollfiesta_public",
+    "source_commit": "f0d9d2e54823e7ba2460725e81290eead8ed6e5e",
+    "source_role": "ScrollFiesta PR 12 clean ABI-fixed head",
+    "binaries": {
+      "cube_mesh.exe": {
+        "bytes": 1173504,
+        "sha256": "0f44830af325f9ee667eb2da26a88b929f48f27503e05fb3b6c0d7b3c8aa376d"
+      },
+      "grid_pipeline.exe": {
+        "bytes": 414720,
+        "sha256": "1b99299296f5eb787cf8c75d6d95ac224ac5e68f31bf5216b423ff680f96f062"
+      },
+      "grid_weld.exe": {
+        "bytes": 489472,
+        "sha256": "0ac850e70aaaccdfc932a99b9a9a5b620406702a002df02fc6a785774c98a583"
+      }
+    },
+    "command": [
+      "grid_pipeline.exe",
+      "<grid>",
+      "<output>",
+      "--halo",
+      "13",
+      "--trim-inset",
+      "0",
+      "--simplify",
+      "cvt",
+      "--max-concurrent",
+      "1",
+      "--threads-per-cube",
+      "1",
+      "--exe",
+      "<pinned-cube-mesh.exe>",
+      "--weld",
+      "<pinned-grid-weld.exe>"
+    ]
+  },
+  "region": {
+    "scroll": "PHerc0139",
+    "selection": "2x2x2 grid anchored at the already hash-selected z-stratum-0 visual case PHerc0139-z0192-y1280-x0192; no model prediction or outcome was used",
+    "label_origin_l1_zyx": [1728, 576, 480],
+    "local_label_box_l1_zyx": [192, 320, 1280, 1408, 192, 320],
+    "world_box_l0_zyx": [3840, 4096, 3712, 3968, 1344, 1600],
+    "inference_context_box_l0_zyx": [3776, 4160, 3648, 4032, 1280, 1664],
+    "cube_size_l0": 128,
+    "cube_world_origins_l0_zyx": [
+      [3840, 3712, 1344],
+      [3840, 3712, 1472],
+      [3840, 3840, 1344],
+      [3840, 3840, 1472],
+      [3968, 3712, 1344],
+      [3968, 3712, 1472],
+      [3968, 3840, 1344],
+      [3968, 3840, 1472]
+    ],
+    "preoutcome_truth_totals": {
+      "valid_l1": 1674807,
+      "material_l1": 1241241,
+      "recto_l1": 444149,
+      "boundary_poor_material_l1": 0
+    }
+  },
+  "inference": {
+    "baseline": "released m7 fold_0 checkpoint",
+    "candidate_permission": "only after a POSITIVE_DEPLOYABLE registered final result",
+    "candidate": "equal-weight mean of all twelve PHerc0139 predictions: seeds 40-45 times folds even and odd",
+    "normalization": "exact plans.json CT normalization fixed by Villa PR 1386",
+    "tile_step_size": 0.5,
+    "gaussian": true,
+    "mirroring": false,
+    "accumulation": "float64 mean, persisted as float32",
+    "context_policy": "infer the 384^3 context and retain only the central 256^3 locked world box"
+  },
+  "cloud_native_output": {
+    "format": "OME-NGFF Zarr v2",
+    "axes": ["z", "y", "x"],
+    "shape": [256, 256, 256],
+    "chunks": [128, 128, 128],
+    "dtype": "float32",
+    "coordinate_scale_l0": [1.0, 1.0, 1.0],
+    "coordinate_translation_l0": [3840.0, 3712.0, 1344.0],
+    "requirements": [
+      "create-no-replace output",
+      "per-chunk SHA-256 receipt",
+      "resumable only when every existing chunk matches its receipt",
+      "round-trip consumer-reader equality",
+      "wall time, peak RAM, peak VRAM, and bytes written"
+    ]
+  },
+  "binary_arms": {
+    "fixed_threshold": {
+      "rule": "probability >= 0.2",
+      "encoding": "uint8 0 or 255"
+    },
+    "matched_mass": {
+      "baseline": "identical to baseline fixed-threshold mask",
+      "candidate": "select exactly N voxels over the full locked 256^3 box, where N is the baseline fixed-threshold foreground count; stable descending probability then C-order index",
+      "encoding": "uint8 0 or 255"
+    }
+  },
+  "topology_metric": {
+    "space": "level-1 locked truth box",
+    "connectivity": 26,
+    "minimum_component_voxels_l1": 63,
+    "match_tolerance_l1_voxels": 1,
+    "note": "63 repeated level-1 voxels become 504 level-0 voxels, matching ScrollFiesta's 500-voxel component floor; the old binary_fill_holes metric is forbidden",
+    "reported": [
+      "truth components missed",
+      "prediction components spurious",
+      "truth components split across multiple prediction components",
+      "prediction components merging multiple truth components",
+      "symmetric surface-distance median and 95th percentile",
+      "recto precision, recall, Dice, and foreground mass"
+    ]
+  },
+  "weld_metric": {
+    "source": "parse the final welded OBJ independently; do not infer topology validity from grid_pipeline exit status",
+    "internal_cube_planes_l0_zyx": {
+      "z": [3968.0],
+      "y": [3840.0],
+      "x": [1472.0]
+    },
+    "internal_seam_unpaired_edge_definition": "An undirected final-OBJ edge with exactly one incident face whose midpoint is within 1.0 level-0 voxel of an internal cube plane and more than 1.0 level-0 voxel from every outer face of the locked world box. Report the union count and one count per internal plane; an edge at an internal-plane intersection is counted once in the union and once for each matching plane.",
+    "reported": [
+      "cubes_processed",
+      "unpaired",
+      "non_manifold",
+      "same_dir_pairs",
+      "manifold_pairs",
+      "pinch_verts",
+      "internal_seam_unpaired_edges_union",
+      "internal_seam_unpaired_edges_by_plane"
+    ],
+    "baseline_semantics": "The baseline is a comparator and need not pass candidate validity. A baseline defect may be repaired by the candidate, but neither candidate arm may contain a non-manifold edge or pinch vertex."
+  },
+  "acceptance": {
+    "matched_mass_input_gate": [
+      "candidate aggregate merger count <= baseline",
+      "candidate aggregate total component errors <= baseline",
+      "candidate symmetric surface-distance median < baseline",
+      "candidate improves per-cube symmetric surface-distance median on at least 5 of 8 cubes"
+    ],
+    "fixed_threshold_safety_gate": [
+      "candidate aggregate merger count <= baseline",
+      "candidate aggregate total component errors <= baseline",
+      "no cube regresses by more than 0.5 level-1 voxel in symmetric surface-distance median"
+    ],
+    "scrollfiesta_gate": [
+      "all three direct grid_pipeline commands exit zero: baseline fixed, candidate fixed, candidate matched-mass; exit zero is not accepted as a substitute for parsing the weld report and final OBJ",
+      "candidate processes every cube processed by baseline and introduces no garbage rejection or crash",
+      "weld report exists with exactly 8 cubes and correct multi-cube world span",
+      "candidate non_manifold == 0 and pinch_verts == 0 in both candidate arms",
+      "candidate same_dir_pairs <= baseline same_dir_pairs in each candidate arm; candidate same_dir_pairs == 0 is reported separately as the stricter clean-mesh result",
+      "candidate internal-seam unpaired-edge union count and every per-plane count <= baseline in each candidate arm",
+      "all stage logs, final per-cube meshes, welded OBJ, and weld report are hash-bound"
+    ],
+    "visual_evidence": [
+      "fixed orthogonal center cross-sections through world coordinate [3968,3840,1472]",
+      "identical CT window and colors for baseline, candidate, and physical truth",
+      "fixed welded-mesh camera and uncropped failure panels",
+      "no cherry-picked replacement panels"
+    ]
+  },
+  "claim_boundary": {
+    "pass": "supports a bounded untouched-PHerc0139 probability-to-ScrollFiesta meshing/weld improvement claim",
+    "does_not_prove": [
+      "every-scroll generalization",
+      "lasagna or Spiral improvement",
+      "automatic repair of every hole, merger, or sheet switch",
+      "default deployment safety outside the locked region"
+    ],
+    "failure": "publish the bounded negative result and make no downstream-improvement claim"
+  },
+  "content_sha256": "06142dc819c193a462f37d08a4769024c41ab551411013d40dda72db148457f6"
+}

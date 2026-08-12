@@ -11,10 +11,14 @@ authorization, preprocessing receipt, twelve training receipts, and checkpoint h
 standard nnU-Net model folder with folds 0..11. It:
 
 - verifies the locked runtime and every source checkpoint before export;
+- requires the exact tar-bound, codec-decoded physical-label semantic audit and binds it into
+  the release manifest;
 - preserves every network tensor exactly;
 - removes optimizer, gradient-scaler, logger, and best-EMA state;
 - maps the experiment-local dynamic trainer name to standard `nnUNetTrainer` for inference;
 - copies the result, fixed figures, plan, lock, pilot record, and training receipts;
+- packages the complete local Python import closure needed by the locked ScrollFiesta inference
+  path, rather than leaving implicit repository-module dependencies;
 - derives a technical report directly from the sealed result, including every seed,
   fixed subgroup, and preselected visual panel, with no hand-copied metrics;
 - writes a content-hashed manifest, a CC BY-NC 4.0 model card and explicit
@@ -29,8 +33,9 @@ the even fold followed by the odd fold for each seed.
 `predict_crossscan_probability_ensemble.py` supplies the inference distinction that the
 standard nnU-Net multi-fold path does not: it averages **class probabilities**, whereas
 nnU-Net normally averages logits. The runner loads one network on the GPU and applies the
-twelve parameter sets sequentially. Its default integrity check hashes every checkpoint
-against the release manifest before inference.
+twelve parameter sets sequentially. Its integrity check requires the exact fixed
+`model/fold_0..11/checkpoint_final.pth`, plans, and dataset paths and hashes every executed model
+file against the release manifest before inference.
 
 ## Real compatibility smoke
 
@@ -57,7 +62,7 @@ python -m unittest -v \
   test_score_crossscan_finetune.py
 ```
 
-The current focused suite has 51 tests. It includes a counterexample proving that the probability
+The focused suite includes a counterexample proving that the probability
 ensemble is not silently equivalent to logit averaging and an export round trip proving
 that training state is removed while aliased network tensors remain identical. It also
 checks that the generated report contains all six seed rows, all fixed strata, and all
@@ -72,6 +77,7 @@ python export_crossscan_release.py \
   --labels-root /path/to/physical_truth \
   --model-dir /path/to/surface_m7_nnunet \
   --data-root /path/to/crossscan_finetune_v1 \
+  --semantic-audit /path/to/physical_label_semantic_audit.json \
   --out /path/to/crossscan_release
 ```
 

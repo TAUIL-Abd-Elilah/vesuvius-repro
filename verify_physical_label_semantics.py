@@ -14,8 +14,9 @@ import hashlib
 import json
 import os
 import sys
+import tarfile
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import numpy as np
 import zarr
@@ -51,6 +52,12 @@ EXPECTED = {
         },
         "shape": [1248, 2304, 2208],
         "chunks": [128, 128, 128],
+        "tree": {
+            "directory_count": 190,
+            "file_count": 3242,
+            "total_file_bytes": 390147701,
+            "tree_content_sha256": "38779143c99ca166bcf2c24f5bf766451b3c508c01d90cf6cc772d2a8d3aaf66",
+        },
         "counts": {
             "window_voxels": 6348865536,
             "valid": 2669177928,
@@ -77,6 +84,12 @@ EXPECTED = {
         },
         "shape": [2016, 3456, 3456],
         "chunks": [128, 128, 128],
+        "tree": {
+            "directory_count": 238,
+            "file_count": 3305,
+            "total_file_bytes": 512731505,
+            "tree_content_sha256": "745de94d4abdf2c5a4f58a18efd879995aa8ae0274aefb10c9455476db80fd8a",
+        },
         "counts": {
             "window_voxels": 24078974976,
             "valid": 5019919087,
@@ -106,12 +119,203 @@ def content_hash(value: dict) -> str:
     return hashlib.sha256(canonical_json(unsigned).encode("ascii")).hexdigest()
 
 
+def fractions_from_counts(counts: dict) -> dict[str, float]:
+    """Derive the only accepted summary fractions from the exact census."""
+    material = counts["material"]
+    valid = counts["valid"]
+    if counts["window_voxels"] <= 0 or valid <= 0 or material <= 0:
+        raise ValueError("semantic census denominators must be positive")
+    return {
+        "valid_of_window": valid / counts["window_voxels"],
+        "material_of_valid": material / valid,
+        "centerline_of_material": counts["centerline"] / material,
+        "recto_band_of_material": counts["recto_band"] / material,
+        "boundary_poor_of_material": counts["boundary_poor"] / material,
+    }
+
+
+def validate_audit_receipt(path: Path) -> tuple[dict, bytes]:
+    """Validate a completed audit without reopening the multi-gigabyte labels.
+
+    The receipt is accepted only when it binds the exact pinned archives,
+    extracted byte trees, codec-decoded shapes, and full published censuses.
+    This is intentionally stricter than checking ``status == PASS``.
+    """
+    path = Path(path)
+    payload = path.read_bytes()
+    try:
+        value = json.loads(payload)
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ValueError(f"semantic audit is not valid UTF-8 JSON: {path}") from error
+    required_header = {
+        "schema_version": SCHEMA,
+        "status": "PASS",
+        "upstream_census_commit": UPSTREAM_CENSUS_COMMIT,
+        "upstream_census_url": UPSTREAM_CENSUS_URL,
+        "correction_url": CORRECTION_URL,
+    }
+    for key, expected in required_header.items():
+        if value.get(key) != expected:
+            raise ValueError(f"semantic audit has invalid {key}")
+    if value.get("content_sha256") != content_hash(value):
+        raise ValueError("semantic audit content hash mismatch")
+    records = value.get("records")
+    if not isinstance(records, dict) or set(records) != set(EXPECTED):
+        raise ValueError("semantic audit scroll universe mismatch")
+    for scroll, expected in EXPECTED.items():
+        record = records[scroll]
+        if not isinstance(record, dict):
+            raise ValueError(f"semantic audit record is invalid: {scroll}")
+        if record.get("tar") != expected["tar"]:
+            raise ValueError(f"semantic audit tar identity mismatch: {scroll}")
+        expected_tree = {"root": expected["path"], **expected["tree"]}
+        if record.get("extracted_tree") != expected_tree:
+            raise ValueError(f"semantic audit extracted tree mismatch: {scroll}")
+        decoded = record.get("decoded_zarr")
+        if not isinstance(decoded, dict):
+            raise ValueError(f"semantic audit decoded record is invalid: {scroll}")
+        exact_decoded = {
+            "path": expected["path"],
+            "shape": expected["shape"],
+            "chunks": expected["chunks"],
+            "dtype": "uint8",
+            "counts": expected["counts"],
+            "containment": expected["containment"],
+        }
+        for key, expected_value in exact_decoded.items():
+            if decoded.get(key) != expected_value:
+                raise ValueError(
+                    f"semantic audit decoded {key} mismatch: {scroll}"
+                )
+        if decoded.get("fractions") != fractions_from_counts(expected["counts"]):
+            raise ValueError(f"semantic audit fractions mismatch: {scroll}")
+    return value, payload
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as stream:
         for block in iter(lambda: stream.read(8 * 1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def _canonical_tar_path(name: str, root_name: str, is_directory: bool) -> str:
+    if not isinstance(name, str) or not name or "\x00" in name or "\\" in name:
+        raise ValueError(f"unsafe tar member path: {name!r}")
+    stripped = name[:-1] if is_directory and name.endswith("/") else name
+    if not stripped or stripped.startswith("/") or "//" in stripped:
+        raise ValueError(f"unsafe tar member path: {name!r}")
+    raw_parts = stripped.split("/")
+    if any(part in ("", ".", "..") for part in raw_parts):
+        raise ValueError(f"noncanonical tar member path: {name!r}")
+    path = PurePosixPath(stripped)
+    parts = path.parts
+    if (
+        not parts
+        or parts[0] != root_name
+        or any(part in ("", ".", "..") or ":" in part for part in parts)
+    ):
+        raise ValueError(f"tar member is outside the expected root: {name!r}")
+    relative = "/".join(parts[1:])
+    if not relative and not is_directory:
+        raise ValueError("the tar root must be a directory")
+    return relative
+
+
+def _stream_equal(left, right) -> tuple[int, str]:
+    digest = hashlib.sha256()
+    total = 0
+    while True:
+        a = left.read(8 * 1024 * 1024)
+        b = right.read(8 * 1024 * 1024)
+        if a != b:
+            raise ValueError("tar member bytes differ from extracted Zarr bytes")
+        if not a:
+            break
+        digest.update(a)
+        total += len(a)
+    return total, digest.hexdigest()
+
+
+def verify_tar_tree(tar_path: Path, store_path: Path, root_name: str) -> dict:
+    """Bind every extracted compressed Zarr byte to an already pinned tar."""
+    tar_path = Path(tar_path)
+    store_path = Path(store_path)
+    if store_path.name != root_name or not store_path.is_dir() or store_path.is_symlink():
+        raise ValueError("extracted Zarr root is missing, renamed, or a symlink")
+    root_resolved = store_path.resolve()
+    tar_files: dict[str, tuple[int, str]] = {}
+    tar_dirs = set()
+    folded = {}
+    records = []
+    with tarfile.open(tar_path, mode="r:*") as archive:
+        for member in archive:
+            if not (member.isfile() or member.isdir()):
+                raise ValueError(f"tar contains a link or special member: {member.name!r}")
+            relative = _canonical_tar_path(member.name, root_name, member.isdir())
+            if not relative:
+                continue
+            if relative in tar_files or relative in tar_dirs:
+                raise ValueError(f"duplicate tar member: {relative}")
+            case_key = relative.casefold()
+            if case_key in folded and folded[case_key] != relative:
+                raise ValueError(f"case-colliding tar members: {folded[case_key]} / {relative}")
+            folded[case_key] = relative
+            target = store_path.joinpath(*PurePosixPath(relative).parts)
+            current = store_path
+            for part in PurePosixPath(relative).parts:
+                current = current / part
+                if current.is_symlink():
+                    raise ValueError(f"extracted tree contains a symlink: {current}")
+            try:
+                target.resolve().relative_to(root_resolved)
+            except ValueError as error:
+                raise ValueError(f"extracted path escapes its root: {target}") from error
+            if member.isdir():
+                if not target.is_dir():
+                    raise ValueError(f"missing extracted directory: {relative}")
+                tar_dirs.add(relative)
+                continue
+            if not target.is_file():
+                raise ValueError(f"missing extracted file: {relative}")
+            source = archive.extractfile(member)
+            if source is None:
+                raise ValueError(f"cannot stream tar member: {relative}")
+            with source, target.open("rb") as disk:
+                size, digest = _stream_equal(source, disk)
+            if size != member.size:
+                raise ValueError(f"tar member size mismatch: {relative}")
+            tar_files[relative] = (size, digest)
+            records.append({"path": relative, "bytes": size, "sha256": digest})
+
+    disk_files = set()
+    disk_dirs = set()
+    for current, directory_names, file_names in os.walk(store_path):
+        current_path = Path(current)
+        for name in directory_names:
+            path = current_path / name
+            if path.is_symlink():
+                raise ValueError(f"extracted tree contains a directory symlink: {path}")
+            disk_dirs.add(path.relative_to(store_path).as_posix())
+        for name in file_names:
+            path = current_path / name
+            if path.is_symlink() or not path.is_file():
+                raise ValueError(f"extracted tree contains a special file: {path}")
+            disk_files.add(path.relative_to(store_path).as_posix())
+    if disk_files != set(tar_files) or disk_dirs != tar_dirs:
+        raise ValueError("extracted Zarr file/directory universe differs from pinned tar")
+    records.sort(key=lambda item: item["path"])
+    tree = {"root": root_name, "files": records}
+    return {
+        "root": root_name,
+        "file_count": len(records),
+        "directory_count": len(tar_dirs),
+        "total_file_bytes": sum(record["bytes"] for record in records),
+        "tree_content_sha256": hashlib.sha256(
+            canonical_json(tree).encode("ascii")
+        ).hexdigest(),
+    }
 
 
 def census_blocks(blocks) -> dict:
@@ -185,20 +389,12 @@ def verify_array(path: Path, expected: dict) -> dict:
     material = result["counts"]["material"]
     valid = result["counts"]["valid"]
     result.update({
-        "path": str(path.resolve()),
+        "path": path.name,
         "shape": list(array.shape),
         "chunks": list(array.chunks),
         "dtype": str(array.dtype),
         "compressor": str(array.compressor),
-        "fractions": {
-            "valid_of_window": valid / result["counts"]["window_voxels"],
-            "material_of_valid": material / valid,
-            "centerline_of_material": result["counts"]["centerline"] / material,
-            "recto_band_of_material": result["counts"]["recto_band"] / material,
-            "boundary_poor_of_material": (
-                result["counts"]["boundary_poor"] / material
-            ),
-        },
+        "fractions": fractions_from_counts(result["counts"]),
     })
     return result
 
@@ -208,7 +404,7 @@ def verify_tar(root: Path, expected: dict) -> dict:
     if not path.is_file():
         raise FileNotFoundError(path)
     result = {
-        "path": str(path.resolve()),
+        "path": expected["path"],
         "bytes": path.stat().st_size,
         "sha256": sha256_file(path),
     }
@@ -221,8 +417,14 @@ def audit(labels_root: Path) -> dict:
     labels_root = Path(labels_root)
     records = {}
     for scroll, expected in EXPECTED.items():
+        tar_result = verify_tar(labels_root, expected["tar"])
         records[scroll] = {
-            "tar": verify_tar(labels_root, expected["tar"]),
+            "tar": tar_result,
+            "extracted_tree": verify_tar_tree(
+                labels_root / expected["tar"]["path"],
+                labels_root / expected["path"],
+                expected["path"],
+            ),
             "decoded_zarr": verify_array(labels_root / expected["path"], expected),
         }
     result = {
@@ -230,8 +432,8 @@ def audit(labels_root: Path) -> dict:
         "status": "PASS",
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "purpose": (
-            "prove semantic decoding of compressed physical labels, not only "
-            "byte-level provenance"
+            "prove the extracted compressed Zarr bytes match pinned tarballs, "
+            "then prove codec-decoded semantics against the upstream census"
         ),
         "upstream_census_commit": UPSTREAM_CENSUS_COMMIT,
         "upstream_census_url": UPSTREAM_CENSUS_URL,

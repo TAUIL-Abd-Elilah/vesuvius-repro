@@ -16,6 +16,7 @@ from typing import Any
 import crossscan_finetune as C
 import predict_crossscan_probability_ensemble as P
 import run_crossscan_finetune as R
+import verify_physical_label_semantics as V
 
 
 RELEASE_SCHEMA = "crossscan-model-release-v1"
@@ -267,6 +268,14 @@ python predict_crossscan_probability_ensemble.py \
 
 This loads one network on the GPU and applies the 12 parameter sets sequentially. Expect
 roughly 5 GB of host RAM for checkpoint parameters plus normal nnU-Net working memory.
+
+For the preregistered PHerc0139-to-ScrollFiesta comparison, use the included
+`run_crossscan_scrollfiesta_inference.py` and `CROSSSCAN_SCROLLFIESTA_ADAPTER.md`. That path
+rehashes all twelve checkpoints, the fixed public CT context, positive result, decoded-label
+semantic audit, execution lock, pinned Python/Torch/CUDA/nnU-Net environment, complete local
+import closure, and all three downstream arms; the adapter does not accept a bare caller-labelled
+probability array. The model source, pinned Villa worktree, and shared RAW carve remain explicit
+external inputs and are reverified rather than trusted from an embedded assertion.
 
 ## Intended use and limits
 
@@ -542,6 +551,9 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
         data, plan["content_sha256"], lock["content_sha256"]
     )
     result = load_hashed(data / "final_result.json")
+    semantic_audit, semantic_audit_payload = V.validate_audit_receipt(
+        args.semantic_audit.resolve()
+    )
     base_model_card = model_dir / "README.md"
     tooling_license = repo / "LICENSE"
     verify_license_provenance(plan, base_model_card, tooling_license)
@@ -609,6 +621,7 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
         (repo / "results/crossscan_finetune/plan.json", "evidence/plan.json"),
         (repo / "results/crossscan_finetune/execution_lock.json", "evidence/execution_lock.json"),
         (base_model_card, "evidence/BASE_MODEL_README.md"),
+        (args.semantic_audit.resolve(), "evidence/physical_label_semantic_audit.json"),
     ):
         evidence.append(copy_artifact(source, staging, relative))
     for attempt in sorted(data.glob("pilot_attempt_steps-*.json")):
@@ -639,6 +652,16 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
     for name in (
         "export_crossscan_release.py",
         "predict_crossscan_probability_ensemble.py",
+        "crossscan_scrollfiesta_adapter.py",
+        "run_crossscan_scrollfiesta_inference.py",
+        "run_crossscan_finetune.py",
+        "crossscan_finetune.py",
+        "score_crossscan_finetune.py",
+        "physical_normalization_ab.py",
+        "verify_physical_label_semantics.py",
+        "crossscan_scrollfiesta_downstream_lock.json",
+        "CROSSSCAN_SCROLLFIESTA_DOWNSTREAM_PREREG.md",
+        "CROSSSCAN_SCROLLFIESTA_ADAPTER.md",
     ):
         tooling.append(copy_artifact(repo / name, staging, name))
     tooling.append(copy_artifact(
@@ -672,6 +695,8 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
         "preprocessing_receipt_content_sha256": preprocessing["content_sha256"],
         "pilot_verdict_content_sha256": verdict["content_sha256"],
         "final_result_content_sha256": result["content_sha256"],
+        "semantic_audit_content_sha256": semantic_audit["content_sha256"],
+        "semantic_audit_file_sha256": C.sha256_bytes(semantic_audit_payload),
         "outcome": result["status"],
         "selected_steps": result["selected_steps"],
         "base_model": plan["inputs"]["model"],
@@ -689,10 +714,12 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
     }
     manifest["content_sha256"] = C.content_hash_without_field(manifest)
     R.atomic_write_json(staging / "release_manifest.json", manifest)
+    P.validate_release_manifest_value(manifest)
     verify_release_files(staging, manifest)
     validate_standard_nnunet_model(model_root, list(range(12)))
     staging.replace(out)
     verified = load_hashed(out / "release_manifest.json")
+    P.validate_release_manifest_value(verified)
     verify_release_files(out, verified)
     return verified
 
@@ -704,6 +731,7 @@ def main() -> None:
     parser.add_argument("--labels-root", type=Path, required=True)
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--data-root", type=Path, required=True)
+    parser.add_argument("--semantic-audit", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     print(C.canonical_json(build_release(args)))

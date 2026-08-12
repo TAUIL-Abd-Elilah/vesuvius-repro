@@ -11,6 +11,20 @@ import export_crossscan_release as E
 import predict_crossscan_probability_ensemble as P
 
 
+def valid_release_header() -> dict:
+    return {
+        "schema_version": "crossscan-model-release-v1",
+        "status": "PASS",
+        "plan_content_sha256": P.PLAN_CONTENT_SHA256,
+        "execution_lock_content_sha256": P.EXECUTION_LOCK_CONTENT_SHA256,
+        "outcome": "POSITIVE_DEPLOYABLE",
+        "selected_steps": 4000,
+        "final_result_content_sha256": "f" * 64,
+        "semantic_audit_content_sha256": "a" * 64,
+        "semantic_audit_file_sha256": "b" * 64,
+    }
+
+
 class ProbabilityEnsembleTests(unittest.TestCase):
     def test_returns_exact_probability_mean_not_logit_mean(self) -> None:
         first = torch.tensor([
@@ -213,7 +227,7 @@ class ManifestTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             value = {
-                "status": "PASS",
+                **valid_release_header(),
                 "ensemble": {"aggregation": "logit mean", "fold_count": 12,
                              "mirroring": False},
             }
@@ -228,7 +242,7 @@ class ManifestTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             value = {
-                "status": "PASS",
+                **valid_release_header(),
                 "ensemble": {
                     "aggregation": "arithmetic mean of class probabilities",
                     "fold_count": 12,
@@ -276,11 +290,19 @@ class ManifestTests(unittest.TestCase):
                     })
                     release_fold += 1
             plans = record("model/plans.json", b"plans")
-            evidence = record("evidence/final_result.json", b"result")
-            tooling = record("README.md", b"card")
+            dataset = record("model/dataset.json", b"dataset")
+            evidence = [
+                record("evidence/final_result.json", b"result"),
+                record("evidence/execution_lock.json", b"lock"),
+                record("evidence/physical_label_semantic_audit.json", b"audit"),
+            ]
+            tooling = [
+                record(path, f"tool-{path}".encode("utf-8"))
+                for path in sorted(P.REQUIRED_RELEASE_TOOL_PATHS)
+            ]
             report = record("TECHNICAL_REPORT.md", b"report")
             manifest = {
-                "status": "PASS",
+                **valid_release_header(),
                 "licenses": P.RELEASE_LICENSES,
                 "ensemble": {
                     "aggregation": "arithmetic mean of class probabilities",
@@ -288,9 +310,9 @@ class ManifestTests(unittest.TestCase):
                     "mirroring": False,
                 },
                 "models": models,
-                "model_files": {"plans": plans},
-                "artifacts": [evidence],
-                "tooling": [tooling],
+                "model_files": {"plans": plans, "dataset": dataset},
+                "artifacts": evidence,
+                "tooling": tooling,
                 "reports": [report],
             }
             manifest["content_sha256"] = P.content_hash(manifest)
@@ -299,6 +321,13 @@ class ManifestTests(unittest.TestCase):
             )
             loaded = P.load_release_manifest(root)
             self.assertEqual(P.verify_release_files(root, loaded), list(range(12)))
+            redirected = json.loads(json.dumps(loaded))
+            redirected["models"][0]["checkpoint"] = record(
+                "redirected/checkpoint_final.pth", b"unexecuted"
+            )
+            redirected["content_sha256"] = P.content_hash(redirected)
+            with self.assertRaisesRegex(ValueError, "invalid release file record"):
+                P.verify_release_files(root, redirected)
             (root / "TECHNICAL_REPORT.md").write_bytes(b"tampered")
             with self.assertRaisesRegex(ValueError, "release file hash mismatch"):
                 P.verify_release_files(root, loaded)
