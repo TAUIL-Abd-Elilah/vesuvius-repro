@@ -1,7 +1,8 @@
 # Cross-scan model release path
 
-Status: **public pre-outcome release tooling**. No pilot, final model result, or
-fine-tuned weight is claimed here. The exporter refuses to run unless the frozen terminal
+Status: **public pre-outcome release tooling**. The registered pilot authorized the fixed
+final recipe but is not its endpoint; no final model result or eligible fine-tuned release
+weight is claimed here. The exporter refuses to run unless the frozen terminal
 result is exactly `POSITIVE_DEPLOYABLE` and matches the public plan, execution lock, pilot
 authorization, preprocessing receipt, twelve training receipts, and checkpoint hashes.
 
@@ -49,8 +50,8 @@ base checkpoint:
 - official `nnUNetPredictor.initialize_from_trained_model_folder`, standard
   `nnUNetTrainer` discovery, and strict loading of every network tensor: **PASS**.
 
-This proves format compatibility and storage reduction, not model efficacy. The fine-tuned
-checkpoints do not exist yet.
+This proves format compatibility and storage reduction, not model efficacy. No eligible or
+public fine-tuned release exists yet; partial final-stage checkpoints cannot satisfy the exporter.
 
 ## Verification
 

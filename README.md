@@ -23,8 +23,8 @@ it needs comes from `catalog.json`, so it works for any scroll with a published 
 > inferential seeds, and untouched PHerc0139 safety evaluation. The outcome-blind plan,
 > tested execution runtime, scorer, and [runbook](CROSSSCAN_FINETUNE_RUNBOOK.md) are public;
 > the [replacement execution lock](results/crossscan_finetune/execution_lock.json) binds them to
-> public implementation commit `07e078d` and content hash
-> `9a685b5c2842c9ccb34699c6254c5da1ff834824d51bdbbb515483812e51f746`. A
+> public implementation commit `448dc04c0521f2b6e742122a8fc76312a654b772` and content hash
+> `e682279a19f1f5e6d98df6e1978ce3533025b51b9b8a632789f43f22ab09805f`. A
 > [real preprocessing smoke](results/crossscan_finetune/preprocess_smoke.json) covers the
 > fingerprint correction documented in [amendment 02](CROSSSCAN_FINETUNE_AMENDMENT_02.md);
 > the [superseded first lock](results/crossscan_finetune/execution_lock.superseded-20260811.json)
@@ -32,7 +32,8 @@ it needs comes from `catalog.json`, so it works for any scroll with a published 
 > incomplete and no final or downstream candidate prediction has been inspected.
 > A [separate release path](CROSSSCAN_RELEASE.md) is also public before outcome: it removes
 > optimizer state without changing weights, validates standard nnU-Net loading, and provides
-> probability-space ensemble inference. It fails closed unless the frozen terminal result is
+> a custom locked probability-space ensemble that differs from standard nnU-Net logit averaging.
+> It fails closed unless the frozen terminal result is
 > `POSITIVE_DEPLOYABLE`; no fine-tuned weight or efficacy claim exists yet.
 >
 > The [ScrollFiesta adapter and downstream runbook](CROSSSCAN_SCROLLFIESTA_ADAPTER.md) implements
