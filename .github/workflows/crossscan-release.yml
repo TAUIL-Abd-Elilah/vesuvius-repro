@@ -1,15 +1,21 @@
-name: Cross-scan release tooling
+name: Cross-scan release and downstream tooling
 
 on:
   push:
     branches:
       - physical-crossscan-release-tooling
+      - physical-scrollfiesta-adapter
   pull_request:
     paths:
       - CROSSSCAN_RELEASE.md
       - export_crossscan_release.py
       - predict_crossscan_probability_ensemble.py
       - test_crossscan_release.py
+      - CROSSSCAN_SCROLLFIESTA_ADAPTER.md
+      - crossscan_scrollfiesta_adapter.py
+      - verify_physical_label_semantics.py
+      - test_crossscan_scrollfiesta_adapter.py
+      - test_verify_physical_label_semantics.py
       - crossscan_finetune.py
       - run_crossscan_finetune.py
       - score_crossscan_finetune.py
@@ -41,11 +47,17 @@ jobs:
           python -m py_compile \
             export_crossscan_release.py \
             predict_crossscan_probability_ensemble.py \
-            test_crossscan_release.py
+            test_crossscan_release.py \
+            crossscan_scrollfiesta_adapter.py \
+            verify_physical_label_semantics.py \
+            test_crossscan_scrollfiesta_adapter.py \
+            test_verify_physical_label_semantics.py
       - name: Run focused release and cross-scan tests
         run: |
           python -m unittest -v \
             test_crossscan_release.py \
+            test_crossscan_scrollfiesta_adapter.py \
+            test_verify_physical_label_semantics.py \
             test_crossscan_finetune.py \
             test_run_crossscan_finetune.py \
             test_score_crossscan_finetune.py
