@@ -4,14 +4,17 @@ Status: implementation of the outcome-blind downstream protocol in
 `crossscan_scrollfiesta_downstream_lock.json` v2 (content SHA-256
 `06142dc819c193a462f37d08a4769024c41ab551411013d40dda72db148457f6`). Candidate
 execution and any improvement claim remain forbidden unless the registered terminal result is
-`POSITIVE_DEPLOYABLE`.
+`POSITIVE_DEPLOYABLE`. Implementation details are frozen by
+`crossscan_scrollfiesta_metric_lock.json` (content SHA-256
+`70c29b370b1f6ca2bb7f6d78eb284e456187056d2ed7efb86c7b5950e976f42c`).
 
-The adapter ends at ScrollFiesta's documented `cubes_PRED/` and `cubes_RAW/` interface. It reuses
-the pinned ScrollFiesta mesher rather than duplicating it.
+The adapter ends at ScrollFiesta's documented `cubes_PRED/` and `cubes_RAW/` interface. The
+separate downstream executor invokes and audits the pinned ScrollFiesta mesher rather than
+duplicating it.
 
 ## Trust chain
 
-A `PASS` grid set now proves this complete chain:
+A `PASS` grid set proves this complete pre-meshing chain:
 
 1. The two physical-label tarballs match their pinned identities, every extracted compressed-Zarr
    byte matches the tar member, and all 30,427,840,512 voxels match the codec-decoded upstream
@@ -173,6 +176,49 @@ certificate: the downstream lock additionally requires independent OBJ/weld chec
 non-manifold edges, pinch vertices, same-direction pairs, world extent, and internal-seam
 unpaired edges.
 
+## 6. Execute and seal the three-arm downstream result
+
+This step is Windows-only because the registered consumer artifacts are pinned `.exe` files. It
+must not run for the candidate unless the upstream registered outcome is `POSITIVE_DEPLOYABLE`.
+
+```powershell
+python run_crossscan_scrollfiesta_downstream.py run `
+  --grid-set-receipt crossscan_scrollfiesta_grid_set.json `
+  --baseline-probability baseline_probability.zarr `
+  --candidate-probability candidate_probability.zarr `
+  --baseline-grid baseline_fixed_grid `
+  --candidate-fixed-grid candidate_fixed_grid `
+  --candidate-matched-grid candidate_matched_grid `
+  --labels-root D:\path\to\physical_truth `
+  --semantic-audit D:\evidence\physical_label_semantic_audit.json `
+  --binary-dir D:\path\to\ScrollFiesta\build\Release `
+  --renderer-script D:\path\to\ScrollFiesta\scripts\render_mesh.py `
+  --metric-lock crossscan_scrollfiesta_metric_lock.json `
+  --output crossscan_scrollfiesta_downstream
+
+python run_crossscan_scrollfiesta_downstream.py verify `
+  --output crossscan_scrollfiesta_downstream `
+  --expected-content-sha256 <published-terminal-content-sha256>
+```
+
+Before execution, the runner validates the pinned executables, renderer, physical truth, grid-set
+receipt, and exact production Python/NumPy/SciPy stack. It then makes private verified snapshots
+of all grids, tools, and truth; both scoring and meshing consume those same immutable bytes. The
+child environment is a minimal allowlist, each pipeline has a 12-hour timeout, and each renderer
+has a 2-hour timeout. A failure or timeout in one arm is sealed while the other arms still run.
+
+Every arm requires exactly eight clean summaries and logs, all final cube meshes, a decodable
+fixed-camera PNG, and an independently parsed final OBJ/weld report. The physical scorer applies
+the frozen component and surface-distance gates; the OBJ auditor independently recomputes edge
+incidence, world span, and internal-seam counts. Fixed centre cross-sections and mesh views cannot
+be replaced by outcome-selected panels.
+
+The terminal receipt binds the exact regular-file universe and rejects symlinks, junctions, and
+special entries. Verification recomputes every physical score and PASS-arm mesh audit from the
+staged inputs. Supplying the externally published terminal digest prevents a self-consistent
+receipt rewrite. A scientifically valid sealed negative result returns exit code 1; preserve and
+publish it rather than rerunning selectively.
+
 ## Tests
 
 ```powershell
@@ -180,6 +226,9 @@ python -m unittest -v `
   test_crossscan_release.py `
   test_run_crossscan_scrollfiesta_inference.py `
   test_crossscan_scrollfiesta_adapter.py `
+  test_crossscan_scrollfiesta_metrics.py `
+  test_crossscan_scrollfiesta_obj.py `
+  test_run_crossscan_scrollfiesta_downstream.py `
   test_verify_physical_label_semantics.py
 ```
 
@@ -188,3 +237,8 @@ revalidation, false semantic-fraction rejection, RAW/checkpoint/chunk tampering,
 inference-file semantics, real Blosc tar/Zarr decoding, deterministic runtime setup, centered
 baseline cropping, exact twelve-member probability averaging, stable matched mass, cross-arm
 source/runtime/tool equality, and recomputation of all three masks from the final Zarr stores.
+The downstream tests additionally cover exact metric boundaries, split/merger matching,
+independent edge/seam auditing, malformed OBJ/report rejection, poison-environment removal,
+command timeouts, corrupt visual rejection, exact artifact hashes, and a self-consistent forged
+PASS. Hosted CI runs these contract and fixture tests on Linux and Windows; it cannot execute the
+real pipeline because the three pinned external executables are not stored in this repository.

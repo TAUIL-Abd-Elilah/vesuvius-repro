@@ -28,11 +28,19 @@ it needs comes from `catalog.json`, so it works for any scroll with a published 
 > [real preprocessing smoke](results/crossscan_finetune/preprocess_smoke.json) covers the
 > fingerprint correction documented in [amendment 02](CROSSSCAN_FINETUNE_AMENDMENT_02.md);
 > the [superseded first lock](results/crossscan_finetune/execution_lock.superseded-20260811.json)
-> remains public. No pilot or fine-tuned prediction exists at this locked pre-outcome stage.
+> remains public. The registered positive pilot is known, while the six-seed final remains
+> incomplete and no final or downstream candidate prediction has been inspected.
 > A [separate release path](CROSSSCAN_RELEASE.md) is also public before outcome: it removes
 > optimizer state without changing weights, validates standard nnU-Net loading, and provides
 > probability-space ensemble inference. It fails closed unless the frozen terminal result is
 > `POSITIVE_DEPLOYABLE`; no fine-tuned weight or efficacy claim exists yet.
+>
+> The [ScrollFiesta adapter and downstream runbook](CROSSSCAN_SCROLLFIESTA_ADAPTER.md) implements
+> the separately preregistered [three-arm consumer test](CROSSSCAN_SCROLLFIESTA_DOWNSTREAM_PREREG.md).
+> Its parent lock is `06142dc819c193a462f37d08a4769024c41ab551411013d40dda72db148457f6` and
+> its implementation metric lock is
+> `70c29b370b1f6ca2bb7f6d78eb284e456187056d2ed7efb86c7b5950e976f42c`.
+> Candidate downstream execution remains prohibited until a registered `POSITIVE_DEPLOYABLE`.
 
 ## Try it in 30 seconds (no GPU, no downloads)
 

@@ -7,6 +7,8 @@ on:
       - physical-scrollfiesta-adapter
   pull_request:
     paths:
+      - README.md
+      - requirements.txt
       - CROSSSCAN_RELEASE.md
       - export_crossscan_release.py
       - predict_crossscan_probability_ensemble.py
@@ -15,10 +17,17 @@ on:
       - CROSSSCAN_SCROLLFIESTA_DOWNSTREAM_PREREG.md
       - crossscan_scrollfiesta_downstream_lock.json
       - crossscan_scrollfiesta_adapter.py
+      - crossscan_scrollfiesta_metric_lock.json
+      - crossscan_scrollfiesta_metrics.py
+      - crossscan_scrollfiesta_obj.py
+      - run_crossscan_scrollfiesta_downstream.py
       - run_crossscan_scrollfiesta_inference.py
       - test_run_crossscan_scrollfiesta_inference.py
       - verify_physical_label_semantics.py
       - test_crossscan_scrollfiesta_adapter.py
+      - test_crossscan_scrollfiesta_metrics.py
+      - test_crossscan_scrollfiesta_obj.py
+      - test_run_crossscan_scrollfiesta_downstream.py
       - test_verify_physical_label_semantics.py
       - crossscan_finetune.py
       - physical_normalization_ab.py
@@ -60,10 +69,16 @@ jobs:
             predict_crossscan_probability_ensemble.py \
             test_crossscan_release.py \
             crossscan_scrollfiesta_adapter.py \
+            crossscan_scrollfiesta_metrics.py \
+            crossscan_scrollfiesta_obj.py \
+            run_crossscan_scrollfiesta_downstream.py \
             run_crossscan_scrollfiesta_inference.py \
             test_run_crossscan_scrollfiesta_inference.py \
             verify_physical_label_semantics.py \
             test_crossscan_scrollfiesta_adapter.py \
+            test_crossscan_scrollfiesta_metrics.py \
+            test_crossscan_scrollfiesta_obj.py \
+            test_run_crossscan_scrollfiesta_downstream.py \
             test_verify_physical_label_semantics.py
       - name: Run focused release and cross-scan tests
         shell: bash
@@ -72,6 +87,9 @@ jobs:
             test_crossscan_release.py \
             test_run_crossscan_scrollfiesta_inference.py \
             test_crossscan_scrollfiesta_adapter.py \
+            test_crossscan_scrollfiesta_metrics.py \
+            test_crossscan_scrollfiesta_obj.py \
+            test_run_crossscan_scrollfiesta_downstream.py \
             test_verify_physical_label_semantics.py \
             test_crossscan_finetune.py \
             test_run_crossscan_finetune.py \

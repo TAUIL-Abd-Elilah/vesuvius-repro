@@ -364,7 +364,11 @@ class LockedAdapterTests(unittest.TestCase):
         )
         self.assertEqual(len(self.original_cube_hashes), 8)
         self.assertEqual(
-            self.original_cube_hashes["03840_03712_01344.tif"],
+            set(self.original_cube_hashes),
+            {name for _, name in A._cube_specs()},
+        )
+        self.assertEqual(
+            self.original_cube_hashes["z03840_y03712_x01344.tif"],
             "039d756bff0e084a90b0e1186abfbdfb0abff2195b4156492340a4b7e9accf47",
         )
 
