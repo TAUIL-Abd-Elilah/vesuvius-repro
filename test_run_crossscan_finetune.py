@@ -431,7 +431,9 @@ class FilesAndConfigurationTests(unittest.TestCase):
             got, got_path = R.load_training_receipt(
                 PLAN, lock, root, 40, 2000, "even"
             )
-            self.assertEqual(got_path, checkpoint)
+            # Windows hosted runners may expose the temp root through an 8.3 alias
+            # while Path.resolve() returns its long canonical spelling.
+            self.assertEqual(got_path, checkpoint.resolve())
             self.assertEqual(got["checkpoint"]["sha256"], R.file_record(checkpoint)["sha256"])
             receipt["checkpoint"]["relative_path"] = "../escape.pth"
             C.write_json(receipt_path, R._with_content_hash(receipt))
