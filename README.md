@@ -18,8 +18,10 @@ it needs comes from `catalog.json`, so it works for any scroll with a published 
 > the same 64 truth-only-selected blocks. It makes no causal-normalization claim.
 >
 > **Next core-model experiment:** the
-> [cross-scan physical-truth fine-tuning design](CROSSSCAN_FINETUNE_PREREG.md) uses the new
-> model-independent PHerc1203 recto labels, complementary z-stratum cross-fitting, six
+> [cross-scan registered-label fine-tuning design](CROSSSCAN_FINETUNE_PREREG.md) uses external,
+> model-independent PHerc1203 recto reference masks derived from a separately acquired
+> 2.403 um scan and registered into the public 9.362 um frame, complementary z-stratum
+> cross-fitting, six
 > inferential seeds, and untouched PHerc0139 safety evaluation. The outcome-blind plan,
 > tested execution runtime, scorer, and [runbook](CROSSSCAN_FINETUNE_RUNBOOK.md) are public;
 > the [replacement execution lock](results/crossscan_finetune/execution_lock.json) binds them to
@@ -42,6 +44,12 @@ it needs comes from `catalog.json`, so it works for any scroll with a published 
 > its implementation metric lock is
 > `70c29b370b1f6ca2bb7f6d78eb284e456187056d2ed7efb86c7b5950e976f42c`.
 > Candidate downstream execution remains prohibited until a registered `POSITIVE_DEPLOYABLE`.
+>
+> **Claim boundary:** these are automated scan-derived proxy labels, not organizer-issued
+> ground truth or human annotations. Legacy `truth` tokens in frozen files are historical
+> schema identifiers. A positive machine verdict establishes improved agreement with the
+> registered masks only; an image-backed review is required before any model-improvement or
+> deployment claim. See [amendment 08](CROSSSCAN_FINETUNE_AMENDMENT_08.md).
 
 ## Try it in 30 seconds (no GPU, no downloads)
 

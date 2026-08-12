@@ -225,10 +225,10 @@ tags:
   - vesuvius-challenge
   - surface-detection
   - nnunet
-  - physical-truth
+  - registered-scan-derived-labels
 ---
 
-# Cross-scan physical-truth surface-m7 fine-tunes
+# Cross-scan registered-label surface-m7 fine-tunes
 
 This is an optimizer-free inference release generated from the public, outcome-blind
 cross-scan experiment. The terminal frozen outcome is **{result['status']}**.
@@ -247,8 +247,9 @@ cross-scan experiment. The terminal frozen outcome is **{result['status']}**.
 
 The primary endpoint predicts every PHerc1203 evaluation block only with the fold that
 did not train on its z stratum. The safety endpoint is on a different scroll and averages
-the two folds within each seed. These are sampled physical-truth blocks, not a whole-scroll
-reading result.
+the two folds within each seed. These are sampled blocks scored against registered
+high-resolution-scan-derived reference masks, not a whole-scroll reading result or an
+organizer-ground-truth evaluation.
 
 ## Inference
 
@@ -391,15 +392,16 @@ def technical_report(
             f"{len(fold['internal_validation_case_ids'])} internal-validation cases."
         )
 
-    return f"""# Cross-scan physical-truth fine-tuning: sealed technical report
+    return f"""# Cross-scan registered-label fine-tuning: sealed technical report
 
 Generated from `final_result.json`; no metric in this report is manually entered.
 
 ## Result
 
 The frozen terminal bucket is **{result['status']}**. Fine-tuning the released surface-m7
-model on model-independent PHerc1203 physical recto truth changed the held-out,
-cross-fitted pooled average precision by **{primary['mean']:+.6f}** on average over six
+model on external, model-independent PHerc1203 recto reference masks derived from a
+separately acquired high-resolution scan changed held-out, cross-fitted pooled average
+precision by **{primary['mean']:+.6f}** on average over six
 training seeds. The 95% seed-level t interval is **[{primary['ci95'][0]:+.6f},
 {primary['ci95'][1]:+.6f}]**, the two-sided p-value is
 **{primary['two_sided_p']:.6g}**, and **{primary['positive_seeds']}/6** seed effects are
@@ -407,12 +409,13 @@ positive. On the untouched PHerc0139 safety scroll, the mean AP delta is
 **{safety['mean']:+.6f}**, with 95% interval **[{safety['ci95'][0]:+.6f},
 {safety['ci95'][1]:+.6f}]**.
 
-This is a sampled physical-truth result, not a whole-scroll segmentation or reading claim.
+This is a sampled registered-label-agreement result, not an organizer-ground-truth,
+whole-scroll segmentation, or reading claim.
 
 ## Contribution
 
 - A direct intervention on a core virtual-unwrapping stage: the released m7 surface model.
-- 288 physical-truth training/internal-validation crops selected without model output.
+- 288 registered-reference-label training/internal-validation crops selected without model output.
 - Complementary spatial cross-fitting, a separate seed-39 learnability gate, six frozen
   inferential seeds, 32 held-out PHerc1203 blocks, and 32 untouched PHerc0139 blocks.
 - Eight visual panels selected and locked before any model outcome.
@@ -470,7 +473,8 @@ post-hoc model-error bins.
 
 ## Fixed visual evidence
 
-Each panel shows CT, physical truth, initial m7 probability, fine-tuned probability,
+Each panel shows CT, the registered scan-derived reference mask, initial m7 probability,
+fine-tuned probability,
 probability additions, and removals for all six seeds plus their mean. All eight are shown.
 
 {chr(10).join(figures)}
@@ -486,7 +490,8 @@ probability-space visual ensemble.
 ## Limitations
 
 - Evaluation covers 64 fixed 64-cubed L1 score blocks, not either complete scroll.
-- The primary endpoint is recto physical truth with supervised negatives; it does not
+- The primary endpoint is agreement with an automated scan-derived recto reference mask
+  with supervised negatives; it is not official or human ground truth and does not
   measure ink detection, mesh topology, surface ordering, or readable text.
 - PHerc1203 primary estimates are cross-fitted within one scroll. PHerc0139 is the separate
   safety scroll, not a claim of universal cross-scroll generalization.

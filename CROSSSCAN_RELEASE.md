@@ -98,3 +98,9 @@ The prospective primary endpoint is PHerc1203 cross-fitted block evaluation; the
 endpoint is an untouched PHerc0139 scroll. Neither is a whole-scroll reading claim. If the
 pilot stops, or the final bucket is null, inconclusive, regressive, or safety-regressive,
 this exporter fails closed rather than creating a deployable model card.
+
+As clarified in [claim-boundary amendment 08](CROSSSCAN_FINETUNE_AMENDMENT_08.md), the
+endpoints measure agreement with automated high-resolution-scan-derived reference masks,
+not organizer/human ground truth. `POSITIVE_DEPLOYABLE` is the frozen machine-bucket name;
+it may unlock the preregistered diagnostic export and downstream run, but it cannot support
+a public improvement or deployment claim without image-backed review of the fixed panels.
