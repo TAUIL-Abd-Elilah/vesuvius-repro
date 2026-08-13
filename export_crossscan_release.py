@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 import crossscan_finetune as C
+import crossscan_highres_review as H
 import predict_crossscan_probability_ensemble as P
 import run_crossscan_finetune as R
 import verify_physical_label_semantics as V
@@ -213,10 +214,19 @@ release-tooling source files remain **MIT**-licensed; their complete license tex
 
 def model_card(
     result: dict[str, Any], plan: dict[str, Any], records: list[dict[str, Any]],
+    visual_review: dict[str, Any] | None = None,
 ) -> str:
     primary = result["primary_summary"]
     safety = result["safety_summary"]
     label_release = plan["inputs"]["label_release"]
+    review_line = ""
+    if visual_review is not None:
+        supported = visual_review.get("supported_panel_ids", [])
+        review_line = (
+            "- Independent-scan human review: "
+            f"**{visual_review['release_recommendation']}**; "
+            f"{len(supported)} fixed panels authorized for named image-supported wording.\n"
+        )
     return f"""---
 license: cc-by-nc-4.0
 library_name: nnunet
@@ -244,6 +254,7 @@ cross-scan experiment. The terminal frozen outcome is **{result['status']}**.
 - Result content SHA-256: `{result['content_sha256']}`.
 - Models: {len(records)} checkpoints = seeds 40..45 x complementary even/odd
   z-stratum folds. No best seed was selected.
+{review_line}
 
 The primary endpoint predicts every PHerc1203 evaluation block only with the fold that
 did not train on its z stratum. The safety endpoint is on a different scroll and averages
@@ -284,6 +295,9 @@ Use as a research surface-probability model at the m7 plans' native spacing. Pre
 model's CT normalization metadata. Do not call the sampled AP result whole-scroll quality,
 ink detection, surface tracing, or proof that a scroll can be read. The complete result,
 fixed visual panels, plan, lock, and training receipts are in `evidence/`.
+The separate `evidence/highres_review/` pack registers the independently acquired scan
+behind every fixed panel and binds the human claim-boundary review. A general model-error
+correction claim is not implied by the machine bucket.
 
 ## Attribution and license
 
@@ -300,6 +314,7 @@ terms continue to govern their respective inputs.
 def technical_report(
     result: dict[str, Any], plan: dict[str, Any], lock: dict[str, Any],
     records: list[dict[str, Any]],
+    visual_review: dict[str, Any] | None = None,
 ) -> str:
     """Render the sealed result without hand-transcribing any quantitative field."""
 
@@ -392,6 +407,23 @@ def technical_report(
             f"{len(fold['internal_validation_case_ids'])} internal-validation cases."
         )
 
+    review_section = ""
+    if visual_review is not None:
+        supported = visual_review.get("supported_panel_ids", [])
+        supported_text = ", ".join(f"`{panel_id}`" for panel_id in supported) or "none"
+        review_section = f"""
+## Registered independent-scan review
+
+All eight fixed cases were rendered against the separately acquired scan and reviewed by
+`{visual_review['reviewer']}` at `{visual_review['reviewed_utc']}`. The signed recommendation
+is **{visual_review['release_recommendation']}**. Fixed panels authorized for narrowly named,
+image-supported correction wording: {supported_text}.
+
+The complete panel hashes, source-scan chunk hashes, transform identities, reviewer notes,
+and proxy-not-ground-truth acknowledgement are under `evidence/highres_review/`. Cases not
+listed above support only the registered-proxy-agreement claim.
+"""
+
     return f"""# Cross-scan registered-label fine-tuning: sealed technical report
 
 Generated from `final_result.json`; no metric in this report is manually entered.
@@ -479,6 +511,8 @@ probability additions, and removals for all six seeds plus their mean. All eight
 
 {chr(10).join(figures)}
 
+{review_section}
+
 ## Reusable release
 
 `model/` contains release folds 0..11 in standard nnU-Net layout, ordered as seeds 40..45
@@ -559,6 +593,11 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
     semantic_audit, semantic_audit_payload = V.validate_audit_receipt(
         args.semantic_audit.resolve()
     )
+    review_root = args.highres_review_root.resolve()
+    review_pack = H.load_review_pack(review_root)
+    visual_review, visual_review_payload = H.validate_human_review(
+        review_root, args.highres_review_receipt.resolve()
+    )
     base_model_card = model_dir / "README.md"
     tooling_license = repo / "LICENSE"
     verify_license_provenance(plan, base_model_card, tooling_license)
@@ -578,6 +617,21 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
             "release is allowed only for the frozen POSITIVE_DEPLOYABLE result; "
             f"mismatches={mismatches}"
         )
+    review_mismatches = [
+        key for key, value in {
+            "plan_content_sha256": plan["content_sha256"],
+            "execution_lock_content_sha256": lock["content_sha256"],
+            "final_result_content_sha256": result["content_sha256"],
+            "selected_steps": result["selected_steps"],
+        }.items() if review_pack.get(key) != value
+    ]
+    if review_mismatches:
+        raise ValueError(
+            "high-resolution review pack does not bind this release; "
+            f"mismatches={review_mismatches}"
+        )
+    if visual_review["release_recommendation"] == "DO_NOT_RELEASE":
+        raise ValueError("human independent-scan review blocks public release")
 
     staging.mkdir(parents=True)
     model_root = staging / "model"
@@ -627,6 +681,8 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
         (repo / "results/crossscan_finetune/execution_lock.json", "evidence/execution_lock.json"),
         (base_model_card, "evidence/BASE_MODEL_README.md"),
         (args.semantic_audit.resolve(), "evidence/physical_label_semantic_audit.json"),
+        (review_root / "review_pack.json", "evidence/highres_review/review_pack.json"),
+        (args.highres_review_receipt.resolve(), "evidence/highres_review/human_review.json"),
     ):
         evidence.append(copy_artifact(source, staging, relative))
     for attempt in sorted(data.glob("pilot_attempt_steps-*.json")):
@@ -652,6 +708,16 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
         evidence.append(copy_artifact(
             source, staging, f"evidence/figures/{source.name}"
         ))
+    for case in review_pack["cases"]:
+        source = R.resolve_data_path(review_root, case["panel"]["path"])
+        if R.file_record(source) != {
+            "bytes": case["panel"]["bytes"],
+            "sha256": case["panel"]["sha256"],
+        }:
+            raise ValueError(f"high-resolution review panel hash mismatch: {source}")
+        evidence.append(copy_artifact(
+            source, staging, f"evidence/highres_review/panels/{source.name}"
+        ))
 
     tooling = []
     for name in (
@@ -662,11 +728,15 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
         "run_crossscan_finetune.py",
         "crossscan_finetune.py",
         "score_crossscan_finetune.py",
+        "crossscan_highres_review.py",
         "physical_normalization_ab.py",
         "verify_physical_label_semantics.py",
         "crossscan_scrollfiesta_downstream_lock.json",
         "CROSSSCAN_SCROLLFIESTA_DOWNSTREAM_PREREG.md",
         "CROSSSCAN_SCROLLFIESTA_ADAPTER.md",
+        "CROSSSCAN_FINETUNE_PREREG.md",
+        "CROSSSCAN_FINETUNE_AMENDMENT_08.md",
+        "CROSSSCAN_HIGHRES_REVIEW.md",
     ):
         tooling.append(copy_artifact(repo / name, staging, name))
     tooling.append(copy_artifact(
@@ -674,10 +744,12 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
     ))
 
     card = staging / "README.md"
-    card.write_text(model_card(result, plan, records), encoding="utf-8")
+    card.write_text(
+        model_card(result, plan, records, visual_review), encoding="utf-8"
+    )
     report = staging / "TECHNICAL_REPORT.md"
     report.write_text(
-        technical_report(result, plan, lock, records), encoding="utf-8"
+        technical_report(result, plan, lock, records, visual_review), encoding="utf-8"
     )
     license_notice = staging / "MODEL_LICENSE.md"
     license_notice.write_text(model_license_notice(plan), encoding="utf-8")
@@ -702,6 +774,11 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
         "final_result_content_sha256": result["content_sha256"],
         "semantic_audit_content_sha256": semantic_audit["content_sha256"],
         "semantic_audit_file_sha256": C.sha256_bytes(semantic_audit_payload),
+        "highres_review_pack_content_sha256": review_pack["content_sha256"],
+        "highres_review_receipt_content_sha256": visual_review["content_sha256"],
+        "highres_review_receipt_file_sha256": C.sha256_bytes(visual_review_payload),
+        "highres_review_recommendation": visual_review["release_recommendation"],
+        "highres_review_supported_panel_ids": visual_review["supported_panel_ids"],
         "outcome": result["status"],
         "selected_steps": result["selected_steps"],
         "base_model": plan["inputs"]["model"],
@@ -737,6 +814,8 @@ def main() -> None:
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--data-root", type=Path, required=True)
     parser.add_argument("--semantic-audit", type=Path, required=True)
+    parser.add_argument("--highres-review-root", type=Path, required=True)
+    parser.add_argument("--highres-review-receipt", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     print(C.canonical_json(build_release(args)))

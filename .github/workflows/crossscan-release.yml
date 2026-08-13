@@ -10,6 +10,10 @@ on:
       - README.md
       - requirements.txt
       - CROSSSCAN_RELEASE.md
+      - CROSSSCAN_HIGHRES_REVIEW.md
+      - CROSSSCAN_FINETUNE_AMENDMENT_08.md
+      - crossscan_highres_review.py
+      - test_crossscan_highres_review.py
       - export_crossscan_release.py
       - predict_crossscan_probability_ensemble.py
       - test_crossscan_release.py
@@ -66,6 +70,8 @@ jobs:
         run: |
           python -m py_compile \
             export_crossscan_release.py \
+            crossscan_highres_review.py \
+            test_crossscan_highres_review.py \
             predict_crossscan_probability_ensemble.py \
             test_crossscan_release.py \
             crossscan_scrollfiesta_adapter.py \
@@ -84,6 +90,7 @@ jobs:
         shell: bash
         run: |
           python -m unittest -v \
+            test_crossscan_highres_review.py \
             test_crossscan_release.py \
             test_run_crossscan_scrollfiesta_inference.py \
             test_crossscan_scrollfiesta_adapter.py \

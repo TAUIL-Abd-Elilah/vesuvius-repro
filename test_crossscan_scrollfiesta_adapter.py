@@ -173,9 +173,17 @@ def write_candidate_release(
     execution_record = record(
         release, "evidence/execution_lock.json", EXECUTION_LOCK_PATH.read_bytes()
     )
+    review_pack_payload = b'{"schema_version":"fixture-review-pack"}'
+    review_receipt_payload = b'{"schema_version":"fixture-human-review"}'
+    review_pack_record = record(
+        release, "evidence/highres_review/review_pack.json", review_pack_payload
+    )
+    review_receipt_record = record(
+        release, "evidence/highres_review/human_review.json", review_receipt_payload
+    )
     tooling = [
         record(release, name, Path(A.__file__).with_name(name).read_bytes())
-        for name in A.INFERENCE_TOOL_NAMES
+        for name in sorted(P.REQUIRED_RELEASE_TOOL_PATHS)
     ]
     promotion_value = json.loads(promotion_payload)
     semantic_value = json.loads(semantic_payload)
@@ -187,6 +195,13 @@ def write_candidate_release(
         "final_result_content_sha256": promotion_value["content_sha256"],
         "semantic_audit_content_sha256": semantic_value["content_sha256"],
         "semantic_audit_file_sha256": hashlib.sha256(semantic_payload).hexdigest(),
+        "highres_review_pack_content_sha256": "c" * 64,
+        "highres_review_receipt_content_sha256": "d" * 64,
+        "highres_review_receipt_file_sha256": hashlib.sha256(
+            review_receipt_payload
+        ).hexdigest(),
+        "highres_review_recommendation": "RELEASE_WITH_AGREEMENT_ONLY",
+        "highres_review_supported_panel_ids": [],
         "outcome": "POSITIVE_DEPLOYABLE",
         "selected_steps": 4000,
         "licenses": P.RELEASE_LICENSES,
@@ -197,7 +212,10 @@ def write_candidate_release(
         },
         "models": models,
         "model_files": {"plans": plans, "dataset": dataset},
-        "artifacts": [promotion_record, semantic_record, execution_record],
+        "artifacts": [
+            promotion_record, semantic_record, execution_record,
+            review_pack_record, review_receipt_record,
+        ],
         "tooling": tooling,
         "reports": [],
     }

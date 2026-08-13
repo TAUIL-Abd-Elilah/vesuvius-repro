@@ -27,6 +27,7 @@ REQUIRED_RELEASE_TOOL_PATHS = {
     "run_crossscan_finetune.py",
     "crossscan_finetune.py",
     "score_crossscan_finetune.py",
+    "crossscan_highres_review.py",
     "verify_physical_label_semantics.py",
     "physical_normalization_ab.py",
 }
@@ -34,6 +35,8 @@ REQUIRED_RELEASE_ARTIFACT_PATHS = {
     "evidence/final_result.json",
     "evidence/execution_lock.json",
     "evidence/physical_label_semantic_audit.json",
+    "evidence/highres_review/review_pack.json",
+    "evidence/highres_review/human_review.json",
 }
 
 
@@ -105,10 +108,28 @@ def validate_release_manifest_value(manifest: dict) -> dict:
         "final_result_content_sha256",
         "semantic_audit_content_sha256",
         "semantic_audit_file_sha256",
+        "highres_review_pack_content_sha256",
+        "highres_review_receipt_content_sha256",
+        "highres_review_receipt_file_sha256",
     ):
         value = manifest.get(key)
         if not isinstance(value, str) or len(value) != 64:
             raise ValueError(f"release manifest has invalid {key}")
+    recommendation = manifest.get("highres_review_recommendation")
+    if recommendation not in {
+        "RELEASE_WITH_AGREEMENT_ONLY",
+        "RELEASE_WITH_NAMED_IMAGE_SUPPORTED_CASES",
+    }:
+        raise ValueError("release manifest lacks human independent-scan authorization")
+    supported = manifest.get("highres_review_supported_panel_ids")
+    if (
+        not isinstance(supported, list)
+        or len(supported) != len(set(supported))
+        or any(not isinstance(value, str) or not value for value in supported)
+        or (recommendation == "RELEASE_WITH_AGREEMENT_ONLY" and supported)
+        or (recommendation == "RELEASE_WITH_NAMED_IMAGE_SUPPORTED_CASES" and not supported)
+    ):
+        raise ValueError("release manifest has invalid image-supported panel authorization")
     records = manifest.get("models")
     expected_pairs = [
         (seed, training_fold)

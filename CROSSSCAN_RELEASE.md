@@ -14,6 +14,8 @@ standard nnU-Net model folder with folds 0..11. It:
 - verifies the locked runtime and every source checkpoint before export;
 - requires the exact tar-bound, codec-decoded physical-label semantic audit and binds it into
   the release manifest;
+- requires a complete fixed independent-scan review pack plus a named human receipt that
+  authorizes release under the proxy-not-ground-truth claim boundary;
 - preserves every network tensor exactly;
 - removes optimizer, gradient-scaler, logger, and best-EMA state;
 - maps the experiment-local dynamic trainer name to standard `nnUNetTrainer` for inference;
@@ -67,7 +69,8 @@ The focused suite includes a counterexample proving that the probability
 ensemble is not silently equivalent to logit averaging and an export round trip proving
 that training state is removed while aliased network tensors remain identical. It also
 checks that the generated report contains all six seed rows, all fixed strata, and all
-eight preselected panels, refuses a reordered seed result, and fails if the label,
+eight preselected machine panels plus all 24 independent-scan review panels, refuses a
+reordered seed or review result, and fails if the label,
 base-model, tooling, or release-manifest license contract drifts.
 
 After a qualifying final result, build the local release with:
@@ -79,8 +82,14 @@ python export_crossscan_release.py \
   --model-dir /path/to/surface_m7_nnunet \
   --data-root /path/to/crossscan_finetune_v1 \
   --semantic-audit /path/to/physical_label_semantic_audit.json \
+  --highres-review-root /path/to/crossscan_highres_review \
+  --highres-review-receipt /path/to/crossscan_highres_review/human_review.json \
   --out /path/to/crossscan_release
 ```
+
+Generate and validate the required review pack first with
+`CROSSSCAN_HIGHRES_REVIEW.md`. `DO_NOT_RELEASE`, a failed registration panel, a changed
+panel hash, or unsupported claim escalation blocks export.
 
 Then run the probability ensemble on nnU-Net-formatted inputs:
 

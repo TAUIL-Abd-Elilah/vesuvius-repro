@@ -36,7 +36,11 @@ it needs comes from `catalog.json`, so it works for any scroll with a published 
 > optimizer state without changing weights, validates standard nnU-Net loading, and provides
 > a custom locked probability-space ensemble that differs from standard nnU-Net logit averaging.
 > It fails closed unless the frozen terminal result is
-> `POSITIVE_DEPLOYABLE`; no fine-tuned weight or efficacy claim exists yet.
+> `POSITIVE_DEPLOYABLE` and the [fixed independent-scan review](CROSSSCAN_HIGHRES_REVIEW.md)
+> has a valid named human receipt. That review renders three prospectively fixed slices for
+> each locked case, verifies the exact label-caster coordinate convention against the material
+> bits, and keeps general wording at registered-proxy agreement unless named panels support
+> more. No fine-tuned weight or efficacy claim exists yet.
 >
 > The [ScrollFiesta adapter and downstream runbook](CROSSSCAN_SCROLLFIESTA_ADAPTER.md) implements
 > the separately preregistered [three-arm consumer test](CROSSSCAN_SCROLLFIESTA_DOWNSTREAM_PREREG.md).

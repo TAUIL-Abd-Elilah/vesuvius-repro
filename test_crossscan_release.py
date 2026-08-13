@@ -22,6 +22,11 @@ def valid_release_header() -> dict:
         "final_result_content_sha256": "f" * 64,
         "semantic_audit_content_sha256": "a" * 64,
         "semantic_audit_file_sha256": "b" * 64,
+        "highres_review_pack_content_sha256": "c" * 64,
+        "highres_review_receipt_content_sha256": "d" * 64,
+        "highres_review_receipt_file_sha256": "e" * 64,
+        "highres_review_recommendation": "RELEASE_WITH_AGREEMENT_ONLY",
+        "highres_review_supported_panel_ids": [],
     }
 
 
@@ -295,6 +300,8 @@ class ManifestTests(unittest.TestCase):
                 record("evidence/final_result.json", b"result"),
                 record("evidence/execution_lock.json", b"lock"),
                 record("evidence/physical_label_semantic_audit.json", b"audit"),
+                record("evidence/highres_review/review_pack.json", b"review-pack"),
+                record("evidence/highres_review/human_review.json", b"human-review"),
             ]
             tooling = [
                 record(path, f"tool-{path}".encode("utf-8"))
