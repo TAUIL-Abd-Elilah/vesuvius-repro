@@ -15,6 +15,7 @@ from typing import Any
 
 import crossscan_finetune as C
 import crossscan_highres_review as H
+import crossscan_release_publication as U
 import predict_crossscan_probability_ensemble as P
 import run_crossscan_finetune as R
 import verify_physical_label_semantics as V
@@ -722,9 +723,14 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
     tooling = []
     for name in (
         "export_crossscan_release.py",
+        "crossscan_release_publication.py",
+        "test_crossscan_release_publication.py",
         "predict_crossscan_probability_ensemble.py",
         "crossscan_scrollfiesta_adapter.py",
         "run_crossscan_scrollfiesta_inference.py",
+        "run_crossscan_scrollfiesta_downstream.py",
+        "crossscan_scrollfiesta_metrics.py",
+        "crossscan_scrollfiesta_obj.py",
         "run_crossscan_finetune.py",
         "crossscan_finetune.py",
         "score_crossscan_finetune.py",
@@ -732,11 +738,13 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
         "physical_normalization_ab.py",
         "verify_physical_label_semantics.py",
         "crossscan_scrollfiesta_downstream_lock.json",
+        "crossscan_scrollfiesta_metric_lock.json",
         "CROSSSCAN_SCROLLFIESTA_DOWNSTREAM_PREREG.md",
         "CROSSSCAN_SCROLLFIESTA_ADAPTER.md",
         "CROSSSCAN_FINETUNE_PREREG.md",
         "CROSSSCAN_FINETUNE_AMENDMENT_08.md",
         "CROSSSCAN_HIGHRES_REVIEW.md",
+        "CROSSSCAN_RELEASE_PUBLICATION.md",
     ):
         tooling.append(copy_artifact(repo / name, staging, name))
     tooling.append(copy_artifact(
@@ -799,10 +807,12 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
     P.validate_release_manifest_value(manifest)
     verify_release_files(staging, manifest)
     validate_standard_nnunet_model(model_root, list(range(12)))
+    U.write_release_checksums(staging)
     staging.replace(out)
     verified = load_hashed(out / "release_manifest.json")
     P.validate_release_manifest_value(verified)
     verify_release_files(out, verified)
+    U.validate_release(out)
     return verified
 
 

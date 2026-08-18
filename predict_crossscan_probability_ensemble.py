@@ -21,8 +21,15 @@ RELEASE_LICENSES = {
 PLAN_CONTENT_SHA256 = "3f001515f55f289199350ce807eb89b3a09510307b9c200780f195a6e8b11698"
 EXECUTION_LOCK_CONTENT_SHA256 = "e682279a19f1f5e6d98df6e1978ce3533025b51b9b8a632789f43f22ab09805f"
 REQUIRED_RELEASE_TOOL_PATHS = {
+    "crossscan_release_publication.py",
+    "test_crossscan_release_publication.py",
     "crossscan_scrollfiesta_adapter.py",
+    "crossscan_scrollfiesta_downstream_lock.json",
+    "crossscan_scrollfiesta_metric_lock.json",
+    "crossscan_scrollfiesta_metrics.py",
+    "crossscan_scrollfiesta_obj.py",
     "run_crossscan_scrollfiesta_inference.py",
+    "run_crossscan_scrollfiesta_downstream.py",
     "predict_crossscan_probability_ensemble.py",
     "run_crossscan_finetune.py",
     "crossscan_finetune.py",
@@ -30,6 +37,7 @@ REQUIRED_RELEASE_TOOL_PATHS = {
     "crossscan_highres_review.py",
     "verify_physical_label_semantics.py",
     "physical_normalization_ab.py",
+    "CROSSSCAN_RELEASE_PUBLICATION.md",
 }
 REQUIRED_RELEASE_ARTIFACT_PATHS = {
     "evidence/final_result.json",
