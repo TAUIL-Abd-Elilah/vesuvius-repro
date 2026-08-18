@@ -24,6 +24,9 @@ Every panel says that the reference is an automated proxy, not organizer-issued 
 ground truth. The renderer never changes a case, score, threshold, seed, checkpoint, or
 terminal bucket. It records the exact transform, source URLs, Zarr metadata, downloaded
 chunk hashes, interpolation coordinates, panel hashes, plan, lock, and final-result identity.
+The manifest also binds the public renderer repository, exact clean commit, and canonical
+Git source bytes. Its CRLF-to-LF-only canonicalization makes the identity invariant to a
+normal Windows or Linux checkout while retaining every other source byte.
 
 ## Inputs
 
@@ -59,7 +62,8 @@ the fixed panels; it does not read or summarize efficacy metrics.
 
 The output contains 24 PNGs (eight locked cases × three fixed slices), `review_pack.json`, and
 `human_review_TEMPLATE.json`. The manifest is transitive through the panel and downloaded
-source-chunk hashes.
+source-chunk hashes. Rendering rejects an uncommitted renderer, and verification resolves
+the recorded commit's Git blob and rejects any canonical source-identity mismatch.
 
 An input-only rehearsal on 2026-08-13 checked all 24 slice registrations against 89,605
 released valid-mask voxels and found zero material-bit mismatches. Two original `k=32`

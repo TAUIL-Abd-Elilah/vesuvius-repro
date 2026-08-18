@@ -15,6 +15,7 @@ import datetime as dt
 import hashlib
 import json
 import math
+import subprocess
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -29,8 +30,10 @@ import run_crossscan_finetune as R
 import score_crossscan_finetune as S
 
 
-PACK_SCHEMA = "crossscan-highres-review-pack-v1"
+PACK_SCHEMA = "crossscan-highres-review-pack-v2"
 REVIEW_SCHEMA = "crossscan-highres-human-review-v1"
+TOOL_REPOSITORY = "https://github.com/TAUIL-Abd-Elilah/vesuvius-repro"
+TOOL_CANONICALIZATION = "crlf-to-lf-v1"
 UPSTREAM_COMMIT = "b24e028178f2c8720ba1d16ac53d5f0b6ac00da7"
 UPSTREAM_REPOSITORY = "https://github.com/7jycwjmbfn-eng/pherc0139-physical-audit"
 REVIEW_ACKNOWLEDGEMENT = (
@@ -117,6 +120,90 @@ def _file_record(path: Path, relative: str) -> dict[str, Any]:
         "bytes": path.stat().st_size,
         "sha256": _sha256_file(path),
     }
+
+
+def _canonical_source_bytes(value: bytes) -> bytes:
+    """Return Git-portable source bytes without weakening other byte checks."""
+    return value.replace(b"\r\n", b"\n")
+
+
+def _git_bytes(repo: Path, *args: str) -> bytes:
+    return subprocess.check_output(
+        ["git", "-C", str(repo), *args], stderr=subprocess.STDOUT
+    )
+
+
+def _git_text(repo: Path, *args: str) -> str:
+    return _git_bytes(repo, *args).decode("utf-8").strip()
+
+
+def _tool_record(repo: Path, *, require_clean: bool) -> dict[str, Any]:
+    repo = repo.resolve()
+    tool = Path(__file__).resolve()
+    top = Path(_git_text(repo, "rev-parse", "--show-toplevel")).resolve()
+    if top != repo or tool.parent != repo:
+        raise ValueError("review renderer must run from the repository root")
+    if require_clean:
+        status = _git_text(repo, "status", "--porcelain=v1", "--untracked-files=all")
+        if status:
+            raise ValueError("review renderer requires a clean repository worktree")
+    commit = _git_text(repo, "rev-parse", "HEAD")
+    if len(commit) != 40 or any(character not in "0123456789abcdef" for character in commit):
+        raise ValueError("review renderer repository has an invalid commit identity")
+    relative = tool.relative_to(repo).as_posix()
+    try:
+        committed = _git_bytes(repo, "show", f"{commit}:{relative}")
+    except subprocess.CalledProcessError as exc:
+        raise ValueError("review renderer is not tracked at the recorded commit") from exc
+    canonical_committed = _canonical_source_bytes(committed)
+    canonical_worktree = _canonical_source_bytes(tool.read_bytes())
+    if canonical_worktree != canonical_committed:
+        raise ValueError("review renderer source differs from the recorded commit")
+    return {
+        "repository": TOOL_REPOSITORY,
+        "commit": commit,
+        "path": relative,
+        "canonicalization": TOOL_CANONICALIZATION,
+        "canonical_bytes": len(canonical_committed),
+        "canonical_sha256": _sha256_bytes(canonical_committed),
+    }
+
+
+def _validate_tool_record(repo: Path, record: object) -> None:
+    repo = repo.resolve()
+    expected_keys = {
+        "repository", "commit", "path", "canonicalization",
+        "canonical_bytes", "canonical_sha256",
+    }
+    if not isinstance(record, dict) or set(record) != expected_keys:
+        raise ValueError("review pack has an invalid renderer identity")
+    if (
+        record.get("repository") != TOOL_REPOSITORY
+        or record.get("path") != Path(__file__).name
+        or record.get("canonicalization") != TOOL_CANONICALIZATION
+    ):
+        raise ValueError("review pack has an unexpected renderer identity")
+    commit = record.get("commit")
+    digest = record.get("canonical_sha256")
+    size = record.get("canonical_bytes")
+    if (
+        not isinstance(commit, str)
+        or len(commit) != 40
+        or any(character not in "0123456789abcdef" for character in commit)
+        or not isinstance(digest, str)
+        or len(digest) != 64
+        or any(character not in "0123456789abcdef" for character in digest)
+        or type(size) is not int
+        or size <= 0
+    ):
+        raise ValueError("review pack has malformed renderer provenance")
+    try:
+        committed = _git_bytes(repo, "show", f"{commit}:{record['path']}")
+    except subprocess.CalledProcessError as exc:
+        raise ValueError("review renderer commit/blob is unavailable") from exc
+    canonical = _canonical_source_bytes(committed)
+    if len(canonical) != size or _sha256_bytes(canonical) != digest:
+        raise ValueError("review renderer commit/blob identity mismatch")
 
 
 def _load_hashed(path: Path) -> dict[str, Any]:
@@ -570,6 +657,7 @@ def _candidate_mean(
 
 def build_review_pack(args: argparse.Namespace) -> dict[str, Any]:
     repo = args.repo.resolve()
+    tool_record = _tool_record(repo, require_clean=True)
     data_root = args.data_root.resolve()
     transform_root = args.transform_root.resolve()
     cache_root = args.cache_root.resolve()
@@ -761,7 +849,7 @@ def build_review_pack(args: argparse.Namespace) -> dict[str, Any]:
         },
         "cases": records,
         "source_access": source_access,
-        "tool": _file_record(Path(__file__).resolve(), Path(__file__).name),
+        "tool": tool_record,
     }
     manifest["content_sha256"] = _content_hash(manifest)
     R.atomic_write_json(staging / "review_pack.json", manifest)
@@ -849,9 +937,7 @@ def load_review_pack(root: Path) -> dict[str, Any]:
     }
     if aggregate != expected_aggregate:
         raise ValueError("review-pack label-caster aggregate is inconsistent")
-    expected_tool = _file_record(Path(__file__).resolve(), Path(__file__).name)
-    if manifest.get("tool") != expected_tool:
-        raise ValueError("review pack was generated by different renderer bytes")
+    _validate_tool_record(Path(__file__).resolve().parent, manifest.get("tool"))
     paths = set()
     for case in cases:
         record = case.get("panel")

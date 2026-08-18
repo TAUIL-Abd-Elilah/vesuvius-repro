@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import json
 import tempfile
 import unittest
@@ -138,6 +139,40 @@ class CandidateMeanTests(unittest.TestCase):
                 self.assertEqual(len(identities), len(H.C.INFERENTIAL_SEEDS))
 
 
+class ToolIdentityTests(unittest.TestCase):
+    def test_source_identity_is_checkout_line_ending_invariant(self) -> None:
+        lf = b"VALUE = 1\nprint(VALUE)\n"
+        crlf = lf.replace(b"\n", b"\r\n")
+        self.assertEqual(H._canonical_source_bytes(lf), H._canonical_source_bytes(crlf))
+        self.assertNotEqual(
+            hashlib.sha256(H._canonical_source_bytes(lf)).hexdigest(),
+            hashlib.sha256(H._canonical_source_bytes(b"VALUE = 2\nprint(VALUE)\n")).hexdigest(),
+        )
+
+    def test_tool_record_binds_clean_head_and_canonical_git_blob(self) -> None:
+        repo = Path(H.__file__).resolve().parent
+        record = H._tool_record(repo, require_clean=True)
+        committed = H._git_bytes(repo, "show", f"{record['commit']}:{record['path']}")
+        canonical = H._canonical_source_bytes(committed)
+        self.assertEqual(record["repository"], H.TOOL_REPOSITORY)
+        self.assertEqual(record["canonicalization"], H.TOOL_CANONICALIZATION)
+        self.assertEqual(record["canonical_bytes"], len(canonical))
+        self.assertEqual(record["canonical_sha256"], hashlib.sha256(canonical).hexdigest())
+        self.assertNotIn("bytes", record)
+        self.assertNotIn("sha256", record)
+        H._validate_tool_record(repo, record)
+
+    def test_tool_record_rejects_source_or_commit_tampering(self) -> None:
+        repo = Path(H.__file__).resolve().parent
+        record = H._tool_record(repo, require_clean=False)
+        changed_source = dict(record, canonical_sha256="0" * 64)
+        with self.assertRaisesRegex(ValueError, "commit/blob identity mismatch"):
+            H._validate_tool_record(repo, changed_source)
+        missing_commit = dict(record, commit="0" * 40)
+        with self.assertRaisesRegex(ValueError, "commit/blob is unavailable"):
+            H._validate_tool_record(repo, missing_commit)
+
+
 def write_pack(root: Path) -> dict:
     cases = []
     for scroll in H.SOURCE_SCANS:
@@ -171,7 +206,7 @@ def write_pack(root: Path) -> dict:
             "mismatches_inside_valid": 0,
         },
         "cases": cases,
-        "tool": H._file_record(Path(H.__file__).resolve(), Path(H.__file__).name),
+        "tool": H._tool_record(Path(H.__file__).resolve().parent, require_clean=False),
     }
     value["content_sha256"] = H._content_hash(value)
     (root / "review_pack.json").write_text(
