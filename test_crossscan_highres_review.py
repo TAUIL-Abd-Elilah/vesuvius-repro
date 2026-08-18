@@ -5,6 +5,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import numpy as np
 from PIL import Image
@@ -98,6 +99,43 @@ class SamplingAndRenderingTests(unittest.TestCase):
                 self.assertEqual(image.format, "PNG")
                 self.assertGreater(image.width, 1000)
                 self.assertGreater(image.height, 500)
+
+
+class CandidateMeanTests(unittest.TestCase):
+    def test_all_frozen_visual_cases_use_primary_block_id_schema(self) -> None:
+        repo = Path(H.__file__).resolve().parent
+        plan = json.loads(
+            (repo / "results/crossscan_finetune/plan.json").read_text(encoding="utf-8")
+        )
+        lock = json.loads(
+            (repo / "results/crossscan_finetune/execution_lock.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        cases = H._case_map(plan)
+        visuals = lock["resolved_protocol"]["visual_cases"]
+        self.assertEqual(len(visuals), 8)
+        for visual in visuals:
+            case_id = visual["case_id"]
+            case = cases[case_id]
+            self.assertEqual(case["block_id"], case_id)
+            self.assertNotIn("case_id", case)
+            self.assertEqual(H.R.case_identifier(case), case_id)
+            with self.subTest(case_id=case_id), mock.patch.object(
+                H.S,
+                "load_prediction",
+                return_value=np.ones((2, 2, 2), dtype=np.float32),
+            ) as loader:
+                candidate, identities = H._candidate_mean(
+                    Path("data"), plan, lock, case, 4000
+                )
+                expected_calls = 6 if case["scroll"] == H.C.TRAIN_SCROLL else 12
+                self.assertEqual(loader.call_count, expected_calls)
+                self.assertTrue(
+                    all(call.args[3] == case_id for call in loader.call_args_list)
+                )
+                np.testing.assert_array_equal(candidate, np.ones((2, 2, 2)))
+                self.assertEqual(len(identities), len(H.C.INFERENTIAL_SEEDS))
 
 
 def write_pack(root: Path) -> dict:

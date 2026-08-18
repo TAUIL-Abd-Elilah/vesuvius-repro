@@ -542,6 +542,7 @@ def _candidate_mean(
     selected_steps: int,
 ) -> tuple[np.ndarray, list[dict[str, Any]]]:
     scroll = str(case["scroll"])
+    case_id = R.case_identifier(case)
     scope = "primary" if scroll == C.TRAIN_SCROLL else "safety"
     predictions = []
     identities = []
@@ -549,14 +550,14 @@ def _candidate_mean(
         if scroll == C.TRAIN_SCROLL:
             fold = S.fold_for_stratum(plan, int(case["z_stratum"]))
             prediction = S.load_prediction(
-                data_root, plan, lock, case["case_id"], "finetuned", scope,
+                data_root, plan, lock, case_id, "finetuned", scope,
                 seed=seed, steps=selected_steps, fold=fold,
             )
             folds = [fold]
         else:
             fold_predictions = [
                 S.load_prediction(
-                    data_root, plan, lock, case["case_id"], "finetuned", scope,
+                    data_root, plan, lock, case_id, "finetuned", scope,
                     seed=seed, steps=selected_steps, fold=fold,
                 ) for fold in ("even", "odd")
             ]
