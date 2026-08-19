@@ -585,6 +585,7 @@ def build_release(args: argparse.Namespace) -> dict[str, Any]:
         args.labels_root.resolve(),
         repo / "results/physical_normalization_ab/manifest.json",
         model_dir,
+        implementation_from_commit=True,
     )
     preprocessing = R.verify_preprocessed(plan, lock, data)
     verdict = R.require_any_pilot_authorization(

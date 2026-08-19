@@ -343,8 +343,54 @@ def build_execution_lock(repo: Path, plan_path: Path, villa_root: Path) -> dict[
     return _with_content_hash(lock)
 
 
-def verify_execution_lock(repo: Path, lock_path: Path, plan_path: Path,
-                          villa_root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
+def verify_locked_implementation_files(
+    repo: Path, lock: dict[str, Any], *, from_commit: bool = False
+) -> None:
+    implementation = lock["implementation"]
+    commit = implementation["commit"]
+    if (
+        not isinstance(commit, str)
+        or len(commit) != 40
+        or any(character not in "0123456789abcdef" for character in commit)
+    ):
+        raise SystemExit("locked implementation commit is malformed")
+    for rel, record in implementation["files"].items():
+        if (
+            not isinstance(rel, str)
+            or not rel
+            or "\\" in rel
+            or rel.startswith("/")
+            or any(part in ("", ".", "..") for part in rel.split("/"))
+        ):
+            raise SystemExit(f"unsafe locked implementation path: {rel!r}")
+        if from_commit:
+            result = subprocess.run(
+                ["git", "show", f"{commit}:{rel}"],
+                cwd=repo,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            payload = result.stdout
+            if result.returncode != 0 or len(payload) != record["bytes"]:
+                raise SystemExit(f"locked implementation file missing or resized: {rel}")
+            if C.sha256_bytes(payload) != record["sha256"]:
+                raise SystemExit(f"locked implementation file changed: {rel}")
+        else:
+            path = repo / rel
+            if not path.is_file() or path.stat().st_size != record["bytes"]:
+                raise SystemExit(f"locked implementation file missing or resized: {rel}")
+            if C.sha256_file(path) != record["sha256"]:
+                raise SystemExit(f"locked implementation file changed: {rel}")
+
+
+def verify_execution_lock(
+    repo: Path,
+    lock_path: Path,
+    plan_path: Path,
+    villa_root: Path,
+    *,
+    implementation_from_commit: bool = False,
+) -> tuple[dict[str, Any], dict[str, Any]]:
     public = require_clean_public_head(repo)
     lock = load_content_hashed(lock_path, EXECUTION_LOCK_STATUS)
     plan = load_content_hashed(plan_path, C.PLAN_STATUS)
@@ -358,12 +404,9 @@ def verify_execution_lock(repo: Path, lock_path: Path, plan_path: Path,
     )
     if ancestor.returncode != 0:
         raise SystemExit(f"locked implementation {implementation_commit} is not an ancestor of HEAD")
-    for rel, record in lock["implementation"]["files"].items():
-        path = repo / rel
-        if not path.is_file() or path.stat().st_size != record["bytes"]:
-            raise SystemExit(f"locked implementation file missing or resized: {rel}")
-        if C.sha256_file(path) != record["sha256"]:
-            raise SystemExit(f"locked implementation file changed: {rel}")
+    verify_locked_implementation_files(
+        repo, lock, from_commit=implementation_from_commit
+    )
     if C.sha256_file(plan_path) != lock["plan"]["file_sha256"]:
         raise SystemExit("plan whole-file SHA-256 changed")
     if plan["content_sha256"] != lock["plan"]["content_sha256"]:
@@ -388,9 +431,16 @@ def verify_execution_lock(repo: Path, lock_path: Path, plan_path: Path,
 
 def verify_runtime(
     repo: Path, lock_path: Path, plan_path: Path, villa_root: Path,
-    labels_root: Path, source_manifest: Path, model_dir: Path,
+    labels_root: Path, source_manifest: Path, model_dir: Path, *,
+    implementation_from_commit: bool = False,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    lock, plan = verify_execution_lock(repo, lock_path, plan_path, villa_root)
+    lock, plan = verify_execution_lock(
+        repo,
+        lock_path,
+        plan_path,
+        villa_root,
+        implementation_from_commit=implementation_from_commit,
+    )
     C.verify_external_inputs(plan, repo, labels_root, source_manifest, model_dir)
     return lock, plan
 

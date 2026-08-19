@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import tempfile
 import types
@@ -35,6 +36,51 @@ class GeometryAndSelectionTests(unittest.TestCase):
             {(scroll, s) for scroll in (C.TRAIN_SCROLL, C.SAFETY_SCROLL) for s in range(4)},
         )
         self.assertTrue(all(v["score_slice_l1"] == 32 for v in first))
+
+    def test_historical_implementation_verification_reads_locked_git_blob(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+            subprocess.run(
+                ["git", "config", "user.email", "test@example.invalid"],
+                cwd=repo,
+                check=True,
+            )
+            subprocess.run(
+                ["git", "config", "user.name", "Cross-scan test"],
+                cwd=repo,
+                check=True,
+            )
+            subprocess.run(
+                ["git", "config", "core.autocrlf", "false"],
+                cwd=repo,
+                check=True,
+            )
+            implementation = repo / "implementation.py"
+            locked_payload = b"locked implementation\n"
+            implementation.write_bytes(locked_payload)
+            subprocess.run(["git", "add", "implementation.py"], cwd=repo, check=True)
+            subprocess.run(["git", "commit", "-qm", "locked"], cwd=repo, check=True)
+            locked_commit = subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], cwd=repo, text=True
+            ).strip()
+            implementation.write_bytes(b"later public portability change\n")
+            subprocess.run(["git", "add", "implementation.py"], cwd=repo, check=True)
+            subprocess.run(["git", "commit", "-qm", "later"], cwd=repo, check=True)
+            lock = {
+                "implementation": {
+                    "commit": locked_commit,
+                    "files": {
+                        "implementation.py": {
+                            "bytes": len(locked_payload),
+                            "sha256": C.sha256_bytes(locked_payload),
+                        }
+                    },
+                }
+            }
+            R.verify_locked_implementation_files(repo, lock, from_commit=True)
+            with self.assertRaisesRegex(SystemExit, "missing or resized"):
+                R.verify_locked_implementation_files(repo, lock)
 
     def test_inference_case_routing(self) -> None:
         self.assertEqual(len(R.select_inference_cases(PLAN, "pilot", None)), 32)
