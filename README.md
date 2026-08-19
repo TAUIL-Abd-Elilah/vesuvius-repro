@@ -8,6 +8,56 @@ official model from the public weights and public CT, blends the logits, and sco
 result against what was published. No private data, no per-scroll hand-wiring — everything
 it needs comes from `catalog.json`, so it works for any scroll with a published prediction.
 
+> **Current normalization experiment:** the preregistered causal A/B stopped at its
+> baseline sentinel, as designed. PHerc0139 passed; PHerc1203 scored 0.9989617 against a
+> frozen 0.999 cutoff. No corrected-arm result was inspected. See the
+> [fail-closed result](PHYSICAL_NORMALIZATION_AB_SENTINEL_RESULT.md).
+>
+> A [separate operational comparison](PHYSICAL_RELEASED_BASELINE_COMPARISON_PREREG.md)
+> is now publicly locked: exact PR #1386 output versus the released binary artifacts on
+> the same 64 truth-only-selected blocks. It makes no causal-normalization claim.
+>
+> **Next core-model experiment:** the
+> [cross-scan registered-label fine-tuning design](CROSSSCAN_FINETUNE_PREREG.md) uses external,
+> model-independent PHerc1203 recto reference masks derived from a separately acquired
+> 2.403 um scan and registered into the public 9.362 um frame, complementary z-stratum
+> cross-fitting, six
+> inferential seeds, and untouched PHerc0139 safety evaluation. The outcome-blind plan,
+> tested execution runtime, scorer, and [runbook](CROSSSCAN_FINETUNE_RUNBOOK.md) are public;
+> the [replacement execution lock](results/crossscan_finetune/execution_lock.json) binds them to
+> public implementation commit `448dc04c0521f2b6e742122a8fc76312a654b772` and content hash
+> `e682279a19f1f5e6d98df6e1978ce3533025b51b9b8a632789f43f22ab09805f`. A
+> [real preprocessing smoke](results/crossscan_finetune/preprocess_smoke.json) covers the
+> fingerprint correction documented in [amendment 02](CROSSSCAN_FINETUNE_AMENDMENT_02.md);
+> the [superseded first lock](results/crossscan_finetune/execution_lock.superseded-20260811.json)
+> remains public. The registered positive pilot is known, while the six-seed final remains
+> incomplete and no final or downstream candidate prediction has been inspected.
+> A [separate release path](CROSSSCAN_RELEASE.md) is also public before outcome: it removes
+> optimizer state without changing weights, validates standard nnU-Net loading, and provides
+> a custom locked probability-space ensemble that differs from standard nnU-Net logit averaging.
+> It fails closed unless the frozen terminal result is
+> `POSITIVE_DEPLOYABLE` and the [fixed independent-scan review](CROSSSCAN_HIGHRES_REVIEW.md)
+> has a valid named human receipt. That review renders three prospectively fixed slices for
+> each locked case, verifies the exact label-caster coordinate convention against the material
+> bits, and keeps general wording at registered-proxy agreement unless named panels support
+> more. No fine-tuned weight or efficacy claim exists yet.
+>
+> The [ScrollFiesta adapter and downstream runbook](CROSSSCAN_SCROLLFIESTA_ADAPTER.md) implements
+> the separately preregistered [three-arm consumer test](CROSSSCAN_SCROLLFIESTA_DOWNSTREAM_PREREG.md).
+> Its parent lock is `06142dc819c193a462f37d08a4769024c41ab551411013d40dda72db148457f6` and
+> its implementation metric lock is
+> `70c29b370b1f6ca2bb7f6d78eb284e456187056d2ed7efb86c7b5950e976f42c`.
+> Candidate downstream execution remains prohibited until a registered `POSITIVE_DEPLOYABLE`.
+> Packaging and immutable logged-out publication of either sealed verdict follows the
+> [public downstream publication runbook](CROSSSCAN_DOWNSTREAM_PUBLICATION.md); package PASS
+> there means integrity, not scientific success.
+>
+> **Claim boundary:** these are automated scan-derived proxy labels, not organizer-issued
+> ground truth or human annotations. Legacy `truth` tokens in frozen files are historical
+> schema identifiers. A positive machine verdict establishes improved agreement with the
+> registered masks only; an image-backed review is required before any model-improvement or
+> deployment claim. See [amendment 08](CROSSSCAN_FINETUNE_AMENDMENT_08.md).
+
 ## Try it in 30 seconds (no GPU, no downloads)
 
 ```bash

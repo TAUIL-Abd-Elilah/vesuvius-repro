@@ -1,0 +1,92 @@
+{
+  "schema_version": "crossscan-scrollfiesta-metric-lock-v1",
+  "status": "locked_before_final_or_downstream_candidate_prediction_was_inspected",
+  "created_utc": "2026-08-12T16:46:01.8409512Z",
+  "amended_utc": "2026-08-12T17:21:20.4056629Z",
+  "amendment_reason": "Pre-execution adversarial review found that inherited environment knobs, mutable input paths, unbounded child processes, and unpinned numerical-library versions could change or prevent the registered measurement. The implementation lock now freezes the production runtime, uses a minimal child environment, stages private verified inputs/tools, and bounds every child command. No final or downstream candidate output had been inspected.",
+  "parent_downstream_lock_content_sha256": "06142dc819c193a462f37d08a4769024c41ab551411013d40dda72db148457f6",
+  "purpose": "Resolve implementation details omitted by the parent preregistration without changing any arm, threshold, region, headline metric, or acceptance gate.",
+  "blindness_note": "The positive pilot was known, but the six-seed final was incomplete and no candidate probability, physical metric, mesh, weld report, or downstream output existed or was inspected when this implementation lock was written.",
+  "production_runtime": {
+    "platform_system": "Windows",
+    "python_implementation": "CPython",
+    "python_version": "3.14.6",
+    "numpy": "2.4.6",
+    "scipy": "1.18.0",
+    "tifffile": "2026.7.14",
+    "Pillow": "12.3.0",
+    "zarr": "3.2.1"
+  },
+  "physical_metric": {
+    "truth_bits": {
+      "valid": 1,
+      "material": 2,
+      "recto": 8
+    },
+    "truth_box_local_l1_zyx": [192, 320, 1280, 1408, 192, 320],
+    "truth_box_array_sha256": "c0e7fa6c5581522a044b3d7dbcecb3d54744be654f7960b016becb57b3410a6e",
+    "truth_box_counts": {
+      "valid": 1674807,
+      "material": 1241241,
+      "recto": 444149,
+      "boundary_poor": 0
+    },
+    "native_consumer_space": "Expand each 128^3 level-1 truth bit voxel exactly 2x along z,y,x and score the native 256^3 ScrollFiesta binary mask; report distances in level-1 voxel units by dividing native level-0 distances by 2.",
+    "prediction_values": [0, 255],
+    "component_connectivity": 26,
+    "minimum_component_voxels_l0": 504,
+    "equivalent_minimum_component_voxels_l1": 63,
+    "component_match_tolerance_l0_chebyshev": 2,
+    "equivalent_match_tolerance_l1": 1.0,
+    "component_matching": "Build a bipartite edge when surviving truth and prediction components approach within the tolerance. missed and spurious are degree zero; split_excess and merger_excess sum max(degree-1,0); total_component_errors is their sum.",
+    "aggregation": "Compute component counts independently in each of the eight native 128^3 cubes and sum them. Compute headline surface distance over the complete 256^3 box and also in every cube.",
+    "surface": "A surface voxel is foreground with at least one non-foreground neighbour in the full 26-neighbourhood. Symmetric distances concatenate both directed surface-to-surface EDT samples.",
+    "classification": "positive = valid AND recto; supervised = positive OR (valid AND NOT material AND NOT recto). Precision counts false positives only in supervised space and separately reports selected ignored voxels."
+  },
+  "pipeline": {
+    "fresh_output_only": true,
+    "run_all_arms_after_individual_failure": true,
+    "pipeline_timeout_seconds_per_arm": 43200,
+    "renderer_timeout_seconds_per_arm": 7200,
+    "environment": "Remove every inherited ScrollFiesta tuning/debug variable before each direct command; use the exact parent-lock argv and no shell.",
+    "private_snapshot": "Before scoring or execution, copy all three fully verified grid trees, the three pinned executables, fixed renderer, and truth ROI into the fresh result. Execute and score only those staged copies, then revalidate them before terminal PASS.",
+    "required_summary": "Exactly the locked eight cube ids, exit_code 0, no duplicate row, and no rejected cube for every arm.",
+    "required_outputs": [
+      "pipeline_summary.csv",
+      "rejected_cubes.txt",
+      "scrollslice.source.json",
+      "grid_weld.log",
+      "welded.obj",
+      "welded.obj.weld_report.json",
+      "welded.obj.bad_edges.obj"
+    ],
+    "artifact_binding": "Hash every regular output file, reject symlinks/junctions/special entries, and require the same exact file universe during receipt verification. Terminal PASS verification recomputes physical scores and mesh audits from the staged inputs; an externally published terminal content hash is the authenticity anchor."
+  },
+  "mesh_audit": {
+    "coordinate_order": ["z", "y", "x"],
+    "bbox_l0_zyx": [3840, 4096, 3712, 3968, 1344, 1600],
+    "internal_planes_l0_zyx": {"z": [3968.0], "y": [3840.0], "x": [1472.0]},
+    "extent_tolerance_l0": 1.0,
+    "world_span": "Every vertex must remain within the locked box plus tolerance and the mesh must have vertices more than one voxel on both sides of every internal plane.",
+    "independent_edge_audit": "Recompute unpaired, non-manifold, same-direction, and manifold-pair edge counts from final OBJ faces and require equality with the weld report. pinch_verts is read from the report and remains a candidate-zero gate.",
+    "internal_seam_rule": "Use only independently recomputed unpaired OBJ edges. Count midpoint distance <=1 from an internal plane and distance >1 from all six outer faces; union de-duplicates plane intersections."
+  },
+  "acceptance_interpretation": {
+    "matched_mass": "Candidate aggregate merger_excess and total_component_errors <= baseline; complete-box symmetric median strictly lower; strictly lower cube median in at least 5 of 8 cubes.",
+    "fixed_threshold": "Candidate aggregate merger_excess and total_component_errors <= baseline; candidate-minus-baseline cube median <=0.5 level-1 voxel in every cube.",
+    "scrollfiesta": "Every direct command exits zero and processes all eight cubes. Both candidates have zero non_manifold and pinch_verts; each candidate same_dir_pairs and internal-seam union/per-plane count is <= baseline.",
+    "terminal_pass": "All matched-mass, fixed-threshold, and ScrollFiesta gates pass. Any malformed, missing, non-finite, unbound, or unverifiable artifact is a failure."
+  },
+  "visuals": {
+    "cross_sections": "Fixed centre z/y/x planes at world [3968,3840,1472], full 256x256 field, fixed uint8 CT window and fixed truth/prediction palette.",
+    "mesh_camera": "Fixed orthographic direction [0.55,0.5,0.67], up [1,0,0], full locked world box with no outcome-dependent crop or replacement.",
+    "renderer": {
+      "source_commit": "f0d9d2e54823e7ba2460725e81290eead8ed6e5e",
+      "relative_path": "scripts/render_mesh.py",
+      "bytes": 12343,
+      "sha256": "2697486f4b94f13797e16c74a18f937d1860e3a5d728121bf27307aba269d469",
+      "argv_after_python_and_script": ["--vcolors", "--box=3840,3712,1344,256", "<welded.obj>", "<output.png>", "1200", "1000", "0.55,0.5,0.67", "1.0", "2.0"]
+    }
+  },
+  "content_sha256": "70c29b370b1f6ca2bb7f6d78eb284e456187056d2ed7efb86c7b5950e976f42c"
+}

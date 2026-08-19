@@ -1,0 +1,39 @@
+/.gitattributes text eol=lf
+
+/PHYSICAL_NORMALIZATION_AB_*.md text eol=lf
+/physical_normalization_ab.py text eol=lf
+/run_physical_normalization_ab.py text eol=lf
+/test_physical_normalization_ab.py text eol=lf
+/requirements.txt text eol=lf
+/results/physical_normalization_ab/*.json text eol=lf
+/results/physical_normalization_ab/manifest.json text eol=crlf
+
+/PHYSICAL_RELEASED_BASELINE_COMPARISON_*.md text eol=lf
+/run_physical_released_baseline_comparison.py text eol=lf
+/test_physical_released_baseline_comparison.py text eol=lf
+/results/physical_released_baseline_comparison/*.json text eol=lf
+
+/CROSSSCAN_FINETUNE_PREREG.md text eol=lf
+/CROSSSCAN_FINETUNE_AMENDMENT_*.md text eol=lf
+/CROSSSCAN_FINETUNE_RUNBOOK.md text eol=lf
+/crossscan_preprocess_smoke.py text eol=lf
+/crossscan_training_memory_smoke.py text eol=lf
+/crossscan_finetune.py text eol=lf
+/crossscan_preprocess_smoke.py text eol=lf
+/crossscan_training_memory_smoke.py text eol=lf
+/run_crossscan_finetune.py text eol=lf
+/score_crossscan_finetune.py text eol=lf
+/test_crossscan_finetune.py text eol=lf
+/test_run_crossscan_finetune.py text eol=lf
+/test_score_crossscan_finetune.py text eol=lf
+/results/crossscan_finetune/*.json text eol=lf
+
+/CROSSSCAN_RELEASE.md text eol=lf
+/export_crossscan_release.py text eol=lf
+/predict_crossscan_probability_ensemble.py text eol=lf
+/test_crossscan_release.py text eol=lf
+/.github/workflows/crossscan-release.yml text eol=lf
+
+/CROSSSCAN_HIGHRES_REVIEW.md text eol=lf
+/crossscan_highres_review.py text eol=lf
+/test_crossscan_highres_review.py text eol=lf

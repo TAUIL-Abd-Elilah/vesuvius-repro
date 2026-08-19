@@ -1,0 +1,121 @@
+name: Cross-scan release and downstream tooling
+
+on:
+  push:
+    branches:
+      - physical-crossscan-release-tooling
+      - physical-scrollfiesta-adapter
+  pull_request:
+    paths:
+      - README.md
+      - requirements.txt
+      - CROSSSCAN_RELEASE.md
+      - CROSSSCAN_RELEASE_PUBLICATION.md
+      - crossscan_release_publication.py
+      - test_crossscan_release_publication.py
+      - CROSSSCAN_DOWNSTREAM_PUBLICATION.md
+      - crossscan_downstream_publication.py
+      - publish_crossscan_v4_downstream.ps1
+      - test_publish_crossscan_v4_downstream.ps1
+      - test_crossscan_downstream_publication.py
+      - CROSSSCAN_HIGHRES_REVIEW.md
+      - CROSSSCAN_FINETUNE_AMENDMENT_08.md
+      - crossscan_highres_review.py
+      - test_crossscan_highres_review.py
+      - export_crossscan_release.py
+      - predict_crossscan_probability_ensemble.py
+      - test_crossscan_release.py
+      - CROSSSCAN_SCROLLFIESTA_ADAPTER.md
+      - CROSSSCAN_SCROLLFIESTA_DOWNSTREAM_PREREG.md
+      - crossscan_scrollfiesta_downstream_lock.json
+      - crossscan_scrollfiesta_adapter.py
+      - crossscan_scrollfiesta_metric_lock.json
+      - crossscan_scrollfiesta_metrics.py
+      - crossscan_scrollfiesta_obj.py
+      - run_crossscan_scrollfiesta_downstream.py
+      - run_crossscan_scrollfiesta_inference.py
+      - test_run_crossscan_scrollfiesta_inference.py
+      - verify_physical_label_semantics.py
+      - test_crossscan_scrollfiesta_adapter.py
+      - test_crossscan_scrollfiesta_metrics.py
+      - test_crossscan_scrollfiesta_obj.py
+      - test_run_crossscan_scrollfiesta_downstream.py
+      - test_verify_physical_label_semantics.py
+      - crossscan_finetune.py
+      - physical_normalization_ab.py
+      - run_crossscan_finetune.py
+      - score_crossscan_finetune.py
+      - test_crossscan_finetune.py
+      - test_run_crossscan_finetune.py
+      - test_score_crossscan_finetune.py
+      - .github/workflows/crossscan-release.yml
+
+permissions:
+  contents: read
+
+jobs:
+  release-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install CPU test dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install -r requirements.txt
+      - name: Compile release tooling
+        shell: bash
+        run: |
+          python -m py_compile \
+            export_crossscan_release.py \
+            crossscan_release_publication.py \
+            test_crossscan_release_publication.py \
+            crossscan_downstream_publication.py \
+            test_crossscan_downstream_publication.py \
+            crossscan_highres_review.py \
+            test_crossscan_highres_review.py \
+            predict_crossscan_probability_ensemble.py \
+            test_crossscan_release.py \
+            crossscan_scrollfiesta_adapter.py \
+            crossscan_scrollfiesta_metrics.py \
+            crossscan_scrollfiesta_obj.py \
+            run_crossscan_scrollfiesta_downstream.py \
+            run_crossscan_scrollfiesta_inference.py \
+            test_run_crossscan_scrollfiesta_inference.py \
+            verify_physical_label_semantics.py \
+            test_crossscan_scrollfiesta_adapter.py \
+            test_crossscan_scrollfiesta_metrics.py \
+            test_crossscan_scrollfiesta_obj.py \
+            test_run_crossscan_scrollfiesta_downstream.py \
+            test_verify_physical_label_semantics.py
+      - name: Run PowerShell publisher safety tests
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./test_publish_crossscan_v4_downstream.ps1
+      - name: Run focused release and cross-scan tests
+        shell: bash
+        run: |
+          python -m unittest -v \
+            test_crossscan_release_publication.py \
+            test_crossscan_downstream_publication.py \
+            test_crossscan_highres_review.py \
+            test_crossscan_release.py \
+            test_run_crossscan_scrollfiesta_inference.py \
+            test_crossscan_scrollfiesta_adapter.py \
+            test_crossscan_scrollfiesta_metrics.py \
+            test_crossscan_scrollfiesta_obj.py \
+            test_run_crossscan_scrollfiesta_downstream.py \
+            test_verify_physical_label_semantics.py \
+            test_crossscan_finetune.py \
+            test_run_crossscan_finetune.py \
+            test_score_crossscan_finetune.py

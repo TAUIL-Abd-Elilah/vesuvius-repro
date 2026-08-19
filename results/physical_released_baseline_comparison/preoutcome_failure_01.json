@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "protocol_id": "physical_released_baseline_operational_v1",
+  "implementation_revision": 1,
+  "status": "failed_before_model_inference",
+  "public_freeze_commit": "40f5d86383fb617bfff978ec33bff3e2aab2e4cd",
+  "protocol_lock_content_sha256": "178aed1bbe3e56571935ca9daf9840083cbdbad39ca2ed78600690561889a33b",
+  "block_id": "PHerc0139-z0064-y1280-x1472",
+  "attempt": 1,
+  "error": "published baseline contains values outside {0,1}",
+  "model_command_constructed": false,
+  "model_inference_started": false,
+  "corrected_probability_array_created": false,
+  "observed_released_extent": {
+    "dtype": "uint8",
+    "shape": [
+      128,
+      288,
+      160
+    ],
+    "value_counts": {
+      "0": 4856580,
+      "255": 1041660
+    }
+  },
+  "protocol_receipt_sha256": "9143b5279c80d5065f3b1ee4ecf31687e9ffa5d458c91c4d40d340ff058d9165",
+  "failed_attempt_receipt_sha256": "54b620f8d19d4292b1ee19aa3596f5480ffa30197805682c2fde309379b2df4a",
+  "decision": "Preserve revision 1 and amend only binary representation canonicalization before retrying in a new output namespace."
+}

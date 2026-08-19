@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "status": "closed_fail_closed",
+  "corrected_arm_run": false,
+  "frozen_public_commit": "a30a06bf0cfabed73a7fad5bf7e897dcbb427d60",
+  "manifest_content_sha256": "567a18faa1c8ca7e743c9240133f4200e67e3085823dd4795c4518e3e0e65ac0",
+  "required_dice_each_scroll": 0.999,
+  "sentinels": {
+    "PHerc0139": {
+      "block_id": "PHerc0139-z0064-y1280-x1472",
+      "scope": "frozen 64^3 L1 score cube",
+      "published_positive_count": 63572,
+      "reproduced_positive_count": 63575,
+      "intersection": 63564,
+      "disagreeing_voxels": 19,
+      "agreement": 0.9999275207519531,
+      "dice": 0.9998505666669288,
+      "gate_passed": true,
+      "probability_l1_sha256": "6f9eba6720063b2bfbc27c7d14ff337763cec4112003d9175976ff9016677d98",
+      "raw_receipt_sha256": "163161f89d1723f41ebce6bdb29d51da6ea9044f2fa29e783869efc15d65520d"
+    },
+    "PHerc1203": {
+      "block_id": "PHerc1203-z0064-y1984-x0896",
+      "scope": "frozen 64^3 L1 score cube",
+      "published_positive_count": 95815,
+      "reproduced_positive_count": 95844,
+      "intersection": 95730,
+      "disagreeing_voxels": 199,
+      "published_only_count": 85,
+      "reproduced_only_count": 114,
+      "agreement": 0.9992408752441406,
+      "dice": 0.9989616975983387,
+      "gate_passed": false,
+      "probability_l1_sha256": "adba9d50417f5991a90b96ac7558669d25efcdcbf01adeb8fc131e87481500db",
+      "raw_receipt_sha256": "9b466466dc8f0cb3947b83b78e9f952f88b85cd3578647e8858e1a71a2f9d9f9",
+      "absolute_probability_margin_of_disagreements": {
+        "maximum": 0.006014198064804077,
+        "count_le_0.0001": 47,
+        "count_le_0.001": 169,
+        "count_le_0.01": 199
+      },
+      "post_outcome_threshold_diagnostic_not_used": {
+        "grid_min": 0.18,
+        "grid_max": 0.22,
+        "grid_step": 0.00001,
+        "best_threshold": 0.20002000000002002,
+        "best_dice": 0.9989875584502338,
+        "best_disagreeing_voxels": 194
+      }
+    }
+  },
+  "decision": "The PHerc1203 sentinel failed the frozen gate, so corrected inference is forbidden under this protocol."
+}

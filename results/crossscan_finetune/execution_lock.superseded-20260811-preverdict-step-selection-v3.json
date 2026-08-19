@@ -1,0 +1,189 @@
+{
+  "content_sha256": "20b13277ec289d1f4726be4e3cb52327815dd4c7853c2884bdb7fee4304ea247",
+  "created_utc": "2026-08-11T20:11:11.776641+00:00",
+  "environment": {
+    "blosc2": "4.9.1",
+    "nnunetv2_module": "nnunetv2/__init__.py",
+    "numpy": "2.4.6",
+    "python": "3.14.6",
+    "pyyaml": "6.0.3",
+    "scipy": "1.18.0",
+    "tifffile": "2026.7.14",
+    "torch": "2.13.0+cu126",
+    "torch_cuda": "12.6",
+    "zarr": "3.2.1"
+  },
+  "implementation": {
+    "branch": "physical-crossscan-finetune",
+    "commit": "d133cd27a24ae725537e5998eb4cdc2dd20dda9e",
+    "files": {
+      "CROSSSCAN_FINETUNE_AMENDMENT_01.md": {
+        "bytes": 4896,
+        "sha256": "d31c227155cda84f6bd1b92ebe8f136d7e0d6f4d64543c24478492713cd3f9a2"
+      },
+      "CROSSSCAN_FINETUNE_AMENDMENT_02.md": {
+        "bytes": 2619,
+        "sha256": "dc9f3a5762292df4263c42d4270f71f7c95f335db34c7f1e35819b7d7d013464"
+      },
+      "CROSSSCAN_FINETUNE_AMENDMENT_03.md": {
+        "bytes": 2876,
+        "sha256": "ad860d9283944be9645cc3f0cb1010cbda769c76ffdc56d8eb7569c832a1ddfc"
+      },
+      "CROSSSCAN_FINETUNE_AMENDMENT_04.md": {
+        "bytes": 3033,
+        "sha256": "00c949b04011f19b714b3b28d3e3227dc59162bd9f28091d14a5bda230a91961"
+      },
+      "CROSSSCAN_FINETUNE_AMENDMENT_05.md": {
+        "bytes": 2159,
+        "sha256": "f577670978cbc9d45bc94b913b6ac885a3216e5c1bbc6b16df98ece5ac639cbf"
+      },
+      "CROSSSCAN_FINETUNE_AMENDMENT_06.md": {
+        "bytes": 2009,
+        "sha256": "a1c7998f71187cae9a69c169a94059548ee231dbc7a82a9f9fd2bd722e783ea7"
+      },
+      "CROSSSCAN_FINETUNE_PREREG.md": {
+        "bytes": 9239,
+        "sha256": "1c2d1de4549922905e8c98616c0eaa4b467ce89e146ec07d68dac1959d1f9162"
+      },
+      "CROSSSCAN_FINETUNE_RUNBOOK.md": {
+        "bytes": 6688,
+        "sha256": "4503023fc5bd36543a90efff59c692620459faaf81e932ff8b34773edfb404a9"
+      },
+      "crossscan_finetune.py": {
+        "bytes": 27791,
+        "sha256": "c3bc23a9210dde1803b4fc8a8783606fbd74e5f6475666a88061c1e2b397268b"
+      },
+      "crossscan_preprocess_smoke.py": {
+        "bytes": 6830,
+        "sha256": "70429d3c8cd8059655ad6e042ba4e5b1572b08c4daad3adeee554db00d4160ba"
+      },
+      "crossscan_training_memory_smoke.py": {
+        "bytes": 8771,
+        "sha256": "fb5192495f2df103706fa1f2e3ed5cb8b3d15ad82df3f04c3b50e85597b75ab7"
+      },
+      "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining-v2.json": {
+        "bytes": 5709,
+        "sha256": "df32646a83cc45b1e9c3722253ac0703b109b98636c4737cc827a062299ede84"
+      },
+      "results/crossscan_finetune/execution_lock.superseded-20260811-pretraining.json": {
+        "bytes": 5153,
+        "sha256": "4a7bf68e9d090e0dc6b7521529aeaed8bb372e3aa36e37e7acec799a01b35511"
+      },
+      "results/crossscan_finetune/execution_lock.withdrawn-20260811-ci-portability.json": {
+        "bytes": 6458,
+        "sha256": "39cf8cce7468ad308b9da4f54e71b3e932e85d710d04183a8cddb6f8ce02dc6d"
+      },
+      "results/crossscan_finetune/execution_lock.withdrawn-20260811-release-attributes.json": {
+        "bytes": 6225,
+        "sha256": "c192914982254f01fbad06b6e15bc109a6df7e4b8df36d9d0822a90183c1190a"
+      },
+      "results/crossscan_finetune/plan.json": {
+        "bytes": 589802,
+        "sha256": "5a719ee75d4e30cef6a2a6e6c2eaf302f5ccbdbda67f4dca162d7df875f077b2"
+      },
+      "results/crossscan_finetune/preprocess_smoke.json": {
+        "bytes": 2474,
+        "sha256": "73f7db990e147e4d6963ab60e0dc8dfc44dae40750e00e6c271c7516a4760117"
+      },
+      "run_crossscan_finetune.py": {
+        "bytes": 74051,
+        "sha256": "e75077443e9aacef7321f8033a4be7332ab28e691c518efbeb14b4c734d7c150"
+      },
+      "score_crossscan_finetune.py": {
+        "bytes": 25754,
+        "sha256": "fcb58ccb9fd346f3bf24b2fed138a2b33965688ac25aec2a626814a25537915a"
+      },
+      "test_crossscan_finetune.py": {
+        "bytes": 7408,
+        "sha256": "fcb76ebabe9f46c87d499d258559c9b42c4aeef050332f6a02132a78f3bf6d0b"
+      },
+      "test_run_crossscan_finetune.py": {
+        "bytes": 20914,
+        "sha256": "5a4e237c566c8a9b5990556c171e27560ce97c0be77ecb5402c13e3f2adf91e6"
+      },
+      "test_score_crossscan_finetune.py": {
+        "bytes": 9845,
+        "sha256": "4cd0bd9934327eb8778680c4b00016c59ca6bafb445e3f91199d24a0c43072a5"
+      }
+    },
+    "remote_commit": "d133cd27a24ae725537e5998eb4cdc2dd20dda9e",
+    "repo": "https://github.com/TAUIL-Abd-Elilah/vesuvius-repro"
+  },
+  "plan": {
+    "bytes": 589802,
+    "content_sha256": "ab0128fa294c3f7cdb6188253c83f62e31cddc074708673aa974841289265da5",
+    "file_sha256": "5a719ee75d4e30cef6a2a6e6c2eaf302f5ccbdbda67f4dca162d7df875f077b2",
+    "path": "results/crossscan_finetune/plan.json"
+  },
+  "resolved_protocol": {
+    "configuration": "3d_fullres",
+    "dataset_id": 913,
+    "dataset_name": "Dataset913_CrossScanPhysical",
+    "foreground_oversampling": "probabilistic 0.5 per batch item",
+    "inference_gaussian": true,
+    "inference_mirroring": false,
+    "inference_tile_step_size": 0.5,
+    "iterations_per_epoch": 40,
+    "l0_to_l1_reduction": "2x2x2 maximum",
+    "matched_mass_ties": "stable descending probability, then plan case order, then C-order voxel index",
+    "plans_identifier": "nnUNetResEncUNetLPlans",
+    "trainer_name": "CrossScanPhysicalTrainer",
+    "validation_iterations_per_epoch": 10,
+    "visual_cases": [
+      {
+        "case_id": "PHerc1203-z0448-y2368-x1664",
+        "score_slice_l1": 32,
+        "scroll": "PHerc1203",
+        "z_stratum": 0
+      },
+      {
+        "case_id": "PHerc1203-z0576-y2496-x1536",
+        "score_slice_l1": 32,
+        "scroll": "PHerc1203",
+        "z_stratum": 1
+      },
+      {
+        "case_id": "PHerc1203-z1472-y1728-x2560",
+        "score_slice_l1": 32,
+        "scroll": "PHerc1203",
+        "z_stratum": 2
+      },
+      {
+        "case_id": "PHerc1203-z1728-y1728-x1920",
+        "score_slice_l1": 32,
+        "scroll": "PHerc1203",
+        "z_stratum": 3
+      },
+      {
+        "case_id": "PHerc0139-z0192-y1280-x0192",
+        "score_slice_l1": 32,
+        "scroll": "PHerc0139",
+        "z_stratum": 0
+      },
+      {
+        "case_id": "PHerc0139-z0576-y0512-x1344",
+        "score_slice_l1": 32,
+        "scroll": "PHerc0139",
+        "z_stratum": 1
+      },
+      {
+        "case_id": "PHerc0139-z0832-y0128-x0960",
+        "score_slice_l1": 32,
+        "scroll": "PHerc0139",
+        "z_stratum": 2
+      },
+      {
+        "case_id": "PHerc0139-z0960-y0640-x1472",
+        "score_slice_l1": 32,
+        "scroll": "PHerc0139",
+        "z_stratum": 3
+      }
+    ]
+  },
+  "schema_version": "vesuvius-crossscan-execution-lock-v1",
+  "status": "public_preoutcome_execution_lock",
+  "villa": {
+    "commit": "94ba215963afb6216e380fe2c86131fa5e724c3b",
+    "nnunet_tree": "24941bfa19e7239db6458287c2a39b9ad4bd7f4a"
+  }
+}

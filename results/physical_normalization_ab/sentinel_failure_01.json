@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "event": "pre_prediction_technical_failure",
+  "occurred_utc": "2026-08-11T03:30:53.4629613Z",
+  "manifest_content_sha256": "ef84062fab6adf29539e67bd6f0ac9e2354c2850dfd60e615a95eec26123a703",
+  "public_repo_commit": "e1b5d8107c2176724ef31434f8909c382cc5c69d",
+  "block_id": "PHerc0139-z0064-y1280-x1472",
+  "attempt": 2,
+  "villa_commit": "94ba215963afb6216e380fe2c86131fa5e724c3b",
+  "normalization_override": "instance_zscore",
+  "predict_returncode": 1,
+  "predict_stdout_sha256": "52bc0a7efa72e710838993bf70c5b179cf327e5ef4ed267b9d49beccb9959ef9",
+  "predict_stderr_sha256": "d014f83762c9726d24677d2e1637288bfc94d438bae58d93ecf8bac03042743c",
+  "error": "AttributeError: module 'zarr' has no attribute 'Blosc'",
+  "logits_directory_file_count": 0,
+  "prediction_produced": false,
+  "physical_score_produced": false,
+  "arm_comparison_produced": false,
+  "repair_scope": "runtime-only Zarr-2 writer compatibility applied identically to both arms"
+}
