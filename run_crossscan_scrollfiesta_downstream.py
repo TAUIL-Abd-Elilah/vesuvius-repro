@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import platform
+import re
 import signal
 import shutil
 import subprocess
@@ -72,6 +73,48 @@ CHILD_ENV_ALLOWLIST = {
 }
 PIPELINE_TIMEOUT_SECONDS = 12 * 60 * 60
 RENDERER_TIMEOUT_SECONDS = 2 * 60 * 60
+HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
+PINNED_PYTHON_EXECUTABLE = {
+    "bytes": 93184,
+    "sha256": "88021cb5f494ac2ce2e7b3aad40e59a2ab8cf9a95dbb2507ba8ee18067304df3",
+}
+HISTORICAL_EMITTER_SOURCE_IDENTITIES = {
+    "run_crossscan_scrollfiesta_downstream.py": {
+        "bytes_lf": 51069,
+        "sha256_lf": "9fafabc2a49a6ad580f89d933539e3e78926bcb8eac7daf64cd74376f6d80b18",
+        "git_blob_sha1": "b3a8edb2e7838556441a268371dd53111cc7993d",
+    },
+    "crossscan_scrollfiesta_metrics.py": {
+        "bytes_lf": 15602,
+        "sha256_lf": "701fc348fe48821a8e8d6936359bff498811ddf74b464085800f77080dce4463",
+        "git_blob_sha1": "edf7d06c9766aa3df58103ce25416f4463410e08",
+    },
+    "crossscan_scrollfiesta_obj.py": {
+        "bytes_lf": 15857,
+        "sha256_lf": "559505b1573b4b23e1b470a5c53e5ba7794079dda628ce6218eb3b1e072ac5d3",
+        "git_blob_sha1": "7f9413ce3cf0025f92f310bcdbce024af003d3fa",
+    },
+    "crossscan_scrollfiesta_adapter.py": {
+        "bytes_lf": 81851,
+        "sha256_lf": "6e86c4382029b0e57ce07f001478fa2c2dbb64fa6984f5fd1711d3ab2416df84",
+        "git_blob_sha1": "75681e6a27def31a5a1899cd14dc8fcb4b4acd9e",
+    },
+    "verify_physical_label_semantics.py": {
+        "bytes_lf": 18720,
+        "sha256_lf": "8e483bc0600e1d2039217f4c673c7cdec20ef012032621e5101dc20d3c3fafcd",
+        "git_blob_sha1": "f2fb56db277709f9db431cadbce71cb51a825ded",
+    },
+}
+TERMINAL_KEYS = {
+    "schema_version", "status", "created_utc",
+    "downstream_lock_content_sha256", "metric_lock_content_sha256",
+    "grid_set_content_sha256", "promotion_content_sha256", "truth",
+    "truth_snapshot", "grid_snapshots", "binaries", "renderer", "runtime",
+    "sanitized_environment_removed_keys", "provenance", "arms", "physical",
+    "scrollfiesta_gate", "visual_evidence", "input_integrity",
+    "artifact_integrity", "terminal_gate", "claim_boundary", "files",
+    "content_sha256",
+}
 
 
 def _utc_now() -> str:
@@ -753,6 +796,179 @@ def _require_boolean(value: object, description: str) -> bool:
     return value
 
 
+def _require_exact_dict(value: object, keys: set[str], description: str) -> dict:
+    if not isinstance(value, dict) or set(value) != keys:
+        raise ValueError(f"{description} schema mismatch")
+    return value
+
+
+def _require_hex64(value: object, description: str) -> str:
+    if not isinstance(value, str) or not HEX64_RE.fullmatch(value):
+        raise ValueError(f"{description} must be 64 lowercase hexadecimal characters")
+    return value
+
+
+def _validate_terminal_schema(receipt: dict) -> None:
+    _require_exact_dict(receipt, TERMINAL_KEYS, "downstream terminal receipt")
+    if receipt.get("schema_version") != SCHEMA or receipt.get("status") not in ("PASS", "FAIL"):
+        raise ValueError("invalid downstream terminal receipt header")
+    try:
+        created = datetime.fromisoformat(receipt["created_utc"])
+    except (TypeError, ValueError) as error:
+        raise ValueError("downstream terminal creation time is invalid") from error
+    if created.tzinfo is None or created.utcoffset() != timezone.utc.utcoffset(created):
+        raise ValueError("downstream terminal creation time must be UTC")
+    for key in (
+        "downstream_lock_content_sha256", "metric_lock_content_sha256",
+        "grid_set_content_sha256", "promotion_content_sha256", "content_sha256",
+    ):
+        _require_hex64(receipt.get(key), key)
+
+    truth = _require_exact_dict(receipt.get("truth"), {
+        "store", "box_local_l1_zyx", "shape", "dtype", "array_sha256",
+        "counts", "semantic_audit",
+    }, "sealed truth record")
+    if (
+        not isinstance(truth.get("store"), str)
+        or truth.get("box_local_l1_zyx") != [192, 320, 1280, 1408, 192, 320]
+        or truth.get("shape") != [128, 128, 128]
+        or truth.get("dtype") != "uint8"
+        or truth.get("array_sha256") != TRUTH_ARRAY_SHA256
+        or truth.get("counts") != TRUTH_COUNTS
+    ):
+        raise ValueError("sealed truth identity differs from the lock")
+    semantic = _require_exact_dict(
+        truth.get("semantic_audit"),
+        {"bytes", "sha256", "content_sha256", "file_sha256"},
+        "sealed semantic-audit record",
+    )
+    if (
+        type(semantic.get("bytes")) is not int
+        or semantic["bytes"] <= 0
+        or _require_hex64(semantic.get("sha256"), "semantic audit SHA-256")
+        != semantic.get("file_sha256")
+    ):
+        raise ValueError("sealed semantic-audit file identity is invalid")
+    _require_hex64(semantic.get("content_sha256"), "semantic audit content SHA-256")
+
+    _require_exact_dict(
+        receipt.get("physical"), {"result", "error", "pass"},
+        "sealed physical gate",
+    )
+    _require_exact_dict(
+        receipt.get("visual_evidence"),
+        {"cross_sections", "mesh_fixed_camera_all_arms", "error", "pass"},
+        "sealed visual gate",
+    )
+    _require_exact_dict(
+        receipt.get("input_integrity"),
+        {"private_snapshots_revalidated", "error", "pass"},
+        "sealed input-integrity gate",
+    )
+    _require_exact_dict(
+        receipt.get("artifact_integrity"), {"invalid_output_entries", "pass"},
+        "sealed artifact-integrity gate",
+    )
+    removed = receipt.get("sanitized_environment_removed_keys")
+    if (
+        not isinstance(removed, list)
+        or any(not isinstance(key, str) for key in removed)
+        or removed != sorted(set(removed))
+        or any(key.upper() in CHILD_ENV_ALLOWLIST for key in removed)
+    ):
+        raise ValueError("sealed removed-environment key list is invalid")
+
+
+def _canonical_source_identity(path: Path) -> dict:
+    payload = Path(path).read_bytes()
+    canonical = payload.replace(b"\r\n", b"\n")
+    if b"\r" in canonical or b"\x00" in canonical:
+        raise ValueError(f"provenance source has non-portable line endings: {path}")
+    header = f"blob {len(canonical)}\0".encode("ascii")
+    return {
+        "bytes_lf": len(canonical),
+        "sha256_lf": hashlib.sha256(canonical).hexdigest(),
+        "git_blob_sha1": hashlib.sha1(header + canonical).hexdigest(),
+    }
+
+
+def _validate_provenance(output: Path, receipt: dict) -> tuple[dict, dict]:
+    provenance_root = output / "provenance"
+    expected_paths = {
+        "provenance/crossscan_scrollfiesta_downstream_lock.json",
+        "provenance/crossscan_scrollfiesta_metric_lock.json",
+        "provenance/crossscan_scrollfiesta_grid_set.json",
+        "provenance/physical_label_semantic_audit.json",
+        "provenance/scrollfiesta_render_mesh.py",
+        *(f"provenance/{name}" for name in TOOL_NAMES),
+    }
+    records = receipt.get("provenance")
+    if not isinstance(records, list) or len(records) != len(expected_paths):
+        raise ValueError("sealed provenance record universe mismatch")
+    expected_records = []
+    for relative in sorted(expected_paths):
+        path = output / relative
+        if not path.is_file() or _is_linklike(path):
+            raise ValueError(f"sealed provenance file is missing or linked: {relative}")
+        expected_records.append(A.file_record(path, relative))
+    if records != expected_records:
+        raise ValueError("sealed provenance records differ from staged files")
+
+    downstream_lock = A.validate_downstream_lock(
+        provenance_root / "crossscan_scrollfiesta_downstream_lock.json"
+    )
+    metric_lock, _ = validate_metric_lock(
+        provenance_root / "crossscan_scrollfiesta_metric_lock.json"
+    )
+    if (
+        downstream_lock.get("content_sha256") != receipt["downstream_lock_content_sha256"]
+        or metric_lock.get("content_sha256") != receipt["metric_lock_content_sha256"]
+    ):
+        raise ValueError("sealed provenance lock binding mismatch")
+
+    grid_set, _ = A._load_hashed_json(
+        provenance_root / "crossscan_scrollfiesta_grid_set.json",
+        "sealed three-arm grid set",
+    )
+    if (
+        grid_set.get("schema_version") != "crossscan-scrollfiesta-grid-set-v1"
+        or grid_set.get("status") != "PASS"
+        or grid_set.get("downstream_lock_content_sha256")
+        != A.DOWNSTREAM_LOCK_CONTENT_SHA256
+        or grid_set.get("content_sha256") != receipt["grid_set_content_sha256"]
+        or grid_set.get("promotion_content_sha256")
+        != receipt["promotion_content_sha256"]
+    ):
+        raise ValueError("sealed three-arm grid-set binding mismatch")
+    semantic, _ = V.validate_audit_receipt(
+        provenance_root / "physical_label_semantic_audit.json"
+    )
+    if (
+        semantic.get("content_sha256")
+        != grid_set.get("semantic_audit_content_sha256")
+        or semantic.get("content_sha256")
+        != receipt["truth"]["semantic_audit"]["content_sha256"]
+    ):
+        raise ValueError("sealed semantic-audit binding mismatch")
+    semantic_path = provenance_root / "physical_label_semantic_audit.json"
+    semantic_record = A.file_record(semantic_path)
+    if receipt["truth"]["semantic_audit"] != {
+        **semantic_record,
+        "content_sha256": semantic["content_sha256"],
+        "file_sha256": semantic_record["sha256"],
+    }:
+        raise ValueError("sealed truth semantic-audit record mismatch")
+
+    for name, expected in HISTORICAL_EMITTER_SOURCE_IDENTITIES.items():
+        actual = _canonical_source_identity(provenance_root / name)
+        if actual != expected:
+            raise ValueError(f"sealed emitter source differs from pinned Git blob: {name}")
+    renderer_provenance = provenance_root / "scrollfiesta_render_mesh.py"
+    if A.file_record(renderer_provenance) != RENDERER:
+        raise ValueError("sealed provenance renderer identity mismatch")
+    return metric_lock, grid_set
+
+
 def _verify_terminal_logic(receipt: dict) -> None:
     components = {
         "physical_pass": receipt.get("physical", {}).get("pass"),
@@ -937,6 +1153,290 @@ def _deep_verify_pass(output: Path, receipt: dict) -> None:
         raise ValueError("sealed cross-section records mismatch")
 
 
+def _validate_recorded_runtime(metric_lock: dict, receipt: dict) -> None:
+    runtime = _require_exact_dict(receipt.get("runtime"), {
+        "platform_system", "python_implementation", "python_version",
+        "numpy", "scipy", "tifffile", "Pillow", "zarr", "python_executable",
+    }, "sealed runtime")
+    comparable = {
+        key: runtime.get(key) for key in (
+            "platform_system", "python_implementation", "python_version",
+            "numpy", "scipy", "tifffile", "Pillow", "zarr",
+        )
+    }
+    if comparable != metric_lock.get("production_runtime"):
+        raise ValueError("sealed runtime differs from the metric lock")
+    executable = _require_exact_dict(
+        runtime.get("python_executable"), {"path", "bytes", "sha256"},
+        "sealed Python executable",
+    )
+    if (
+        not isinstance(executable.get("path"), str)
+        or Path(executable["path"]).name.lower() != "python.exe"
+        or {key: executable.get(key) for key in ("bytes", "sha256")}
+        != PINNED_PYTHON_EXECUTABLE
+    ):
+        raise ValueError("sealed Python executable differs from the production runtime")
+
+
+def _verify_sealed_inputs(
+    output: Path, receipt: dict, metric_lock: dict, grid_set: dict
+) -> tuple[dict[str, np.ndarray], np.ndarray, dict, dict]:
+    _validate_recorded_runtime(metric_lock, receipt)
+    binary_dir = output / "inputs" / "tools"
+    actual_binaries = validate_binaries(binary_dir)
+    sealed_binaries = _require_exact_dict(
+        receipt.get("binaries"), set(PINNED_BINARIES), "sealed binary universe"
+    )
+    for name, expected in actual_binaries.items():
+        record = _require_exact_dict(
+            sealed_binaries[name], {"path", "bytes", "sha256"}, f"sealed {name} record"
+        )
+        if (
+            Path(str(record.get("path", ""))).name != name
+            or {key: record.get(key) for key in ("bytes", "sha256")}
+            != {key: expected[key] for key in ("bytes", "sha256")}
+        ):
+            raise ValueError(f"sealed {name} record differs from staged tool")
+    renderer_path = binary_dir / "render_mesh.py"
+    actual_renderer = _validate_file(renderer_path, RENDERER, "sealed renderer")
+    sealed_renderer = _require_exact_dict(
+        receipt.get("renderer"), {"path", "bytes", "sha256"},
+        "sealed renderer record",
+    )
+    if (
+        Path(str(sealed_renderer.get("path", ""))).name != "render_mesh.py"
+        or {key: sealed_renderer.get(key) for key in ("bytes", "sha256")}
+        != {key: actual_renderer[key] for key in ("bytes", "sha256")}
+        or A.file_record(output / "provenance" / "scrollfiesta_render_mesh.py")
+        != RENDERER
+    ):
+        raise ValueError("sealed renderer record mismatch")
+
+    snapshots = _require_exact_dict(
+        receipt.get("grid_snapshots"), set(ARM_ORDER), "sealed grid snapshots"
+    )
+    grid_records = grid_set.get("grids")
+    if not isinstance(grid_records, dict) or set(grid_records) != set(ARM_ORDER):
+        raise ValueError("sealed grid-set arm universe mismatch")
+    masks: dict[str, np.ndarray] = {}
+    for arm in ARM_ORDER:
+        record = _require_exact_dict(
+            snapshots[arm], {"path", "manifest_content_sha256", "files"},
+            f"{arm} grid snapshot",
+        )
+        expected_path = f"inputs/grids/{arm}"
+        if record.get("path") != expected_path:
+            raise ValueError(f"{arm} grid snapshot path mismatch")
+        grid = output / expected_path
+        manifest = A.verify_scrollfiesta_grid(grid)
+        if (
+            manifest.get("content_sha256") != record.get("manifest_content_sha256")
+            or manifest.get("content_sha256")
+            != grid_records[arm].get("content_sha256")
+            or _hash_tree(grid) != record.get("files")
+        ):
+            raise ValueError(f"{arm} grid snapshot identity mismatch")
+        masks[arm] = _assemble_grid_volume(grid, "PRED")
+
+    truth_record = _require_exact_dict(
+        receipt.get("truth_snapshot"), {"path", "bytes", "sha256"},
+        "sealed truth snapshot",
+    )
+    if truth_record.get("path") != "inputs/truth_l1.npy":
+        raise ValueError("sealed truth snapshot path mismatch")
+    truth_path = output / truth_record["path"]
+    if {"path": truth_record["path"], **A.file_record(truth_path)} != truth_record:
+        raise ValueError("sealed truth snapshot file mismatch")
+    truth = np.load(truth_path, allow_pickle=False)
+    if (
+        truth.shape != (128, 128, 128)
+        or truth.dtype != np.uint8
+        or A.sha256_array(truth) != TRUTH_ARRAY_SHA256
+    ):
+        raise ValueError("sealed truth snapshot array mismatch")
+    return masks, truth, sealed_binaries, sealed_renderer
+
+
+def _validate_command_envelope(value: object, description: str) -> dict:
+    command = _require_exact_dict(
+        value, {"argv", "exit_code", "timeout_seconds", "error"}, description
+    )
+    exit_code = command.get("exit_code")
+    error = command.get("error")
+    if type(exit_code) is bool or (exit_code is not None and type(exit_code) is not int):
+        raise ValueError(f"{description} exit code is invalid")
+    if error is not None and not isinstance(error, str):
+        raise ValueError(f"{description} error is invalid")
+    if exit_code is None and not isinstance(error, str):
+        raise ValueError(f"{description} lacks its bounded failure error")
+    if exit_code is not None and error is not None:
+        raise ValueError(f"{description} has contradictory completion state")
+    return command
+
+
+def _verify_sealed_arm(
+    output: Path,
+    receipt: dict,
+    arm: str,
+    sealed_binaries: dict,
+    sealed_renderer: dict,
+) -> dict:
+    embedded = receipt["arms"][arm]
+    if not isinstance(embedded, dict) or embedded.get("status") not in ("PASS", "FAIL"):
+        raise ValueError(f"{arm} sealed arm header is invalid")
+    expected_keys = (
+        {"status", "arm", "grid", "pipeline", "renderer", "summary",
+         "final_per_cube_meshes", "mesh_audit", "files"}
+        if embedded["status"] == "PASS" else
+        {"status", "arm", "pipeline", "renderer", "error", "files", "invalid_entries"}
+    )
+    _require_exact_dict(embedded, expected_keys, f"{arm} sealed arm")
+    if embedded.get("arm") != arm:
+        raise ValueError(f"{arm} sealed arm name mismatch")
+    pipeline = _validate_command_envelope(embedded.get("pipeline"), f"{arm} pipeline")
+    argv = pipeline.get("argv")
+    if not isinstance(argv, list) or any(not isinstance(item, str) for item in argv):
+        raise ValueError(f"{arm} pipeline argv is invalid")
+    if len(argv) < 7:
+        raise ValueError(f"{arm} pipeline argv is incomplete")
+    recorded_grid = Path(argv[1])
+    recorded_output = Path(argv[2])
+    binary_dir = Path(sealed_binaries["grid_pipeline.exe"]["path"]).parent
+    if (
+        argv != _pipeline_command(binary_dir, recorded_grid, recorded_output)
+        or pipeline.get("timeout_seconds") != PIPELINE_TIMEOUT_SECONDS
+        or recorded_grid.name != arm
+        or recorded_output.name != arm
+    ):
+        raise ValueError(f"{arm} pipeline command differs from the lock")
+
+    renderer = _validate_command_envelope(embedded.get("renderer"), f"{arm} renderer")
+    renderer_argv = renderer.get("argv")
+    if renderer_argv is None:
+        if renderer.get("exit_code") is not None or renderer.get("error") not in (
+            "renderer was not started", "welded.obj was not produced",
+        ):
+            raise ValueError(f"{arm} renderer non-start record is invalid")
+    else:
+        if not isinstance(renderer_argv, list) or any(
+            not isinstance(item, str) for item in renderer_argv
+        ):
+            raise ValueError(f"{arm} renderer argv is invalid")
+        expected_renderer = _renderer_command(
+            Path(sealed_renderer["path"]),
+            recorded_output / "welded.obj",
+            recorded_output / "mesh_fixed_camera.png",
+        )
+        expected_renderer[0] = receipt["runtime"]["python_executable"]["path"]
+        if renderer_argv != expected_renderer:
+            raise ValueError(f"{arm} renderer command differs from the lock")
+    if renderer.get("timeout_seconds") != RENDERER_TIMEOUT_SECONDS:
+        raise ValueError(f"{arm} renderer timeout differs from the lock")
+
+    arm_output = output / "arms" / arm
+    if embedded["status"] == "PASS":
+        if embedded.get("grid") != str(recorded_grid.resolve()):
+            raise ValueError(f"{arm} successful grid path differs from its command")
+        recomputed = _validate_arm_output(
+            arm, recorded_grid, arm_output, pipeline, renderer
+        )
+        if recomputed != embedded:
+            raise ValueError(f"{arm} sealed audit differs from recomputation")
+        return embedded
+
+    files, invalid_entries = _safe_inventory(arm_output)
+    if embedded.get("files") != files or embedded.get("invalid_entries") != invalid_entries:
+        raise ValueError(f"{arm} failed-arm artifact inventory mismatch")
+    try:
+        _validate_arm_output(arm, recorded_grid, arm_output, pipeline, renderer)
+    except Exception as error:
+        deterministic_error = f"{type(error).__name__}: {error}"
+    else:
+        raise ValueError(f"{arm} is marked FAIL but its sealed output validates")
+    if embedded.get("error") != deterministic_error:
+        raise ValueError(f"{arm} failure reason differs from deterministic verification")
+    return embedded
+
+
+def _verify_sealed_physical(
+    output: Path, receipt: dict, masks: dict[str, np.ndarray], truth: np.ndarray
+) -> None:
+    scores = {arm: M.score_mask(masks[arm], truth) for arm in ARM_ORDER}
+    acceptance = M.evaluate_acceptance(
+        scores["baseline-fixed"], scores["candidate-fixed"],
+        scores["candidate-matched-mass"],
+    )
+    expected_result = {"scores": scores, "acceptance": acceptance}
+    path = output / "physical_metrics.json"
+    try:
+        sealed_result = json.loads(path.read_bytes())
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ValueError("sealed physical metrics are not valid JSON") from error
+    if sealed_result != expected_result:
+        raise ValueError("sealed physical metrics differ from full recomputation")
+    expected_gate = {
+        "result": "physical_metrics.json", "error": None,
+        "pass": bool(acceptance["pass"]),
+    }
+    if receipt.get("physical") != expected_gate:
+        raise ValueError("sealed physical gate envelope mismatch")
+
+
+def _verify_sealed_visuals(output: Path, receipt: dict, arms: dict[str, dict]) -> None:
+    visual = receipt.get("visual_evidence")
+    cross_sections = visual.get("cross_sections")
+    if not isinstance(cross_sections, list) or len(cross_sections) != 1:
+        raise ValueError("sealed FAIL lacks its completed cross-section evidence")
+    evidence = _require_exact_dict(
+        cross_sections[0], {"panel_order", "pillow_version", "files"},
+        "sealed cross-section evidence",
+    )
+    if (
+        evidence.get("panel_order") != ["CT", "truth", *ARM_ORDER]
+        or evidence.get("pillow_version") != receipt["runtime"]["Pillow"]
+    ):
+        raise ValueError("sealed cross-section recipe differs from the runtime lock")
+    expected_records = []
+    for axis in ("z", "y", "x"):
+        path = output / "visuals" / f"center_{axis}.png"
+        _validate_png(path, (1280, 256), f"sealed centre {axis} cross-section")
+        expected_records.append(A.file_record(path, f"visuals/center_{axis}.png"))
+    if evidence.get("files") != expected_records:
+        raise ValueError("sealed cross-section file records mismatch")
+    mesh_all = all(arms[arm]["status"] == "PASS" for arm in ARM_ORDER)
+    expected = {
+        "cross_sections": cross_sections,
+        "mesh_fixed_camera_all_arms": mesh_all,
+        "error": None,
+        "pass": mesh_all,
+    }
+    if visual != expected:
+        raise ValueError("sealed visual gate differs from deterministic evidence")
+
+
+def _deep_verify_fail(output: Path, receipt: dict) -> None:
+    metric_lock, grid_set = _validate_provenance(output, receipt)
+    masks, truth, binaries, renderer = _verify_sealed_inputs(
+        output, receipt, metric_lock, grid_set
+    )
+    arms_value = _require_exact_dict(receipt.get("arms"), set(ARM_ORDER), "sealed arms")
+    arms = {
+        arm: _verify_sealed_arm(output, receipt, arm, binaries, renderer)
+        for arm in ARM_ORDER
+    }
+    if arms_value != arms:
+        raise ValueError("sealed arm universe differs from verified arms")
+    if receipt.get("scrollfiesta_gate") != _scrollfiesta_gate(arms):
+        raise ValueError("sealed ScrollFiesta gate differs from verified arm outputs")
+    _verify_sealed_physical(output, receipt, masks, truth)
+    _verify_sealed_visuals(output, receipt, arms)
+    if receipt.get("input_integrity") != {
+        "private_snapshots_revalidated": True, "error": None, "pass": True,
+    }:
+        raise ValueError("sealed input-integrity gate is not supported by verified snapshots")
+
+
 def verify_result(
     output: Path,
     *,
@@ -948,8 +1448,7 @@ def verify_result(
         raise ValueError(f"downstream result root is not a real directory: {output}")
     receipt, _ = A._load_hashed_json(output / "terminal_receipt.json",
                                      "downstream terminal receipt")
-    if receipt.get("schema_version") != SCHEMA or receipt.get("status") not in ("PASS", "FAIL"):
-        raise ValueError("invalid downstream terminal receipt header")
+    _validate_terminal_schema(receipt)
     if expected_content_sha256 is not None and (
         receipt.get("content_sha256") != expected_content_sha256
     ):
@@ -974,8 +1473,11 @@ def verify_result(
     ):
         raise ValueError("downstream invalid-entry inventory mismatch")
     _verify_terminal_logic(receipt)
-    if deep and receipt["status"] == "PASS":
-        _deep_verify_pass(output, receipt)
+    if deep:
+        if receipt["status"] == "PASS":
+            _deep_verify_pass(output, receipt)
+        else:
+            _deep_verify_fail(output, receipt)
     return receipt
 
 

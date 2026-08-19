@@ -13,6 +13,11 @@ on:
       - CROSSSCAN_RELEASE_PUBLICATION.md
       - crossscan_release_publication.py
       - test_crossscan_release_publication.py
+      - CROSSSCAN_DOWNSTREAM_PUBLICATION.md
+      - crossscan_downstream_publication.py
+      - publish_crossscan_v4_downstream.ps1
+      - test_publish_crossscan_v4_downstream.ps1
+      - test_crossscan_downstream_publication.py
       - CROSSSCAN_HIGHRES_REVIEW.md
       - CROSSSCAN_FINETUNE_AMENDMENT_08.md
       - crossscan_highres_review.py
@@ -75,6 +80,8 @@ jobs:
             export_crossscan_release.py \
             crossscan_release_publication.py \
             test_crossscan_release_publication.py \
+            crossscan_downstream_publication.py \
+            test_crossscan_downstream_publication.py \
             crossscan_highres_review.py \
             test_crossscan_highres_review.py \
             predict_crossscan_probability_ensemble.py \
@@ -91,11 +98,16 @@ jobs:
             test_crossscan_scrollfiesta_obj.py \
             test_run_crossscan_scrollfiesta_downstream.py \
             test_verify_physical_label_semantics.py
+      - name: Run PowerShell publisher safety tests
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./test_publish_crossscan_v4_downstream.ps1
       - name: Run focused release and cross-scan tests
         shell: bash
         run: |
           python -m unittest -v \
             test_crossscan_release_publication.py \
+            test_crossscan_downstream_publication.py \
             test_crossscan_highres_review.py \
             test_crossscan_release.py \
             test_run_crossscan_scrollfiesta_inference.py \

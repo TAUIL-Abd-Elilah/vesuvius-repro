@@ -48,6 +48,9 @@ it needs comes from `catalog.json`, so it works for any scroll with a published 
 > its implementation metric lock is
 > `70c29b370b1f6ca2bb7f6d78eb284e456187056d2ed7efb86c7b5950e976f42c`.
 > Candidate downstream execution remains prohibited until a registered `POSITIVE_DEPLOYABLE`.
+> Packaging and immutable logged-out publication of either sealed verdict follows the
+> [public downstream publication runbook](CROSSSCAN_DOWNSTREAM_PUBLICATION.md); package PASS
+> there means integrity, not scientific success.
 >
 > **Claim boundary:** these are automated scan-derived proxy labels, not organizer-issued
 > ground truth or human annotations. Legacy `truth` tokens in frozen files are historical
