@@ -10,8 +10,11 @@ permissions:
 
 jobs:
   verify-public-release:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
