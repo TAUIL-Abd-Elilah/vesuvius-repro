@@ -1,0 +1,108 @@
+name: One-shot cross-scan public verification
+
+on:
+  push:
+    branches:
+      - crossscan-v4-public-verification
+
+permissions:
+  contents: read
+
+jobs:
+  verify-public:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out verification branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Assert isolated workflow-only branch delta
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $expectedParent = "3f2aaa075480f737d8969ea6377f35d41a76e5ce"
+          $actualParent = (git rev-parse HEAD^).Trim()
+          if ($actualParent -cne $expectedParent) {
+            throw "Unexpected parent commit: $actualParent"
+          }
+
+          $changedPaths = @(git diff --name-only HEAD^ HEAD)
+          $expectedPath = ".github/workflows/crossscan-public-verification.yml"
+          if ($changedPaths.Count -ne 1 -or $changedPaths[0] -cne $expectedPath) {
+            throw "Branch delta is not workflow-only: $($changedPaths -join ', ')"
+          }
+
+          $expectedVerifier = "da114048ef8db2c7069498ec5cea0e6cf460fdd7fce71b0c81b2dd6985451fb2"
+          $actualVerifier = (Get-FileHash -Algorithm SHA256 crossscan_release_publication.py).Hash.ToLowerInvariant()
+          if ($actualVerifier -cne $expectedVerifier) {
+            throw "Verifier hash differs: $actualVerifier"
+          }
+
+      - name: Install exact conda-forge Python package
+        id: micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: public-verification
+          create-args: >-
+            conda-forge::python=3.14.6=h4b44e0e_101_cp314
+          init-shell: none
+          generate-run-shell: false
+          post-cleanup: all
+
+      - name: Assert exact interpreter before release network
+        shell: pwsh
+        env:
+          VERIFICATION_PYTHON: ${{ steps.micromamba.outputs.environment-path }}\python.exe
+        run: |
+          $ErrorActionPreference = "Stop"
+          & $env:VERIFICATION_PYTHON -c "import json, sys; from pathlib import Path; expected_version = '3.14.6 | packaged by conda-forge | (main, Jul 24 2026, 16:16:13) [MSC v.1944 64 bit (AMD64)]'; record_path = Path(sys.prefix) / 'conda-meta' / 'python-3.14.6-h4b44e0e_101_cp314.json'; record = json.loads(record_path.read_text(encoding='utf-8')); expected_sha256 = '3a9ae901cd853d507d97aa8b72af4b9a572a3f92dcc5bad8a1318f77ff4e0e64'; print(sys.version); assert sys.version == expected_version, repr(sys.version); assert record.get('sha256') == expected_sha256, record.get('sha256')"
+
+      - name: Download package receipt anonymously
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          curl.exe --disable --fail --show-error --silent --location --proto "=https" --proto-redir "=https" --output package_receipt.json "https://github.com/TAUIL-Abd-Elilah/vesuvius-repro/releases/download/crossscan-v4-20cf573d6620/package_receipt.json"
+
+          $package = Get-Content -Raw package_receipt.json | ConvertFrom-Json
+          $requiredFreeBytes = [int64]$package.archive.bytes + 3GB
+          $workspaceDrive = [System.IO.Path]::GetPathRoot((Get-Location).Path).TrimEnd("\\").TrimEnd(":")
+          $actualFreeBytes = [int64](Get-PSDrive -Name $workspaceDrive).Free
+          if ($actualFreeBytes -lt $requiredFreeBytes) {
+            throw "Insufficient disk: $actualFreeBytes free, $requiredFreeBytes required"
+          }
+          Write-Host "Disk gate passed on ${workspaceDrive}: $actualFreeBytes bytes free for $($package.archive.bytes)-byte archive"
+
+      - name: Verify immutable public release anonymously
+        shell: pwsh
+        env:
+          GH_TOKEN: ""
+          GITHUB_TOKEN: ""
+          VERIFICATION_PYTHON: ${{ steps.micromamba.outputs.environment-path }}\python.exe
+        run: |
+          $ErrorActionPreference = "Stop"
+          & $env:VERIFICATION_PYTHON .\crossscan_release_publication.py verify-public `
+            --package-receipt .\package_receipt.json `
+            --repository TAUIL-Abd-Elilah/vesuvius-repro `
+            --tag crossscan-v4-20cf573d6620 `
+            --output .\publication_receipt.json `
+            --expected-code-head 3f2aaa075480f737d8969ea6377f35d41a76e5ce
+
+      - name: Validate publication receipt again
+        shell: pwsh
+        env:
+          VERIFICATION_PYTHON: ${{ steps.micromamba.outputs.environment-path }}\python.exe
+        run: |
+          $ErrorActionPreference = "Stop"
+          & $env:VERIFICATION_PYTHON -c "from pathlib import Path; from crossscan_release_publication import strict_json_loads, validate_publication_receipt; package_payload = Path('package_receipt.json').read_bytes(); package = strict_json_loads(package_payload); publication = strict_json_loads(Path('publication_receipt.json').read_bytes()); validate_publication_receipt(publication, package, package_payload); print('publication receipt revalidation: PASS')"
+
+      - name: Upload publication receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: crossscan-v4-publication-receipt
+          path: publication_receipt.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90
