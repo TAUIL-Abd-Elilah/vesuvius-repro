@@ -1,0 +1,78 @@
+name: One-shot cross-scan downstream public verification
+
+on:
+  push:
+    branches:
+      - crossscan-v4-downstream-public-verification
+
+permissions:
+  contents: read
+
+jobs:
+  verify-public-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install verifier dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Download expected package receipt anonymously
+        env:
+          PACKAGE_RECEIPT_URL: https://github.com/TAUIL-Abd-Elilah/vesuvius-repro/releases/download/crossscan-v4-downstream-3db9c641e4b7/downstream_package_receipt.json
+        run: |
+          python - <<'PY'
+          import hashlib
+          import os
+          import pathlib
+          import urllib.request
+
+          output = pathlib.Path(os.environ["RUNNER_TEMP"]) / "downstream_package_receipt.json"
+          request = urllib.request.Request(
+              os.environ["PACKAGE_RECEIPT_URL"],
+              headers={"User-Agent": "crossscan-v4-downstream-public-verifier"},
+          )
+          with urllib.request.urlopen(request, timeout=120) as response:
+              payload = response.read()
+          assert len(payload) == 14938
+          assert hashlib.sha256(payload).hexdigest() == "03d1037e5737715f86de025693a3ef0a689b14294e7c03f045a80e261eedcc3e"
+          output.write_bytes(payload)
+          PY
+      - name: Verify immutable release through logged-out byte readback
+        run: |
+          python crossscan_downstream_publication.py verify-public \
+            --package-receipt "$RUNNER_TEMP/downstream_package_receipt.json" \
+            --repository TAUIL-Abd-Elilah/vesuvius-repro \
+            --tag crossscan-v4-downstream-3db9c641e4b7 \
+            --output "$RUNNER_TEMP/downstream_publication_receipt.json" \
+            --expected-code-head f4a0ed3faac399ca437a0449c7e0e645ab8d787e \
+            --expected-terminal-content-sha256 3db9c641e4b71830ca9ede8c8a6126a9f2dc4904ce86b688f9ccb3a579a89557 \
+            --expected-upstream-publication-content-sha256 f8973469166b2e14b7f0fccf18d9df6d7e8b5374d94a3a3a3760794f4b80e8c4
+      - name: Check verification receipt
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import pathlib
+
+          path = pathlib.Path(os.environ["RUNNER_TEMP"]) / "downstream_publication_receipt.json"
+          receipt = json.loads(path.read_text(encoding="utf-8"))
+          assert receipt["status"] == "PUBLIC_LOGGED_OUT_VERIFIED"
+          assert receipt["scientific_status"] == "FAIL"
+          assert receipt["terminal_content_sha256"] == "3db9c641e4b71830ca9ede8c8a6126a9f2dc4904ce86b688f9ccb3a579a89557"
+          print(json.dumps({
+              "status": receipt["status"],
+              "scientific_status": receipt["scientific_status"],
+              "content_sha256": receipt["content_sha256"],
+          }, sort_keys=True))
+          PY
+      - name: Preserve public verification receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: crossscan-v4-downstream-public-verification
+          path: ${{ runner.temp }}/downstream_publication_receipt.json
+          if-no-files-found: error
+          retention-days: 30
