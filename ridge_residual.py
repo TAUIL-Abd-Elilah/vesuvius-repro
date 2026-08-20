@@ -18,7 +18,9 @@ it — it is stated publicly in both issues, so it had better hold.
 
 SIGN CONVENTION. Positive means the point sits on the +normal side of the ridge, i.e. the
 ridge is at `p + offset * n` for the returned offset. So a snap should move a vertex by
-`+offset` along `n`, and a perfect snap returns 0.
+`+offset` along `n`, and a perfect snap returns 0. Hessian eigenvector sign is arbitrary:
+`offset*n` and the landing point are valid per point, but population signed offsets may only be
+aggregated after every normal is tied to the same independent physical direction.
 
   python ridge_residual.py --validate
 """

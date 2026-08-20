@@ -10,9 +10,10 @@ which reads as a large misplacement. It is not. A labelled sheet is roughly 3 vo
 its voxels are spread across that thickness and sit about a voxel from the centre-line **by
 construction, for a perfect label**. That number measures label THICKNESS, not label PLACEMENT.
 
-Placement is only isolated by comparing each labelled run's CENTRE, along the across-sheet
-normal, against the CT ridge — which is what this does. The signed median is then the quantity
-that says whether annotations are systematically off, and it is the one to read.
+Placement is isolated by comparing each labelled run's CENTRE, along the across-sheet normal,
+against the CT ridge. The normal returned by the Hessian has arbitrary sign, so this historical
+script's population signed median has no directional meaning. Use `label_placement_oriented.py`,
+which fixes the normal toward the pinned Scroll1A axis, for the corrective result.
 
   python label_placement.py --n 30
 """
@@ -104,16 +105,15 @@ def main() -> None:
         "q10_signed": round(float(np.quantile(s, 0.10)), 4),
         "q90_signed": round(float(np.quantile(s, 0.90)), 4),
         "median_abs_offset": round(float(np.median(q)), 4),
-        "reading": ("SIGNED is the placement number and it is flat: annotation centres already "
-                    "sit on the CT ridge, so global label snapping has nothing to correct. The "
-                    "|offset| scatter is NOT interpreted -- it is either per-point misplacement "
-                    "or the metric's real-data precision on curved multi-sheet CT, and telling "
-                    "those apart needs a repeatability control."),
+        "reading": ("WITHDRAWN: Hessian eigenvector signs were not tied to one physical "
+                    "direction, so the population signed statistic cannot support a placement "
+                    "claim. The correction vector and |offset| are sign-invariant, but |offset| "
+                    "still mixes displacement with real-CT estimator error."),
         "rows": rows,
     }
     Path(a.out).write_text(json.dumps(out, indent=1))
     print(f"volumes {len(rows)}   (synthetic noise floor 0.164 vox)")
-    print(f"  SIGNED run-centre -> ridge : median {np.median(s):+.3f}  "
+    print(f"  UNORIENTED (withdrawn)      : median {np.median(s):+.3f}  "
           f"q10 {np.quantile(s, .1):+.3f}  q90 {np.quantile(s, .9):+.3f}")
     print(f"  |offset|                   : median {np.median(q):.3f}  (NOT a placement number)")
     print(f"wrote {a.out}")

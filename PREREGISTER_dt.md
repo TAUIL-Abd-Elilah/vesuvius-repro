@@ -189,7 +189,7 @@ measurements, three different quantities, one conclusion:
 
 | measurement | result |
 |---|---|
-| label placement (bet 2 follow-up) | centres already on the CT ridge, signed offset **+0.008 vox** |
+| label placement (bet 2 follow-up) | **withdrawn**: +0.008 vox used arbitrary Hessian-normal signs; see the frozen physical-orientation correction |
 | sheet resolvability (bet 3 gate) | median CNR **272**, only **2.9%** below 50 |
 | adjacent-wrap proximity (bet 4 gate) | median **1** close pair per volume, 43% have none |
 

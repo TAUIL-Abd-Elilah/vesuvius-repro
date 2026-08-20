@@ -1,4 +1,5 @@
 {
+ "status": "WITHDRAWN: population signed statistic used arbitrary Hessian eigenvector signs",
  "n_volumes": 30,
  "per_volume_points": 600,
  "metric_noise_floor_synthetic": 0.164,
@@ -6,7 +7,7 @@
  "q10_signed": -0.1709,
  "q90_signed": 0.1427,
  "median_abs_offset": 1.0556,
- "reading": "SIGNED is the placement number and it is flat: annotation centres already sit on the CT ridge, so global label snapping has nothing to correct. The |offset| scatter is NOT interpreted -- it is either per-point misplacement or the metric's real-data precision on curved multi-sheet CT, and telling those apart needs a repeatability control.",
+ "reading": "WITHDRAWN: the normal signs were not tied to one physical direction, so +0.0077 vox and the claim that global label snapping has nothing to correct have no population-level directional meaning. The correction vector and |offset| are sign-invariant, but |offset| still mixes displacement with real-CT estimator error.",
  "rows": [
   {
    "sample": "sample_00222",

@@ -62,7 +62,8 @@ be a fiction fitted to four points.
 thick and densely-packed regions -- **exactly the hard regions the augmented label set exists to
 add.** A single global accept threshold would therefore admit easy sheet and reject hard sheet,
 **reproducing the very bias that makes the current 892-volume set useless for this work**
-(offset +0.008 vox, median CNR 272, only 2.9% below 50). So the threshold **must be local or
+(the earlier +0.008-vox population signed offset is withdrawn because its normal signs were not
+physically oriented; median CNR 272, only 2.9% below 50). So the threshold **must be local or
 stratified by packing**, never one number over the whole scroll. Named `sheet_contrast`, not
 `cnr`, because it is a relative contrast against the local inter-sheet gap and nothing more.
 
