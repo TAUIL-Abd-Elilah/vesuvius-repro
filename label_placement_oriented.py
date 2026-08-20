@@ -58,6 +58,10 @@ META_SHA256 = "d34e437ca3404aa5f7faaaaa731927ce7adfadf84376dfc3a587c400a40d2520"
 VOLUME_UUID = "20230205180739"
 VOLUME_SHAPE = (14376, 7888, 8096)  # z, y, x
 VOXEL_SIZE_UM = 7.91
+INSIDE_FACE_GUIDANCE_URL = (
+    "https://github.com/ScrollPrize/villa/blob/main/scrollprize.org/docs/"
+    "06_tutorial_VC.md#L282"
+)
 
 OVERLAP_NORMALIZED_SHA256 = "cdcce85096236cad8e3dc87a6b498fa50df01ce4850bf4987d2e2785538d60b6"
 OLD_RESULT_NORMALIZED_SHA256 = "d10522c35619c900d740e4f4948dee96ce3c16dc484105aa81f240def29dad73"
@@ -478,6 +482,24 @@ def summarize(records: list[dict[str, Any]], cohort: str) -> list[dict[str, Any]
     return summaries
 
 
+def summarize_alignment(records: list[dict[str, Any]]) -> dict[str, Any]:
+    """Distribution of sample-level radial-alignment summaries; the sample remains the unit."""
+    fields = ("q10", "median", "q90")
+    out: dict[str, Any] = {
+        "unit": "sample/cube",
+        "quantity": "absolute cosine between Hessian normal and inward radial reference",
+        "n_samples": len(records),
+    }
+    for field in fields:
+        values = np.asarray([record["alignment_abs_cosine"][field] for record in records])
+        out[f"distribution_of_sample_{field}"] = {
+            "q10": float(np.quantile(values, 0.10)),
+            "median": float(np.median(values)),
+            "q90": float(np.quantile(values, 0.90)),
+        }
+    return out
+
+
 def replay_validation(
     records: list[dict[str, Any]], old_result: dict[str, Any]
 ) -> dict[str, Any]:
@@ -661,6 +683,12 @@ def main() -> None:
     result = {
         "status": "corrective audit; the old population signed statistic is withdrawn",
         "generated_utc_date": "2026-08-20",
+        "sign_convention": {
+            "reference": "normal points inward in y,x from each mapped point toward the pinned Scroll1A axis at the same global z",
+            "oriented_offset": "CT-ridge coordinate minus label-run-centre coordinate along the inward normal",
+            "positive": "CT ridge is inward of the label-run centre",
+            "negative": "CT ridge is outward of the label-run centre; equivalently the label centre is inward of the ridge",
+        },
         "design": {
             "id": DESIGN_ID,
             "source_commit": source_commit,
@@ -689,6 +717,10 @@ def main() -> None:
                 "shape_zyx": list(VOLUME_SHAPE),
                 "voxel_size_um": VOXEL_SIZE_UM,
             },
+            "inside_face_guidance": {
+                "url": INSIDE_FACE_GUIDANCE_URL,
+                "note": "Villa says VC segmentation should ideally be on the inside face where ink is expected.",
+            },
         },
         "environment": {
             "python": sys.version,
@@ -708,10 +740,12 @@ def main() -> None:
         "cohorts": {
             "original_replay_mapped_9": {
                 "note": "mapping-available subset of the historical 30; overlaps expansion",
+                "radial_alignment_distribution": summarize_alignment(replay_mapped),
                 "summaries": summarize(replay_mapped, "original_replay_mapped_9"),
             },
             "mapped_expansion_189": {
                 "note": "all independently mapped Scroll1A cubes; not the original corpus",
+                "radial_alignment_distribution": summarize_alignment(expansion_records),
                 "summaries": summarize(expansion_records, "mapped_expansion_189"),
                 "sample_results": expansion_records,
             },
@@ -721,6 +755,7 @@ def main() -> None:
             "The replay-9 subset and expansion-189 overlap and are not independent or pooled.",
             "The 189 mapped cubes cover Scroll1A only and do not represent all 892 public pairs.",
             "Absolute offset still mixes real displacement with estimator error on curved multi-sheet CT.",
+            "Villa's VC guidance places segmentation on the inside ink-facing sheet face, so an inward label centre relative to the CT intensity ridge can be intentional rather than an annotation error.",
             "This corrective audit alone is not a prize submission; generated labels and a positive held-out comparison against existing tooling are required.",
         ],
     }

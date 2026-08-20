@@ -15,6 +15,7 @@ from label_placement_oriented import (
     ridge_from_profile,
     sample_profiles,
     sample_bootstrap_ci,
+    summarize_alignment,
 )
 from ridge_residual import ridge_offset
 
@@ -22,6 +23,16 @@ from ridge_residual import ridge_offset
 class OrientationCorrectionTests(unittest.TestCase):
     def test_public_metadata_path_is_portable(self) -> None:
         self.assertEqual(portable_path(Path(__file__)), Path(__file__).name)
+
+    def test_alignment_summary_keeps_sample_as_unit(self) -> None:
+        records = [
+            {"alignment_abs_cosine": {"q10": v / 2, "median": v, "q90": (1 + v) / 2}}
+            for v in (0.2, 0.4, 0.8)
+        ]
+        summary = summarize_alignment(records)
+        self.assertEqual(summary["unit"], "sample/cube")
+        self.assertEqual(summary["n_samples"], 3)
+        self.assertAlmostEqual(summary["distribution_of_sample_median"]["median"], 0.4)
 
     def test_sign_flip_keeps_physical_result(self) -> None:
         normals = np.array([[0.0, 1.0, 0.0], [0.0, -0.6, 0.8]], dtype=np.float64)
