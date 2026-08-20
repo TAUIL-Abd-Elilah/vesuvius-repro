@@ -14,8 +14,9 @@ correction is prompted by ZandieckNol's public review; it is not an independent 
   320-cube samples to Scroll1A in absolute `(z,y,x)` voxel coordinates.
 - The public `umbilicus-scroll1a_zyx.txt` from the PHercParis4 volume package. The run records its
   URL and SHA-256. The Discord metadata discussion on 2026-08-14 correctly warns that an axis
-  without volume identity, dimensions, and scale is ambiguous; publication must therefore bind
-  this reference to the same Scroll1A voxel grid used by the overlap map before interpreting it.
+  without volume identity, dimensions, and scale is ambiguous. The containing volume package
+  binds Scroll1A to UUID `20230205180739`, shape `(14376,7888,8096)` in `(z,y,x)`, and 7.91-um
+  voxels; the run records and hashes that `meta.json` alongside the axis.
 - Seed 0, 600 selected label voxels per sample, and a minimum of 150 valid label runs per sample.
 - Primary profile corridor `+/-4 vox` at 0.25-voxel steps. Sensitivity corridors: `+/-3`, `+/-6`,
   and `+/-8 vox`.
@@ -34,11 +35,13 @@ magnitude-only because no independent global coordinates are available.
 
 ## Physical orientation
 
-For local point `p=(z,y,x)`, use mapped coordinate `g=lo+p`. Interpolate the umbilicus at `g_z` and
-define the inward radial reference `r=(0,y_axis-g_y,x_axis-g_x)`. Flip Hessian normal `n` when
-`n dot r < 0`, so every oriented normal points inward. Corrected scalar offset is the original
-offset multiplied by the same sign. Positive means the CT ridge is inward of the label-run centre.
-The correction vector, landing point, and `abs(offset)` must remain numerically unchanged.
+For local point `p=(z,y,x)`, use mapped coordinate `g=lo+p`. The public axis is an ordered 3D
+polyline and is not monotonic in `z` (47 negative consecutive z steps), so same-z interpolation is
+invalid. Use the vector from `g` to its closest point on any axis line segment as the inward
+reference `r`. Flip Hessian normal `n` when `n dot r < 0`, so every oriented normal points inward.
+Corrected scalar offset is the original offset multiplied by the same sign. Positive means the CT
+ridge is inward of the label-run centre. The correction vector, landing point, and `abs(offset)`
+must remain numerically unchanged.
 
 Because a sign is fragile for nearly tangential normals, repeat the summaries after requiring
 `abs(n dot unit(r)) >= 0.25` and `>= 0.50`. These are fixed sensitivity analyses.
@@ -63,4 +66,3 @@ Because a sign is fragile for nearly tangential normals, repeat the summaries af
   useful work must compare against existing methods or visually demonstrate better output. A new
   submission therefore requires generated labels and a positive held-out comparison against
   independent physical or human truth. A null or sensitivity-unstable result stops this path.
-
