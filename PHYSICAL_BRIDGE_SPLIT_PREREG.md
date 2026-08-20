@@ -1,6 +1,12 @@
 # Physical probability-bridge split: preregistration
 
-Status: **unscored protocol draft; no bridge-split physical outcomes inspected**.
+Status: **unscored protocol with execution amendment 01; no bridge-split physical outcomes inspected**.
+
+Execution amendment 01 is a memory-bounded, block-at-a-time refactor published after the original
+all-block implementation raised `MemoryError` during development mask construction and before
+physical scoring began. It changes object lifetime and label-plane I/O order only. The frozen
+scientific protocol below is unchanged; see `PHYSICAL_BRIDGE_SPLIT_AMENDMENT_01.md` and the bound
+pre-outcome failure receipt.
 
 ## Question
 

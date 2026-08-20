@@ -11,6 +11,7 @@ an exact-mass probability-ranking control so deletion alone cannot manufacture t
 from __future__ import annotations
 
 import argparse
+import gc
 import hashlib
 import json
 import platform
@@ -33,6 +34,16 @@ from probability_bridge_split import BridgeSplitConfig, split_probability_bridge
 PROTOCOL_ID = "physical_probability_bridge_split_v1"
 LOCK_STATUS = "preregistered_before_bridge_outcomes"
 PUBLIC_BRANCH = "physical-multithreshold-repair"
+EXECUTION_REVISION = 2
+SUPERSEDED_PROTOCOL_LOCK_CONTENT_SHA256 = (
+    "fc54fc80ecd5c5c976804e709d2ac1e460c89ce4d3fc9d337542aca2435a3bb1"
+)
+PREOUTCOME_FAILURE_RECEIPT_PATH = (
+    "results/physical_bridge_split/preoutcome_failure_01.json"
+)
+PREOUTCOME_FAILURE_STDERR_PATH = (
+    "results/physical_bridge_split/preoutcome_failure_01.stderr.txt"
+)
 SOURCE_MANIFEST_CONTENT_SHA256 = (
     "567a18faa1c8ca7e743c9240133f4200e67e3085823dd4795c4518e3e0e65ac0"
 )
@@ -81,11 +92,15 @@ CANDIDATE_CONFIGS: dict[str, BridgeSplitConfig] = {
 
 
 IMPLEMENTATION_FILES = (
+    "PHYSICAL_BRIDGE_SPLIT_AMENDMENT_01.md",
     "PHYSICAL_BRIDGE_SPLIT_PREREG.md",
     "physical_bridge_split.py",
     "physical_normalization_ab.py",
     "probability_bridge_split.py",
     "requirements.txt",
+    "results/physical_bridge_split/protocol_lock.json",
+    PREOUTCOME_FAILURE_RECEIPT_PATH,
+    PREOUTCOME_FAILURE_STDERR_PATH,
     SOURCE_PROTOCOL_LOCK_PATH,
     "run_physical_released_baseline_comparison.py",
     "test_physical_bridge_split.py",
@@ -102,6 +117,18 @@ def git_output(repo: Path, *args: str) -> str:
 def _content_sha(value: dict[str, Any]) -> str:
     unhashed = {key: item for key, item in value.items() if key != "content_sha256"}
     return P.sha256_bytes(P.canonical_json(unhashed).encode("utf-8"))
+
+
+def canonical_lf_bytes(path: Path) -> bytes:
+    text = path.read_bytes().decode("utf-8")
+    canonical = text.replace("\r\n", "\n").replace("\r", "\n")
+    return canonical.encode("utf-8")
+
+
+def canonical_lf_sha256(path: Path) -> str:
+    """Hash UTF-8 text with platform-independent LF line endings."""
+
+    return P.sha256_bytes(canonical_lf_bytes(path))
 
 
 def runtime_versions() -> dict[str, str]:
@@ -123,6 +150,60 @@ def load_hashed_json(path: Path) -> dict[str, Any]:
     if recorded != actual:
         raise SystemExit(f"{path}: content SHA mismatch: {recorded} != {actual}")
     return value
+
+
+def validate_preoutcome_failure(repo: Path) -> dict[str, Any]:
+    prior_lock = load_hashed_json(repo / "results/physical_bridge_split/protocol_lock.json")
+    if prior_lock.get("content_sha256") != SUPERSEDED_PROTOCOL_LOCK_CONTENT_SHA256:
+        raise SystemExit("superseded bridge protocol lock content mismatch")
+    receipt = load_hashed_json(repo / PREOUTCOME_FAILURE_RECEIPT_PATH)
+    expected = {
+        "schema_version": 1,
+        "kind": "preoutcome_execution_failure",
+        "protocol_id": PROTOCOL_ID,
+        "public_head": "2bb4782dab6bff4c714db18b13f32ed3e4f91dff",
+        "source_manifest_content_sha256": SOURCE_MANIFEST_CONTENT_SHA256,
+        "prior_protocol_lock_content_sha256": (
+            SUPERSEDED_PROTOCOL_LOCK_CONTENT_SHA256
+        ),
+        "result_path": "results/physical_bridge_split/result.json",
+        "result_existed_after_exit": False,
+        "failure_class": "MemoryError",
+        "failure_phase": "build_masks/split_probability_bridges/skimage.watershed",
+        "last_frame": "skimage/segmentation/heap_general.pxi:111 heappush",
+        "development_scoring_started": False,
+        "development_selection_started": False,
+        "holdout_opened": False,
+        "bridge_outcomes_seen": False,
+        "partial_candidate_masks_may_have_existed_in_memory": True,
+        "partial_candidate_masks_persisted": False,
+        "partial_candidate_masks_inspected": False,
+        "stdout_bytes": 0,
+        "stdout_sha256": (
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ),
+        "observed_stderr_bytes": 1774,
+        "observed_stderr_sha256": (
+            "b8ee774b6c78bb045e0404b3d869e38ea2d3d489d104622a91b6aa560942d03d"
+        ),
+        "stderr_path": PREOUTCOME_FAILURE_STDERR_PATH,
+        "stderr_canonical_lf_bytes": 1743,
+        "stderr_canonical_lf_sha256": (
+            "abd281349132dca2c5dddab82a299048bd4ad8a48f274f3e719262dbdcf4b4ff"
+        ),
+    }
+    for key, expected_value in expected.items():
+        if receipt.get(key) != expected_value:
+            raise SystemExit(f"pre-outcome failure receipt {key} mismatch")
+    failure_stderr = repo / PREOUTCOME_FAILURE_STDERR_PATH
+    failure_stderr_bytes = canonical_lf_bytes(failure_stderr)
+    if (
+        len(failure_stderr_bytes) != receipt["stderr_canonical_lf_bytes"]
+        or P.sha256_bytes(failure_stderr_bytes)
+        != receipt["stderr_canonical_lf_sha256"]
+    ):
+        raise SystemExit("pre-outcome stderr binding mismatch")
+    return receipt
 
 
 def _split_rank(block_id: str) -> str:
@@ -177,13 +258,29 @@ def build_protocol_lock(repo: Path, manifest_path: Path) -> dict[str, Any]:
     missing = [name for name in IMPLEMENTATION_FILES if not (repo / name).is_file()]
     if missing:
         raise SystemExit(f"missing implementation files: {missing}")
+    failure_receipt = validate_preoutcome_failure(repo)
 
     value: dict[str, Any] = {
         "schema_version": 1,
         "protocol_id": PROTOCOL_ID,
         "status": LOCK_STATUS,
+        "execution_revision": EXECUTION_REVISION,
         "registration_evidence": "public git commit containing this protocol lock",
         "bridge_outcomes_seen_at_lock": False,
+        "resource_amendment": {
+            "kind": "memory_bounded_block_streaming",
+            "supersedes_protocol_lock_content_sha256": (
+                SUPERSEDED_PROTOCOL_LOCK_CONTENT_SHA256
+            ),
+            "preoutcome_failure_receipt_path": PREOUTCOME_FAILURE_RECEIPT_PATH,
+            "preoutcome_failure_receipt_content_sha256": failure_receipt[
+                "content_sha256"
+            ],
+            "scientific_protocol_changed": False,
+            "changed_execution_only": (
+                "validate, load, build, and score one source block at a time"
+            ),
+        },
         "public_branch": PUBLIC_BRANCH,
         "implementation_commit": git_output(repo, "rev-parse", "HEAD"),
         "source_public_freeze_commit": SOURCE_PUBLIC_FREEZE_COMMIT,
@@ -255,8 +352,9 @@ def build_protocol_lock(repo: Path, manifest_path: Path) -> dict[str, Any]:
             "no_invalid_3d_cavity_metric": True,
         },
         "runtime_versions": runtime_versions(),
+        "implementation_hash_mode": "utf8_canonical_lf_v1",
         "implementation_files_sha256": {
-            name: P.sha256_file(repo / name) for name in IMPLEMENTATION_FILES
+            name: canonical_lf_sha256(repo / name) for name in IMPLEMENTATION_FILES
         },
     }
     value["content_sha256"] = _content_sha(value)
@@ -296,13 +394,34 @@ def verify_protocol_files(repo: Path, lock: dict[str, Any]) -> dict[str, Any]:
         raise SystemExit("source protocol lock path drift")
     if lock.get("source_public_freeze_commit") != SOURCE_PUBLIC_FREEZE_COMMIT:
         raise SystemExit("source public freeze binding drift")
+    amendment = lock.get("resource_amendment", {})
+    if (
+        lock.get("execution_revision") != EXECUTION_REVISION
+        or amendment.get("kind") != "memory_bounded_block_streaming"
+        or amendment.get("supersedes_protocol_lock_content_sha256")
+        != SUPERSEDED_PROTOCOL_LOCK_CONTENT_SHA256
+        or amendment.get("scientific_protocol_changed") is not False
+    ):
+        raise SystemExit("unexpected resource amendment")
+    failure_receipt = validate_preoutcome_failure(repo)
+    if (
+        amendment.get("preoutcome_failure_receipt_path")
+        != PREOUTCOME_FAILURE_RECEIPT_PATH
+        or amendment.get("preoutcome_failure_receipt_content_sha256")
+        != failure_receipt["content_sha256"]
+    ):
+        raise SystemExit("pre-outcome failure receipt binding drift")
     if lock.get("runtime_versions") != runtime_versions():
         raise SystemExit(
             f"runtime version drift: {runtime_versions()} != {lock.get('runtime_versions')}"
         )
+    if lock.get("implementation_hash_mode") != "utf8_canonical_lf_v1":
+        raise SystemExit("unexpected implementation hash mode")
+    if set(lock.get("implementation_files_sha256", {})) != set(IMPLEMENTATION_FILES):
+        raise SystemExit("implementation file set drift")
     for name, expected in sorted(lock["implementation_files_sha256"].items()):
         path = repo / name
-        if not path.is_file() or P.sha256_file(path) != expected:
+        if not path.is_file() or canonical_lf_sha256(path) != expected:
             raise SystemExit(f"implementation drift: {name}")
     manifest_path = repo / lock["source_manifest_path"]
     if P.sha256_file(manifest_path) != lock["source_manifest_file_sha256"]:
@@ -319,7 +438,7 @@ def verify_protocol_files(repo: Path, lock: dict[str, Any]) -> dict[str, Any]:
 
 def verify_completed_inference(
     out_root: Path, manifest: dict[str, Any], lock: dict[str, Any]
-) -> dict[str, dict[str, Any]]:
+) -> dict[str, tuple[Path, str]]:
     completion_path = out_root / "inference_completion_receipt.json"
     if not completion_path.is_file():
         raise SystemExit(
@@ -371,7 +490,7 @@ def verify_completed_inference(
     ):
         raise SystemExit("final artifact directories do not contain exactly the frozen 64 blocks")
 
-    arrays: dict[str, dict[str, Any]] = {}
+    array_refs: dict[str, tuple[Path, str]] = {}
     for block in manifest["blocks"]:
         block_id = block["block_id"]
         array_path = out_root / block["array_file"]
@@ -410,10 +529,13 @@ def verify_completed_inference(
             or cleanup.get("text_logs_retained") is not True
         ):
             raise SystemExit(f"{block_id}: final receipt binding mismatch")
-        arrays[block_id] = P._load_block_arrays(
+        verified_arrays = P._load_block_arrays(
             array_path, block, SOURCE_MANIFEST_CONTENT_SHA256
         )
-    return arrays
+        del verified_arrays
+        array_refs[block_id] = (array_path, record["array_sha256"])
+    gc.collect()
+    return array_refs
 
 
 def verify_label_inputs(labels_root: Path, manifest: dict[str, Any]) -> None:
@@ -809,6 +931,43 @@ def score_blocks(
     return sorted(rows, key=lambda row: row["block_id"])
 
 
+def score_blocks_streaming(
+    blocks: list[dict[str, Any]],
+    array_refs: dict[str, tuple[Path, str]],
+    candidates: Iterable[str],
+    labels_root: Path,
+) -> list[dict[str, Any]]:
+    """Run the unchanged operator and scorer with at most one decoded block resident.
+
+    Per-block counts are independent integers.  Streaming changes only object lifetime and
+    label-plane I/O order; masks, audits, metrics, row order, and downstream statistics are the
+    same as the original all-block execution.
+    """
+
+    candidate_names = tuple(candidates)
+    rows: list[dict[str, Any]] = []
+    for block in blocks:
+        block_id = block["block_id"]
+        if block_id not in array_refs:
+            raise SystemExit(f"{block_id}: verified array reference is missing")
+        array_path, expected_sha256 = array_refs[block_id]
+        if P.sha256_file(array_path) != expected_sha256:
+            raise SystemExit(f"{block_id}: array changed after all-64 verification")
+        block_arrays = P._load_block_arrays(
+            array_path, block, SOURCE_MANIFEST_CONTENT_SHA256
+        )
+        masks, audits = build_masks(
+            [block], {block_id: block_arrays}, candidate_names
+        )
+        block_rows = score_blocks([block], masks, audits, labels_root)
+        if len(block_rows) != 1 or block_rows[0]["block_id"] != block_id:
+            raise AssertionError(f"{block_id}: streaming scorer row contract failed")
+        rows.extend(block_rows)
+        del block_rows, masks, audits, block_arrays
+        gc.collect()
+    return sorted(rows, key=lambda row: row["block_id"])
+
+
 def score_command(args: argparse.Namespace) -> None:
     repo = Path(__file__).resolve().parent
     result_path = Path(args.result).resolve()
@@ -818,13 +977,16 @@ def score_command(args: argparse.Namespace) -> None:
     lock = load_hashed_json(lock_path)
     manifest = verify_protocol_files(repo, lock)
     public_freeze_commit = verify_public_freeze(repo, lock, lock_path)
-    arrays = verify_completed_inference(Path(args.out_root).resolve(), manifest, lock)
+    array_refs = verify_completed_inference(
+        Path(args.out_root).resolve(), manifest, lock
+    )
     labels_root = Path(args.labels_root).resolve()
     verify_label_inputs(labels_root, manifest)
 
     dev_blocks = _blocks_for_split(manifest, lock, "dev")
-    dev_masks, dev_audits = build_masks(dev_blocks, arrays, CANDIDATE_CONFIGS)
-    dev_rows = score_blocks(dev_blocks, dev_masks, dev_audits, labels_root)
+    dev_rows = score_blocks_streaming(
+        dev_blocks, array_refs, CANDIDATE_CONFIGS, labels_root
+    )
     dev_comparisons = {
         name: {
             "vs_fixed": compare_candidate(
@@ -859,9 +1021,8 @@ def score_command(args: argparse.Namespace) -> None:
         result["holdout"] = {"scored": False}
     else:
         holdout_blocks = _blocks_for_split(manifest, lock, "holdout")
-        holdout_masks, holdout_audits = build_masks(holdout_blocks, arrays, [selected])
-        holdout_rows = score_blocks(
-            holdout_blocks, holdout_masks, holdout_audits, labels_root
+        holdout_rows = score_blocks_streaming(
+            holdout_blocks, array_refs, [selected], labels_root
         )
         holdout_comparison = {
             "vs_fixed": compare_candidate(

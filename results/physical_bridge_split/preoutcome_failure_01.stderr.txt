@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 968, in <module>
+    main()
+    ~~~~^^
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 964, in main
+    args.func(args)
+    ~~~~~~~~~^^^^^^
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 826, in score_command
+    dev_masks, dev_audits = build_masks(dev_blocks, arrays, CANDIDATE_CONFIGS)
+                            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 744, in build_masks
+    result = split_probability_bridges(probability, CANDIDATE_CONFIGS[name])
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\probability_bridge_split.py", line 178, in split_probability_bridges
+    partition = watershed(
+        -local_p,
+    ...<3 lines>...
+        watershed_line=True,
+    )
+  File "C:\Users\PC\miniconda3\envs\vesuvius\Lib\site-packages\skimage\segmentation\_watershed.py", line 230, in watershed
+    _watershed_cy.watershed_raveled(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        image.ravel(),
+        ^^^^^^^^^^^^^^
+    ...<6 lines>...
+        watershed_line,
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "skimage/segmentation/_watershed_cy.pyx", line 192, in skimage.segmentation._watershed_cy.watershed_raveled
+  File "../src/skimage/segmentation/heap_general.pxi", line 111, in skimage.segmentation._watershed_cy.heappush
+MemoryError
