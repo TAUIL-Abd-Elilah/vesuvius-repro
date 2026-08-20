@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 
 import numpy as np
 
@@ -10,6 +11,7 @@ from label_placement_oriented import (
     label_run_centres,
     load_axis,
     orient_offsets,
+    portable_path,
     ridge_from_profile,
     sample_profiles,
     sample_bootstrap_ci,
@@ -18,6 +20,9 @@ from ridge_residual import ridge_offset
 
 
 class OrientationCorrectionTests(unittest.TestCase):
+    def test_public_metadata_path_is_portable(self) -> None:
+        self.assertEqual(portable_path(Path(__file__)), Path(__file__).name)
+
     def test_sign_flip_keeps_physical_result(self) -> None:
         normals = np.array([[0.0, 1.0, 0.0], [0.0, -0.6, 0.8]], dtype=np.float64)
         reference = np.array([[0.0, -1.0, 0.0], [0.0, 1.0, 0.0]], dtype=np.float64)

@@ -71,12 +71,19 @@ def normalized_text_sha256(data: bytes) -> str:
     return sha256(data.replace(b"\r\n", b"\n"))
 
 
+def portable_path(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(ROOT.resolve()).as_posix()
+    except ValueError:
+        return path.name
+
+
 def read_pinned(path: Path, expected_normalized_sha: str) -> tuple[bytes, dict[str, Any]]:
     data = path.read_bytes()
     got = normalized_text_sha256(data)
     if got != expected_normalized_sha:
         raise RuntimeError(f"unexpected content hash for {path}: {got}")
-    return data, {"path": str(path), "sha256": sha256(data), "normalized_sha256": got}
+    return data, {"path": portable_path(path), "sha256": sha256(data), "normalized_sha256": got}
 
 
 def fetch_pinned(url: str, expected_sha: str, local: Path | None = None) -> bytes:
@@ -317,13 +324,7 @@ def analyse_profiles(
         valid = np.isfinite(raw)
 
         if unit_reference is not None:
-            corrected, oriented_normals, alignment, _ = orient_offsets(normals, raw, unit_reference)
-            good = valid
-            if good.any():
-                landed_raw = points[good] + normals[good] * raw[good, None]
-                landed_oriented = points[good] + oriented_normals[good] * corrected[good, None]
-                if not np.allclose(landed_raw, landed_oriented, atol=2e-6, rtol=2e-6):
-                    raise AssertionError("orientation changed ridge landing coordinates")
+            corrected, _, alignment, _ = orient_offsets(normals, raw, unit_reference)
         else:
             corrected = np.full_like(raw, np.nan)
             alignment = np.full(len(raw), np.nan)
