@@ -1,5 +1,8 @@
 # Amendment 01: bind the volume and treat the axis as a 3D polyline
 
+**Superseded before outcome by Amendment 02.** The volume binding remains; the ordered-polyline
+interpretation does not.
+
 Frozen on 2026-08-20 before any corrected placement outcome was computed.
 
 Two input checks performed after the initial plan require a mechanical amendment:

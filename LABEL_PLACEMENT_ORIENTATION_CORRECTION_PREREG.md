@@ -35,13 +35,14 @@ magnitude-only because no independent global coordinates are available.
 
 ## Physical orientation
 
-For local point `p=(z,y,x)`, use mapped coordinate `g=lo+p`. The public axis is an ordered 3D
-polyline and is not monotonic in `z` (47 negative consecutive z steps), so same-z interpolation is
-invalid. Use the vector from `g` to its closest point on any axis line segment as the inward
-reference `r`. Flip Hessian normal `n` when `n dot r < 0`, so every oriented normal points inward.
-Corrected scalar offset is the original offset multiplied by the same sign. Positive means the CT
-ridge is inward of the label-run centre. The correction vector, landing point, and `abs(offset)`
-must remain numerically unchanged.
+For local point `p=(z,y,x)`, use mapped coordinate `g=lo+p`. The public file is an unsorted list of
+unique-z control points, not an ordered 3D path: the upstream Khartes/evolutor reader sorts this
+exact format, and the source reference says it is specified at original scale. Sort by z, linearly
+interpolate `(y_axis,x_axis)` at `g_z`, and define the inward reference
+`r=(0,y_axis-g_y,x_axis-g_x)`. Flip Hessian normal `n` when `n dot r < 0`, so every oriented normal
+points inward. Corrected scalar offset is the original offset multiplied by the same sign. Positive
+means the CT ridge is inward of the label-run centre. The correction vector, landing point, and
+`abs(offset)` must remain numerically unchanged.
 
 Because a sign is fragile for nearly tangential normals, repeat the summaries after requiring
 `abs(n dot unit(r)) >= 0.25` and `>= 0.50`. These are fixed sensitivity analyses.
