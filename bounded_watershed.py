@@ -8,6 +8,7 @@ import mmap
 import os
 import re
 import shutil
+import stat
 import sys
 import tempfile
 from contextlib import contextmanager
@@ -20,8 +21,7 @@ from skimage.morphology._util import _offsets_to_raveled_neighbors, _validate_co
 from skimage.segmentation._watershed import _validate_inputs
 from skimage.util import crop
 
-HEAP_CAPACITY_ITEMS = 1_500_000_000
-MIN_HEAP_CAPACITY_ITEMS = 1_000_000
+HEAP_CAPACITY_ITEMS = 2_000_000_000
 EXPECTED_HEAP_ITEM_BYTES = 32
 MIN_FREE_AFTER_FULL_HEAP_BYTES = 8 * 1024**3
 MIN_FREE_AFTER_SMALL_HEAP_BYTES = 256 * 1024**2
@@ -143,6 +143,71 @@ def cleanup_stale_heap_files(
             resolved.unlink()
 
 
+def _size_sparse_heap_file(
+    descriptor: int,
+    path: Path,
+    storage_bytes: int,
+) -> None:
+    """Set the logical heap size without physically zero-filling untouched ranges."""
+
+    if sys.platform != "win32":
+        os.ftruncate(descriptor, storage_bytes)
+        return
+
+    import ctypes
+    import msvcrt
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.DeviceIoControl.argtypes = [
+        wintypes.HANDLE,
+        wintypes.DWORD,
+        wintypes.LPVOID,
+        wintypes.DWORD,
+        wintypes.LPVOID,
+        wintypes.DWORD,
+        ctypes.POINTER(wintypes.DWORD),
+        wintypes.LPVOID,
+    ]
+    kernel32.DeviceIoControl.restype = wintypes.BOOL
+    kernel32.SetFilePointerEx.argtypes = [
+        wintypes.HANDLE,
+        ctypes.c_longlong,
+        ctypes.POINTER(ctypes.c_longlong),
+        wintypes.DWORD,
+    ]
+    kernel32.SetFilePointerEx.restype = wintypes.BOOL
+    kernel32.SetEndOfFile.argtypes = [wintypes.HANDLE]
+    kernel32.SetEndOfFile.restype = wintypes.BOOL
+
+    handle = msvcrt.get_osfhandle(descriptor)
+    bytes_returned = wintypes.DWORD()
+    new_position = ctypes.c_longlong()
+    if not kernel32.DeviceIoControl(
+        handle,
+        0x000900C4,  # FSCTL_SET_SPARSE
+        None,
+        0,
+        None,
+        0,
+        ctypes.byref(bytes_returned),
+        None,
+    ):
+        raise ctypes.WinError(ctypes.get_last_error())
+    if not kernel32.SetFilePointerEx(
+        handle,
+        storage_bytes,
+        ctypes.byref(new_position),
+        0,  # FILE_BEGIN
+    ):
+        raise ctypes.WinError(ctypes.get_last_error())
+    if not kernel32.SetEndOfFile(handle):
+        raise ctypes.WinError(ctypes.get_last_error())
+    attributes = path.stat().st_file_attributes
+    if not attributes & stat.FILE_ATTRIBUTE_SPARSE_FILE:
+        raise OSError("bounded watershed heap file is not sparse")
+
+
 @contextmanager
 def _heap_storage(
     capacity_items: int = HEAP_CAPACITY_ITEMS,
@@ -170,7 +235,9 @@ def _heap_storage(
     path = Path(raw_path)
     mapping: mmap.mmap | None = None
     try:
-        os.ftruncate(descriptor, storage_bytes)
+        _size_sparse_heap_file(descriptor, path, storage_bytes)
+        if path.stat().st_size != storage_bytes:
+            raise OSError("bounded watershed heap file size mismatch")
         mapping = mmap.mmap(descriptor, storage_bytes, access=mmap.ACCESS_WRITE)
         yield mapping
     finally:
@@ -211,15 +278,8 @@ def watershed(
     )
     marker_locations = np.flatnonzero(output)
     image_strides = np.array(image.strides, dtype=np.intp) // image.itemsize
-    marker_label_max = int(output.max(initial=0))
-    event_capacity_estimate = int(np.count_nonzero(mask)) * len(flat_neighborhood)
-    event_capacity_estimate *= max(1, marker_label_max)
-    event_capacity_estimate += int(marker_locations.size)
     if _heap_capacity_items is None:
-        heap_capacity_items = min(
-            HEAP_CAPACITY_ITEMS,
-            max(MIN_HEAP_CAPACITY_ITEMS, event_capacity_estimate),
-        )
+        heap_capacity_items = HEAP_CAPACITY_ITEMS
     else:
         heap_capacity_items = _heap_capacity_items
 
@@ -244,7 +304,6 @@ def watershed(
 
 __all__ = [
     "HEAP_CAPACITY_ITEMS",
-    "MIN_HEAP_CAPACITY_ITEMS",
     "SCRATCH_DIRECTORY",
     "cleanup_heap_files_for_pid",
     "cleanup_stale_heap_files",

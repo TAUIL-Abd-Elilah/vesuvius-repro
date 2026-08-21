@@ -560,14 +560,14 @@ def test_scroll_z0_jobs_are_an_exact_unfragmented_partition() -> None:
         B.partition_blocks_by_scroll_z0([blocks[0], copy.deepcopy(blocks[0])])
 
 
-def test_amendment03_failure_receipt_and_superseded_chain_are_bound() -> None:
+def test_amendment04_failure_receipt_and_superseded_chain_are_bound() -> None:
     repo = Path(B.__file__).resolve().parent
     prior = B.validate_superseded_lock_chain(repo)
     receipt = B.validate_preoutcome_failure(repo)
 
     assert prior["content_sha256"] == B.SUPERSEDED_PROTOCOL_LOCK_CONTENT_SHA256
     assert receipt["content_sha256"] == (
-        "51f48a66d1992a9bb70175bd614346ac8c84e77c72110688a8a9fc1519e9e691"
+        "9e6c3d8776532fd0c6ffb1a205f5ff1375c7af4c92a62f9956c9eca60212b7b1"
     )
     assert receipt["development_scoring_started"] is True
     assert receipt["development_scoring_completed"] is None
@@ -576,7 +576,7 @@ def test_amendment03_failure_receipt_and_superseded_chain_are_bound() -> None:
     assert receipt["bridge_outcomes_seen"] is False
 
 
-def test_amendment03_rejects_any_unlisted_scientific_change() -> None:
+def test_amendment04_rejects_any_unlisted_scientific_change() -> None:
     repo = Path(B.__file__).resolve().parent
     prior = B.validate_superseded_lock_chain(repo)
     amended = copy.deepcopy(prior)

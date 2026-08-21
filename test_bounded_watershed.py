@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import hashlib
 import os
+import stat
+import sys
+from contextlib import contextmanager
 from pathlib import Path
 
 import numpy as np
@@ -14,6 +17,8 @@ from skimage.util import crop
 import bounded_watershed as B
 import probability_bridge_split as P
 
+TEST_HEAP_CAPACITY_ITEMS = 1_000_000
+
 
 def test_binary_and_heap_layout_are_frozen() -> None:
     binary = Path(B.__file__).resolve().parent / B.BOUNDED_WATERSHED_BINARY
@@ -22,7 +27,54 @@ def test_binary_and_heap_layout_are_frozen() -> None:
         B.BOUNDED_WATERSHED_BINARY_SHA256
     )
     assert B.heap_file_bytes(1) == B.EXPECTED_HEAP_ITEM_BYTES == 32
-    assert B.HEAP_CAPACITY_ITEMS == 1_500_000_000
+    assert B.HEAP_CAPACITY_ITEMS == 2_000_000_000
+
+
+def test_default_uses_fixed_full_capacity_without_estimator(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    capacities: list[int] = []
+
+    @contextmanager
+    def storage(capacity_items: int, *, scratch_directory: Path):
+        capacities.append(capacity_items)
+        assert scratch_directory == tmp_path
+        yield bytearray(32_000)
+
+    monkeypatch.setattr(B, "_heap_storage", storage)
+    image = np.zeros((3, 3), dtype=np.float32)
+    markers = np.zeros_like(image, dtype=np.int32)
+    markers[0, 0] = 1
+    markers[2, 2] = 2
+    actual = B.watershed(
+        image,
+        markers=markers,
+        mask=np.ones_like(image, dtype=bool),
+        watershed_line=True,
+        _scratch_directory=tmp_path,
+    )
+    expected = reference_watershed(
+        image,
+        markers=markers,
+        mask=np.ones_like(image, dtype=bool),
+        watershed_line=True,
+    )
+    assert np.array_equal(actual, expected)
+    assert capacities == [B.HEAP_CAPACITY_ITEMS]
+
+
+def test_native_sparse_heap_file_is_sized_and_cleaned(tmp_path: Path) -> None:
+    capacity_items = 4096
+    with B._heap_storage(capacity_items, scratch_directory=tmp_path) as storage:
+        assert len(storage) == B.heap_file_bytes(capacity_items)
+        files = list(tmp_path.iterdir())
+        assert len(files) == 1
+        if sys.platform == "win32":
+            assert files[0].stat().st_file_attributes & stat.FILE_ATTRIBUTE_SPARSE_FILE
+        storage[0] = 17
+        storage[-1] = 23
+    assert list(tmp_path.iterdir()) == []
 
 
 def test_random_plateau_partitions_match_scikit_image(tmp_path: Path) -> None:
@@ -57,6 +109,7 @@ def test_random_plateau_partitions_match_scikit_image(tmp_path: Path) -> None:
             mask=mask,
             connectivity=connectivity,
             watershed_line=watershed_line,
+            _heap_capacity_items=TEST_HEAP_CAPACITY_ITEMS,
             _scratch_directory=tmp_path,
         )
         assert np.array_equal(actual, expected), (case, shape, connectivity)
@@ -93,6 +146,7 @@ def test_multi_voxel_repeated_label_markers_match_scikit_image(
                 mask=mask,
                 connectivity=connectivity,
                 watershed_line=watershed_line,
+                _heap_capacity_items=TEST_HEAP_CAPACITY_ITEMS,
                 _scratch_directory=tmp_path,
             )
             assert np.array_equal(actual, expected)
@@ -200,6 +254,7 @@ def test_repeated_run_is_byte_identical(tmp_path: Path) -> None:
             mask=np.ones_like(image, dtype=bool),
             connectivity=3,
             watershed_line=True,
+            _heap_capacity_items=TEST_HEAP_CAPACITY_ITEMS,
             _scratch_directory=tmp_path,
         )
         for _ in range(3)
@@ -233,7 +288,12 @@ def test_bridge_mask_and_audit_match_reference_operator(
     reference = P.split_probability_bridges(probability, config)
 
     def bounded_for_test(*args, **kwargs):
-        return B.watershed(*args, **kwargs, _scratch_directory=tmp_path)
+        return B.watershed(
+            *args,
+            **kwargs,
+            _heap_capacity_items=TEST_HEAP_CAPACITY_ITEMS,
+            _scratch_directory=tmp_path,
+        )
 
     monkeypatch.setattr(P, "watershed", bounded_for_test)
     actual = P.split_probability_bridges(probability, config)
