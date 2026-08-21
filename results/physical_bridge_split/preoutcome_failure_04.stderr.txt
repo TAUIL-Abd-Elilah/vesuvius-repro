@@ -1,0 +1,35 @@
+group ('PHerc1203', 64) worker PID 15972 failed with exit 1; stderr: Traceback (most recent call last):
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 1904, in <module>
+    main()
+    ~~~~^^
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 1900, in main
+    args.func(args)
+    ~~~~~~~~~^^^^^^
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 1709, in group_worker_command
+    rows = score_block_group(blocks, array_refs, candidates, labels_root)
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 1231, in score_block_group
+    masks, audits = build_masks(blocks, arrays, candidate_names)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 1100, in build_masks
+    result = split_probability_bridges(probability, CANDIDATE_CONFIGS[name])
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\probability_bridge_split.py", line 178, in split_probability_bridges
+    partition = watershed(
+        -local_p,
+    ...<3 lines>...
+        watershed_line=True,
+    )
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\bounded_watershed.py", line 230, in watershed
+    _core.watershed_raveled_bounded(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        image.ravel(),
+        ^^^^^^^^^^^^^^
+    ...<7 lines>...
+        heap_storage,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "_bounded_watershed_cy.pyx", line 228, in _bounded_watershed_cy.watershed_raveled_bounded
+    heappush(&heap, &new_element)
+  File "_bounded_watershed_cy.pyx", line 80, in _bounded_watershed_cy.heappush
+    raise MemoryError("bounded watershed heap capacity exhausted")
+MemoryError: bounded watershed heap capacity exhausted
