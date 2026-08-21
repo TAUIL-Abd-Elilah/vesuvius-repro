@@ -1,0 +1,596 @@
+{
+  "analysis": {
+    "bootstrap_draws": 10000,
+    "bootstrap_groups": "equal weight over scroll x z-stratum",
+    "bootstrap_seed": 20260812,
+    "no_invalid_3d_cavity_metric": true,
+    "primary_metric": "recall_37um_minus_shifted_null_recall_37um",
+    "z_sample_step": 4
+  },
+  "baseline": {
+    "description": "exact PR #1386 plans-driven CT-normalized probability",
+    "source": "corrected_pmax_l1",
+    "strict_threshold": 0.2
+  },
+  "bridge_outcomes_seen_at_lock": false,
+  "candidates": {
+    "balanced_p40_s65": {
+      "connectivity": 3,
+      "cut_ceiling": 0.35,
+      "low_threshold": 0.2,
+      "max_removed_fraction": 0.005,
+      "min_output_component_voxels": 512,
+      "min_seed_voxels": 128,
+      "persistence_threshold": 0.4,
+      "seed_threshold": 0.65
+    },
+    "conservative_p45_s70": {
+      "connectivity": 3,
+      "cut_ceiling": 0.3,
+      "low_threshold": 0.2,
+      "max_removed_fraction": 0.002,
+      "min_output_component_voxels": 512,
+      "min_seed_voxels": 128,
+      "persistence_threshold": 0.45,
+      "seed_threshold": 0.7
+    },
+    "sensitive_p35_s60": {
+      "connectivity": 3,
+      "cut_ceiling": 0.3,
+      "low_threshold": 0.2,
+      "max_removed_fraction": 0.01,
+      "min_output_component_voxels": 256,
+      "min_seed_voxels": 64,
+      "persistence_threshold": 0.35,
+      "seed_threshold": 0.6
+    }
+  },
+  "content_sha256": "4806ab81e821a462f6d122530cfe0e651d1399c64d6071589ec9e4a26f49501c",
+  "development_selection": {
+    "far37_delta_margin_each_scroll": 0.002,
+    "if_none_pass": "stop_without_scoring_holdout",
+    "minimum_edited_blocks_per_scroll": 1,
+    "minimum_edited_blocks_total": 4,
+    "point_skill_delta_mean_each_scroll": "nonnegative",
+    "pooled_point_skill_delta_mean": "strictly_positive",
+    "ranking": [
+      "largest minimum pooled point-skill delta mean across fixed and matched controls",
+      "largest pooled point-skill delta mean against matched-budget control",
+      "smallest summed far37 delta",
+      "fewest removed voxels",
+      "lexicographic candidate name"
+    ],
+    "recall37_delta_margin_each_scroll": -0.002,
+    "same_requirements_against_matched_budget_control": true,
+    "score_all_candidates_on_dev_only": true
+  },
+  "execution_revision": 6,
+  "holdout_success_gate": {
+    "far37_delta_margin_each_scroll": 0.002,
+    "minimum_edited_blocks_per_scroll": 1,
+    "minimum_edited_blocks_total": 4,
+    "point_skill_delta_mean_each_scroll": "strictly_positive",
+    "pooled_stratified_point_skill_delta_ci95_low": "strictly_positive",
+    "recall37_delta_margin_each_scroll": -0.002,
+    "required_point_blocks_each_scroll": 16,
+    "same_requirements_against_matched_budget_control": true,
+    "score_selected_candidate_only": true
+  },
+  "implementation_commit": "2c09d696c5ff8e254c45b29e7e8c5b569715aba9",
+  "implementation_files_sha256": {
+    ".gitignore": "eb78289a5459a41e178919fa8566ab6f2d3e5f20285e37c8aec218808a9d0a7e",
+    "PHYSICAL_BRIDGE_SPLIT_AMENDMENT_01.md": "a0b60ca0f3863f4d8a428bab55e6e68b76811974772870b45687b2c6fab59a9b",
+    "PHYSICAL_BRIDGE_SPLIT_AMENDMENT_02.md": "d9ddc90cb79981e08fe205946d6d54aef3ab747e9c823f50c596f674472cec11",
+    "PHYSICAL_BRIDGE_SPLIT_AMENDMENT_03.md": "aef8437412539de9c3c84f4dc899fa42a9422eb5c53245dc7e58279031d393a5",
+    "PHYSICAL_BRIDGE_SPLIT_AMENDMENT_04.md": "5ca18b93a598aed49f8b58e893c99798e29d1a92735a4921d2fd31b7dda46407",
+    "PHYSICAL_BRIDGE_SPLIT_AMENDMENT_05.md": "bff0d1c00a5797d964a9eba358b2decdc55e061ab3d15f01125c94e5b0e824a3",
+    "PHYSICAL_BRIDGE_SPLIT_PREREG.md": "9a14ec50c3855a798592fe20b529d43437193ab7788eefa179f402c5ed77425a",
+    "THIRD_PARTY_NOTICES.md": "f3d85919163a32f2dd1541b7653fcc4972694ef6265a07fa2edd27ab1a2e0372",
+    "_bounded_watershed_cy.pyx": "0a918f1c8ed63a252f0144769e3581c89fa812e8a710a515d51c88bc666729b1",
+    "bounded_watershed.py": "ea75bfccf81551077d8d224dedfba252abc38c1917a67f84798f1898dd545c59",
+    "build_bounded_watershed.py": "0c47176424579ea7c9c05ce20affc3d4b2acea02182e1644f7d13cb6ba8f4dbc",
+    "physical_bridge_split.py": "049da143f419367e8917f30a09effc541c1f3372b7b6d62ce911b7495fddfc49",
+    "physical_normalization_ab.py": "6386c96112415abface971491a83a25e776120f1da75d69033529017530cc3c9",
+    "probability_bridge_split.py": "13a71db423f31f28a46e3c3f00509f03a2fcb8302dc033d9ff24fe586d42083b",
+    "requirements.txt": "c88f6b3462fe3869fb3e095f6b85877134886257c11c72d820d9d68313d63cc4",
+    "results/physical_bridge_split/preoutcome_failure_01.json": "84376d8c3303160f47af06de2f681789d6f31b8c200898d23e69ca20deed7b4d",
+    "results/physical_bridge_split/preoutcome_failure_01.stderr.txt": "abd281349132dca2c5dddab82a299048bd4ad8a48f274f3e719262dbdcf4b4ff",
+    "results/physical_bridge_split/preoutcome_failure_02.json": "526a03a54da10b5e122b9a4cf501fc85d86c41c175c06ec38eedcd219c2ca440",
+    "results/physical_bridge_split/preoutcome_failure_02.stderr.txt": "b2f1a360e1c17357f9046887e2a2275b6849def11a844cc37bc0df6ca31e227e",
+    "results/physical_bridge_split/preoutcome_failure_03.json": "99aacde2222f863be5da649f3e1d944feae9ae282e456030cd88d840127a01fd",
+    "results/physical_bridge_split/preoutcome_failure_03.stderr.txt": "5d26f3356427913d37bb7c48830363463937ddde67f033258cf83d127121a1da",
+    "results/physical_bridge_split/preoutcome_failure_04.json": "db3ace06b3dce8cddc53cbfa8704df52937973a1a3a77e91fdfe877bea768b4b",
+    "results/physical_bridge_split/preoutcome_failure_04.stderr.txt": "fea8f50165e648799fd605459a470058bb6aa75e0df43b580610b9046c55d89d",
+    "results/physical_bridge_split/preoutcome_failure_05.json": "5fb4c1110cc6364ec9a5d4f4b451ba35ac730a4f88fc834cb06e98b06356c342",
+    "results/physical_bridge_split/preoutcome_failure_05.stderr.txt": "42557381d018714fadd8de28e02aaefa0fa332698c0951d77e273f7da025a953",
+    "results/physical_bridge_split/protocol_lock.json": "ec25299ad648f080d1f98c5c5338d8cd29df4a627b286f58acd87e9cfdacf76d",
+    "results/physical_bridge_split/protocol_lock_amendment_01.json": "87dffefa8de53c2c1cca21bb67bbd7dec262b137e6f7b82ac52d1d3cdd27fd0d",
+    "results/physical_bridge_split/protocol_lock_amendment_02.json": "b8b1579d45509d3d463b43d1732c6d9363a9349d95754490a1d29317705d629f",
+    "results/physical_bridge_split/protocol_lock_amendment_03.json": "9177867d89bb30aefa1fd446ebc90ecd7103d213901bf2128461e14413b595fb",
+    "results/physical_bridge_split/protocol_lock_amendment_04.json": "b1d50ef2ae8f64d3b5d16d33be80ce749d59762c6e37359c04e92791579eccc0",
+    "results/physical_released_baseline_comparison/protocol_lock.json": "3e143f9c93c5e7f12455d595099e1dba2d7ac5f23e54ee43e2dc44c6034bc1ed",
+    "run_physical_released_baseline_comparison.py": "7a3b714defb3eab12eff5e593231df62a80f56fbfc9336cb94249f1294313c7d",
+    "test_bounded_watershed.py": "923e88aade7cc16984693061f5bd6fd3bc3d29479f6e0b20711c6d09a3b2b441",
+    "test_physical_bridge_split.py": "b4d955a25eca955fe281c38f1a24fc3e5a110e0c2d23b554620d0c02bdf9bf8d",
+    "test_probability_bridge_split.py": "523901cc2313a90417a8c4e62f805898f52ed11561113e1a057463a223501f04"
+  },
+  "implementation_hash_mode": "utf8_canonical_lf_v1",
+  "inference_requirement": {
+    "completed_blocks": 64,
+    "completion_status": "inference_complete_unscored",
+    "partial_scoring_forbidden": true
+  },
+  "matched_budget_control": {
+    "exact_voxel_count": true,
+    "method": "within each block, keep exactly the candidate output voxel count by descending probability rank; flat-index order breaks probability ties",
+    "population": "complete prediction extent used by the physical metric",
+    "uses_labels": false
+  },
+  "protocol_id": "physical_probability_bridge_split_v1",
+  "public_branch": "physical-multithreshold-repair",
+  "registration_evidence": "public git commit containing this protocol lock",
+  "resource_amendment": {
+    "allowed_top_level_differences_from_superseded_lock": [
+      "content_sha256",
+      "execution_revision",
+      "implementation_commit",
+      "implementation_files_sha256",
+      "resource_amendment"
+    ],
+    "changed_execution_only": "store losslessly guarded raveled index and source payloads as signed int32, raising fixed exact-event capacity without changing the event state machine",
+    "compiled_event_core_changed": true,
+    "compiled_event_state_machine_changed": false,
+    "disk_free_preflight_bytes": 72589934576,
+    "event_order_changed": false,
+    "frozen_max_padded_raveled_elements": 790152,
+    "heap_capacity_exhaustion": "abort_without_result",
+    "heap_capacity_is_event_bound": false,
+    "heap_capacity_items_every_production_call": 2666666666,
+    "heap_file_logical_bytes": 63999999984,
+    "heap_item_bytes": 24,
+    "heap_item_layout": {
+      "age": "signed_int32_at_byte_8",
+      "index": "signed_int32_at_byte_12",
+      "size_bytes": 24,
+      "source": "signed_int32_at_byte_16",
+      "value": "float64_at_byte_0"
+    },
+    "heap_sparse_allocation_reserves_disk_space": false,
+    "heap_sparse_size_sequence_windows": [
+      "FSCTL_SET_SPARSE",
+      "SetFilePointerEx",
+      "SetEndOfFile",
+      "mmap_ACCESS_WRITE"
+    ],
+    "heap_stale_file_recovery": "remove_only_after_owning_pid_has_exited",
+    "heap_storage": "native_sparse_file_backed_mmap_direct_item_binary_heap",
+    "implementation_binary_files_sha256": {
+      "_bounded_watershed_cy.pyd": "90d1a8d2b444922458c963477481eebe66c47abbcd82aab41e57268e21ac3611"
+    },
+    "index_payload_guard": "padded_raveled_element_count_lte_signed_int32_max_plus_one",
+    "index_payload_max_raveled_elements": 2147483648,
+    "kind": "compact_guarded_fixed_capacity_sparse_bit_equivalent_watershed_heap",
+    "minimum_free_after_full_heap_bytes": 8589934592,
+    "preoutcome_failure_receipt_content_sha256": "8d675170acdd30bc476ff1b88fcf9723bc654bf981dc5443e589f5533bb7b66e",
+    "preoutcome_failure_receipt_path": "results/physical_bridge_split/preoutcome_failure_05.json",
+    "scientific_protocol_changed": false,
+    "signed_age_semantics": "pinned_scikit_image_int32_cast_including_wrap",
+    "supersedes_protocol_lock_content_sha256": "05ac984f3694c0081efebf635f9e21e8c3cd7f7dd33f28671ad180b0c853bfed",
+    "supersedes_protocol_lock_path": "results/physical_bridge_split/protocol_lock_amendment_04.json",
+    "watershed_reference": "scikit-image 0.26.0",
+    "worker_group_key": [
+      "scroll",
+      "geometry.score_local_l1[0]"
+    ],
+    "worker_parallelism": 1
+  },
+  "runtime_versions": {
+    "numpy": "2.4.6",
+    "python": "3.14.6",
+    "scikit-image": "0.26.0",
+    "scipy": "1.18.0",
+    "zarr": "3.2.1"
+  },
+  "schema_version": 1,
+  "source_manifest_content_sha256": "567a18faa1c8ca7e743c9240133f4200e67e3085823dd4795c4518e3e0e65ac0",
+  "source_manifest_file_sha256": "d0831d7bb8f5a3aa47eaf4f21d414c336d0a217f6ebe5ad0dc9ecd4dc57423eb",
+  "source_manifest_path": "results/physical_normalization_ab/manifest.json",
+  "source_protocol_lock_content_sha256": "97368b402aa313ad6f24442671da0182302530d1ecb0479b0e40d174d855d8b9",
+  "source_protocol_lock_path": "results/physical_released_baseline_comparison/protocol_lock.json",
+  "source_public_freeze_commit": "c62fd475b6f7df716e828b3a774e304e7cf43176",
+  "split": {
+    "assignments": {
+      "dev": [
+        {
+          "block_id": "PHerc0139-z0064-y0128-x0960",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "440409c7587ae8f74c35d9a1663b574f835b9c1c19bfecf34c4007b8f866fa43",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc0139-z0192-y1024-x0704",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "59a81d873523cb3d398ce77fa941460ad96bbc2c7c0970199bcb5ee3c8e17cdc",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc0139-z0192-y1280-x0192",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "020fac12c4ef2f29d5c927f1419667e7610e93ac8d565cedfafdc01bc2bb6c53",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc0139-z0192-y1408-x1216",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "6e2ef9387f268d1bd40f5a429a4a31f50bdce43a2ff2726b841a2be90e376870",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc0139-z0320-y1152-x1088",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "1e13653ae0a64969603d8078b79b2beca8f0b683dcd0c5080064d597cb2b985d",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc0139-z0320-y1664-x0192",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "321c13d575f8bf876aca7acc4ff42fbbb814d695f853730d21abbfa337b3c8ea",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc0139-z0576-y0512-x1344",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "1cd445c22d4e5c2c92b0f45d89d72dc2568e4e7e735e5ece430abc1d67f7d097",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc0139-z0576-y0640-x0960",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "0fcae933613a980f7cee56f9bb97dc3697df6f7d7cc24207c1e4b198e1c62d2a",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc0139-z0704-y1024-x0576",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "18a0ed7da5a081ffc2ef35d2b9f24e5f83ab353d793100eb3f4856dfc0c033e4",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc0139-z0832-y0128-x0960",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "2ba2d2e29a7649117bca553b2e3264836b29d2d40c8818b4d3e40796f61dc506",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc0139-z0832-y0640-x1600",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "3d28f9aad15f54cfe82637632635c08d02baef497772d49b35342a38cf887a65",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc0139-z0832-y1152-x0832",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "3a94998ba3178ad5251441c675071220b7c956e4e01f361ed5059d26c51cbff9",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc0139-z0960-y0640-x1472",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "55d2610f104713d54bee429133f82bf7a5b5181c3993775206ff21b56f5e4865",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc0139-z1088-y0512-x0448",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "96257fbd35de1d2ba46443cac6643b83b7ae14e1a38a1c54c6427276d54bb35d",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc0139-z1088-y0768-x0576",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "31e4ea854ad5d3975e7e4ff47fcdfa0647a5b8d6e3f665be28a3a054bb75b867",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc0139-z1088-y1536-x0192",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "64a801d3adc9c05381e9417f9a8d551b4a507ff7f67264aa36ea8032135a1f39",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc1203-z0064-y1984-x0896",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "84beaa897d8c633051fd8fef9a0cb61236f8d3a9464c24db621f3704fc036e8f",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc1203-z0192-y1472-x1152",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "7c38f75501abcb035135f707277d1986710e062414081c0640c1b1c8c01ee009",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc1203-z0320-y2112-x2048",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "19661ffc1690b883983f547ae7e4486cc9be6cb6d1544085a3cb96451edc1b66",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc1203-z0448-y2112-x1152",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "81942f8e5d14ab7948499a1b4d0c5a64263779a725daa6769dd1103d432fad2b",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc1203-z0576-y1600-x1536",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "0941e883113f3a0d6635dc8b468ed97e47f24383cb26ef8e1c1f20c9e73deeed",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc1203-z0576-y1728-x2432",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "8c3f82a85d9ec4286c3e38c4467f9bbdf014e16db426bfd8b651f9c970269be2",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc1203-z0704-y1216-x1536",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "9b20c59c46157e890a9c8929802117ad2f5bda4706be8a9299fe93b9441ae777",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc1203-z0960-y2112-x2560",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "92b2b8ce9b08a2e58ed25c2174f275b5117250fcdee9ed5000fd2c7ee8a57f4a",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc1203-z1216-y0832-x1280",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "332c7bc14e87ef8780b3225a5200b346dbafc48b8e82849e334a20ff9e2e54b1",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc1203-z1216-y2112-x1408",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "0f82df999481d8d2c56e43d05c926c40a71705996b4a517c134b6d95457ac365",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc1203-z1344-y1216-x2560",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "52da9788ae00b258b544d9774433486e0f873a882c7aa43efad24112041a301f",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc1203-z1344-y1472-x0896",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "04ad45920d9c7b5400a86b40b8b8e655f59d9840834a77af21e926821e7eacb7",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc1203-z1600-y1216-x2048",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "a1ae16a3d111321fde504dcccc71ce34e576b87b29050c8c4ff0ee6cf522e357",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc1203-z1728-y1216-x2176",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "8691280192a1e586dfdac827421135319256a8bb63a46269d14751198919354f",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc1203-z1728-y1344-x1664",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "6d11fd357bb14a46a19971b846f892b3bb9ab6dfda7fdf13b49036a0061bdde8",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc1203-z1728-y2112-x1536",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "55f41bd2bfcb27eb16faf0166cb3d537216804eb57dc20f344ea227dd7e1af85",
+          "z_stratum": 3
+        }
+      ],
+      "holdout": [
+        {
+          "block_id": "PHerc0139-z0064-y0512-x0832",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "f7ecd9d6b1859b62b06f8da8c6b608423a52b036c22479f8054b224bcdaff143",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc0139-z0064-y0512-x1600",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "d7393021feaaab2c5eca579902513dc3c3e63809a15c7f725b3585bdda639f0b",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc0139-z0064-y1280-x1344",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "e4608a56b75de7426ed92096049e523e7155f7ead147f3667ea0b042d53f975d",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc0139-z0064-y1280-x1472",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "7ad84757ea0c3bc9118f8884058a59a9c89ff9a267e2557d5389a03138a12a70",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc0139-z0320-y0896-x0192",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "ca82654c5e023188e1b9c2652fb09d563b0f1eccb82b011909e22e7e9b78a67c",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc0139-z0448-y0768-x0960",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "573dbbbcd0f4fe47be5970686447d964baa094bafd8a013c48278d1f109b5711",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc0139-z0448-y1536-x0448",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "8f2c749690f918c00adbdbe91e8154bdcc244776355d1ce147958aa52f75b537",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc0139-z0576-y1536-x1472",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "b5cda0284d8d653667398f66605bc4fbcdaa6c002122f0faed201ec5b31e8d69",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc0139-z0704-y0128-x1088",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "c080e91feade1b40059a32787db19b7b4707d3ef02b0b96b053bd57056e0522f",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc0139-z0704-y0256-x1344",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "abe580242d0c7e98dd44ed09e5fdde32ce2e8538431ee86a0d647a831be7b9f5",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc0139-z0704-y1024-x0960",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "3f5f1b7b10f110b0eec1a9ce682b95fe6c7f2ef2893edae79c8d0f385006a403",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc0139-z0832-y1152-x1856",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "a49037e82c7120854ba218d80d6e307f0708e394d3a178453a170a1a84071794",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc0139-z0960-y0896-x0576",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "e44239e99624dc9db0ff5f2beea753cfc072d219fd82c0edc29b2ada7b1eb186",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc0139-z0960-y1024-x0576",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "bb894ccfd3ce5e0314c70b233dbc179cf129fc9673307d49a32d580117b96400",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc0139-z1088-y1152-x1600",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "f2e6600c317d708ba7a76763fe006befcf157cedf5ad630fa727aeb88d2596d6",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc0139-z1088-y1536-x1728",
+          "scroll": "PHerc0139",
+          "split_rank_sha256": "f9bd9a3ea19875edaeb0753c21506127676fbe95cefad7f9e97ba02625287cea",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc1203-z0064-y1600-x1280",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "c186c11422744fa61952a01ec89014e22da9053af33ae3cfe8b33cf4542ec773",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc1203-z0320-y1856-x2304",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "9e9a644196177291204bd902e2697ad94c08f21f224c2266542d8ee0b1990a4f",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc1203-z0448-y1472-x1792",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "aa0055efe24cea8aaf159c718ef146ec29c4b7c1165abc278e9ed7244a2a4bb7",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc1203-z0448-y2368-x1664",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "e780065d16be445ebce5dedc6354570389c11a3ffa92c550294abcc3528e3af7",
+          "z_stratum": 0
+        },
+        {
+          "block_id": "PHerc1203-z0576-y2240-x2432",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "f02476166ae59ebc46125300b370fe6d23caae7358f6bf65d15e987d10e692b3",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc1203-z0576-y2496-x1536",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "bb38418e16c5e2f7bc073d2b9cfd3c9b56a2f86de5fb43e4606de8b4a3419c88",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc1203-z0832-y1984-x1792",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "d9d76e260629dda2b69811b5d825bfa287d1a5ac5e6419c67e67b728d8549fc9",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc1203-z0960-y1472-x1024",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "c9da424bd8193dede9c3e328b3b34843a59eaa665271fb86d7c9201a2d776251",
+          "z_stratum": 1
+        },
+        {
+          "block_id": "PHerc1203-z1344-y1344-x1280",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "b63c4942f08586e454531c388d03dc2985a965bb9fbae7883509445664f579bd",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc1203-z1344-y1728-x1024",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "aeb9085910fc6c23061da0ad5a90746da05266b6b297da1583b782dfe5a79c59",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc1203-z1344-y1728-x1536",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "eb8a19cc0d9e7317970532c93d2523931bf9324a5387f3d9900bbf4eee8b0dc8",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc1203-z1472-y1728-x2560",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "62b1d9d08aea1283c91f3fe976196b450bcead35e109a510a280a571e0b496b9",
+          "z_stratum": 2
+        },
+        {
+          "block_id": "PHerc1203-z1728-y1728-x1920",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "e6d5ad48026cbd179d706bd60ac424e2f97cd37c62c6ea1bae691906d03c3ca9",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc1203-z1728-y2240-x2304",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "f2772ede25d3dc179908b0153e7db4c06c45f56561826cb281426256376d48c0",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc1203-z1856-y1600-x2304",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "d7c21a80eb2513dea2cd6cc4673fc94050cd03b1944738c29432c1a44e44d15c",
+          "z_stratum": 3
+        },
+        {
+          "block_id": "PHerc1203-z1856-y2240-x1664",
+          "scroll": "PHerc1203",
+          "split_rank_sha256": "db7eb1a9285a8e4036374e1b01c284fc93bccd0b3a95ccb62d5f7af714e3e078",
+          "z_stratum": 3
+        }
+      ]
+    },
+    "method": "SHA256(seed|block_id), four dev and four holdout per scroll/z stratum",
+    "seed": "physical-probability-bridge-split-v1-2026-08-11"
+  },
+  "status": "preregistered_before_bridge_outcomes"
+}
