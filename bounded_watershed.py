@@ -1,4 +1,4 @@
-"""Pinned watershed wrapper with a file-backed, fixed-capacity event heap."""
+"""Pinned compactness-zero watershed with a file-backed fixed-capacity heap."""
 
 from __future__ import annotations
 
@@ -22,8 +22,8 @@ from skimage.morphology._util import _offsets_to_raveled_neighbors, _validate_co
 from skimage.segmentation._watershed import _validate_inputs
 from skimage.util import crop
 
-HEAP_CAPACITY_ITEMS = 2_666_666_666
-EXPECTED_HEAP_ITEM_BYTES = 24
+HEAP_CAPACITY_ITEMS = 4_000_000_000
+EXPECTED_HEAP_ITEM_BYTES = 16
 MAX_RAVELED_ELEMENTS = 2_147_483_648
 MIN_FREE_AFTER_FULL_HEAP_BYTES = 8 * 1024**3
 MIN_FREE_AFTER_SMALL_HEAP_BYTES = 256 * 1024**2
@@ -36,7 +36,7 @@ HEAP_FILENAME_RE = re.compile(
 SCRATCH_DIRECTORY = Path(__file__).resolve().parent.parent / "physical_bridge_heap_scratch"
 BOUNDED_WATERSHED_BINARY = "_bounded_watershed_cy.pyd"
 BOUNDED_WATERSHED_BINARY_SHA256 = (
-    "90d1a8d2b444922458c963477481eebe66c47abbcd82aab41e57268e21ac3611"
+    "93dfd77cc857cfa1d67e5dd1f2d1865aae8f010a5ff309c999eb2ccf6dd7841a"
 )
 
 
@@ -281,11 +281,13 @@ def watershed(
     _heap_capacity_items: int | None = None,
     _scratch_directory: Path = SCRATCH_DIRECTORY,
 ) -> np.ndarray:
-    """Match scikit-image 0.26 watershed with bounded file-backed heap storage."""
+    """Match scikit-image 0.26 noncompact watershed with bounded heap storage."""
 
     image, markers, mask = _validate_inputs(image, markers, mask, connectivity)
     if markers.dtype != np.int32:
         raise TypeError("bounded watershed requires int32 markers")
+    if compactness != 0:
+        raise ValueError("bounded watershed cost-index heap requires compactness == 0")
     connectivity, offset = _validate_connectivity(image.ndim, connectivity, offset)
     _validate_compact_index_space(image.shape, offset)
 

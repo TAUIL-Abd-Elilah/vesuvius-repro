@@ -27,15 +27,15 @@ def test_binary_and_heap_layout_are_frozen() -> None:
     assert hashlib.sha256(binary.read_bytes()).hexdigest() == (
         B.BOUNDED_WATERSHED_BINARY_SHA256
     )
-    assert B.heap_file_bytes(1) == B.EXPECTED_HEAP_ITEM_BYTES == 24
-    assert B.HEAP_CAPACITY_ITEMS == 2_666_666_666
-    assert B.heap_file_bytes() == 63_999_999_984
+    assert B.heap_file_bytes(1) == B.EXPECTED_HEAP_ITEM_BYTES == 16
+    assert B.HEAP_CAPACITY_ITEMS == 4_000_000_000
+    assert B.heap_file_bytes() == 64_000_000_000
     assert B._core.heap_item_layout() == {
-        "size": 24,
-        "value": 0,
-        "age": 8,
-        "index": 12,
-        "source": 16,
+        "size": 16,
+        "cost_index": 0,
+        "age": 4,
+        "index": 8,
+        "source": 12,
     }
 
 
@@ -79,7 +79,7 @@ def test_default_uses_fixed_full_capacity_without_estimator(
     def storage(capacity_items: int, *, scratch_directory: Path):
         capacities.append(capacity_items)
         assert scratch_directory == tmp_path
-        yield bytearray(24_000)
+        yield bytearray(16_000)
 
     monkeypatch.setattr(B, "_heap_storage", storage)
     image = np.zeros((3, 3), dtype=np.float32)
@@ -192,37 +192,29 @@ def test_multi_voxel_repeated_label_markers_match_scikit_image(
     assert list(tmp_path.iterdir()) == []
 
 
-def test_compact_source_indices_match_scikit_image_with_compactness(
+def test_nonzero_compactness_is_rejected_before_heap_mapping(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    rng = np.random.default_rng(2026082102)
-    image = rng.normal(size=(8, 9, 10)).astype(np.float32)
+    image = np.zeros((8, 9, 10), dtype=np.float32)
     mask = np.ones_like(image, dtype=bool)
-    mask[0, 0, 0] = False
     markers = np.zeros_like(image, dtype=np.int32)
     markers[1, 1, 1] = 1
     markers[6, 7, 8] = 2
-    markers[2, 6, 4] = 3
-    for watershed_line in (False, True):
-        expected = reference_watershed(
+
+    def forbidden_storage(*args, **kwargs):
+        raise AssertionError("heap mapping must not be created")
+
+    monkeypatch.setattr(B, "_heap_storage", forbidden_storage)
+    with pytest.raises(ValueError, match="requires compactness == 0"):
+        B.watershed(
             image,
             markers=markers,
             mask=mask,
             connectivity=3,
             compactness=0.125,
-            watershed_line=watershed_line,
-        )
-        actual = B.watershed(
-            image,
-            markers=markers,
-            mask=mask,
-            connectivity=3,
-            compactness=0.125,
-            watershed_line=watershed_line,
-            _heap_capacity_items=TEST_HEAP_CAPACITY_ITEMS,
             _scratch_directory=tmp_path,
         )
-        assert np.array_equal(actual, expected)
     assert list(tmp_path.iterdir()) == []
 
 
@@ -259,8 +251,90 @@ def _direct_core_watershed(
     return crop(output, pad_width, copy=True)
 
 
+def test_compiled_core_rejects_nonzero_compactness() -> None:
+    image = np.zeros(1, dtype=np.float64)
+    marker_locations = np.array([0], dtype=np.intp)
+    structure = np.array([], dtype=np.intp)
+    mask = np.ones(1, dtype=np.int8)
+    strides = np.array([1], dtype=np.intp)
+    output = np.ones(1, dtype=np.int32)
+    with pytest.raises(ValueError, match="requires compactness == 0"):
+        B._core.watershed_raveled_bounded(
+            image,
+            marker_locations,
+            structure,
+            mask,
+            strides,
+            0.25,
+            output,
+            True,
+            bytearray(16),
+        )
+
+
+def test_cost_origin_comparator_and_propagation_are_exact() -> None:
+    below = np.nextafter(0.5, 0.0)
+    above = np.nextafter(0.5, 1.0)
+    values = np.array([0.5, below, above, -0.0, +0.0, np.nan, 0.5])
+    smaller = B._core.event_smaller_for_test
+    propagate = B._core.propagated_cost_index_for_test
+
+    assert smaller(values, 1, 7, 0, 7) is True
+    assert smaller(values, 2, 7, 0, 7) is False
+    assert smaller(values, 3, np.iinfo(np.int32).min, 4, np.iinfo(np.int32).max) is True
+    assert smaller(values, 4, np.iinfo(np.int32).max, 3, np.iinfo(np.int32).min) is False
+    assert smaller(values, 5, 1, 0, 2) is False
+    assert smaller(values, 0, 1, 5, 2) is False
+
+    assert propagate(values, 0, 1) == 0
+    assert propagate(values, 0, 2) == 2
+    assert propagate(values, 3, 4) == 4
+    assert propagate(values, 4, 3) == 3
+    assert propagate(values, 0, 5) == 5
+    assert propagate(values, 5, 0) == 0
+    assert propagate(values, 0, 6) == 6
+
+
+def test_cost_origin_handles_adjacent_values_and_signed_zero(tmp_path: Path) -> None:
+    below = np.nextafter(0.5, 0.0)
+    above = np.nextafter(0.5, 1.0)
+    image = np.array(
+        [
+            [-0.0, +0.0, below, 0.5, above, +0.0, -0.0],
+            [above, 0.5, below, -0.0, +0.0, below, above],
+            [0.5, below, above, +0.0, -0.0, above, 0.5],
+            [below, above, +0.0, 0.5, -0.0, 0.5, below],
+            [+0.0, -0.0, 0.5, above, below, -0.0, +0.0],
+        ],
+        dtype=np.float64,
+    )
+    markers = np.zeros_like(image, dtype=np.int32)
+    markers[0, 0] = 1
+    markers[-1, -1] = 2
+    markers[2, 3] = 3
+    mask = np.ones_like(image, dtype=bool)
+    for watershed_line in (False, True):
+        expected = reference_watershed(
+            image,
+            markers=markers,
+            mask=mask,
+            connectivity=2,
+            watershed_line=watershed_line,
+        )
+        actual = B.watershed(
+            image,
+            markers=markers,
+            mask=mask,
+            connectivity=2,
+            watershed_line=watershed_line,
+            _heap_capacity_items=TEST_HEAP_CAPACITY_ITEMS,
+            _scratch_directory=tmp_path,
+        )
+        assert actual.tobytes() == expected.tobytes()
+
+
 def test_compiled_event_stream_matches_5000_random_cases() -> None:
-    storage = bytearray(24_000_000)
+    storage = bytearray(16_000_000)
     rng = np.random.default_rng(782601)
     values = np.array([-1.0, -0.5, 0.0, 0.25, 1.0], dtype=np.float32)
     checked = 0

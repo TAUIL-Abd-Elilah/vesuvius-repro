@@ -560,16 +560,16 @@ def test_scroll_z0_jobs_are_an_exact_unfragmented_partition() -> None:
         B.partition_blocks_by_scroll_z0([blocks[0], copy.deepcopy(blocks[0])])
 
 
-def test_amendment05_failure_receipt_and_superseded_chain_are_bound() -> None:
+def test_amendment06_failure_receipt_and_superseded_chain_are_bound() -> None:
     repo = Path(B.__file__).resolve().parent
     prior = B.validate_superseded_lock_chain(repo)
     receipt = B.validate_preoutcome_failure(repo)
 
     assert prior["content_sha256"] == B.SUPERSEDED_PROTOCOL_LOCK_CONTENT_SHA256
     assert receipt["content_sha256"] == (
-        "8d675170acdd30bc476ff1b88fcf9723bc654bf981dc5443e589f5533bb7b66e"
+        "3962e44b6e247b6e1056ca606d6b0666a87313eeafc5aab3bc22f11d3168ac37"
     )
-    assert receipt["execution_revision"] == 5
+    assert receipt["execution_revision"] == 6
     assert receipt["failed_worker_group"] == {
         "scroll": "PHerc1203",
         "score_local_l1_z0": 960,
@@ -581,7 +581,7 @@ def test_amendment05_failure_receipt_and_superseded_chain_are_bound() -> None:
     assert receipt["bridge_outcomes_seen"] is False
 
 
-def test_amendment05_resource_and_rollover_files_are_exact() -> None:
+def test_amendment06_resource_and_rollover_files_are_exact() -> None:
     repo = Path(B.__file__).resolve().parent
     receipt = B.validate_preoutcome_failure(repo)
     resource = B.current_resource_amendment(repo, receipt)
@@ -593,27 +593,50 @@ def test_amendment05_resource_and_rollover_files_are_exact() -> None:
     assert resource["compiled_event_core_changed"] is True
     assert resource["compiled_event_state_machine_changed"] is False
     assert resource["event_order_changed"] is False
-    assert resource["heap_capacity_items_every_production_call"] == 2_666_666_666
-    assert resource["heap_item_bytes"] == 24
-    assert resource["heap_file_logical_bytes"] == 63_999_999_984
-    assert resource["disk_free_preflight_bytes"] == 72_589_934_576
+    assert resource["final_execution_only_amendment"] is True
+    assert resource["production_compactness"] == 0.0
+    assert resource["nonzero_compactness"] == (
+        "reject_before_heap_allocation_and_in_compiled_core"
+    )
+    assert resource["cost_storage"] == (
+        "signed_int32_index_into_immutable_float64_padded_image"
+    )
+    assert resource["heap_capacity_exhaustion"] == (
+        "abort_without_result_and_terminate_this_protocol"
+    )
+    assert resource["heap_capacity_items_every_production_call"] == 4_000_000_000
+    assert resource["heap_item_bytes"] == 16
+    assert resource["heap_file_logical_bytes"] == 64_000_000_000
+    assert resource["disk_free_preflight_bytes"] == 72_589_934_592
     assert resource["frozen_max_padded_raveled_elements"] == 790_152
     assert resource["index_payload_max_raveled_elements"] == 2_147_483_648
+    assert resource["index_payload_guarded_fields"] == [
+        "cost_index",
+        "index",
+        "source",
+    ]
+    assert resource["heap_item_layout"] == {
+        "age": "signed_int32_at_byte_4",
+        "cost_index": "signed_int32_at_byte_0",
+        "index": "signed_int32_at_byte_8",
+        "size_bytes": 16,
+        "source": "signed_int32_at_byte_12",
+    }
     assert resource["preoutcome_failure_receipt_content_sha256"] == (
-        "8d675170acdd30bc476ff1b88fcf9723bc654bf981dc5443e589f5533bb7b66e"
+        "3962e44b6e247b6e1056ca606d6b0666a87313eeafc5aab3bc22f11d3168ac37"
     )
     required = {
-        "PHYSICAL_BRIDGE_SPLIT_AMENDMENT_05.md",
-        "results/physical_bridge_split/preoutcome_failure_04.json",
-        "results/physical_bridge_split/preoutcome_failure_04.stderr.txt",
-        "results/physical_bridge_split/protocol_lock_amendment_04.json",
+        "PHYSICAL_BRIDGE_SPLIT_AMENDMENT_06.md",
         "results/physical_bridge_split/preoutcome_failure_05.json",
         "results/physical_bridge_split/preoutcome_failure_05.stderr.txt",
+        "results/physical_bridge_split/protocol_lock_amendment_05.json",
+        "results/physical_bridge_split/preoutcome_failure_06.json",
+        "results/physical_bridge_split/preoutcome_failure_06.stderr.txt",
     }
     assert required <= set(B.IMPLEMENTATION_FILES)
 
 
-def test_amendment05_rejects_any_unlisted_scientific_change() -> None:
+def test_amendment06_rejects_any_unlisted_scientific_change() -> None:
     repo = Path(B.__file__).resolve().parent
     prior = B.validate_superseded_lock_chain(repo)
     amended = copy.deepcopy(prior)
