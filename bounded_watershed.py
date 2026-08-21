@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import math
 import mmap
 import os
 import re
@@ -21,8 +22,9 @@ from skimage.morphology._util import _offsets_to_raveled_neighbors, _validate_co
 from skimage.segmentation._watershed import _validate_inputs
 from skimage.util import crop
 
-HEAP_CAPACITY_ITEMS = 2_000_000_000
-EXPECTED_HEAP_ITEM_BYTES = 32
+HEAP_CAPACITY_ITEMS = 2_666_666_666
+EXPECTED_HEAP_ITEM_BYTES = 24
+MAX_RAVELED_ELEMENTS = 2_147_483_648
 MIN_FREE_AFTER_FULL_HEAP_BYTES = 8 * 1024**3
 MIN_FREE_AFTER_SMALL_HEAP_BYTES = 256 * 1024**2
 HEAP_FILE_PREFIX = "bounded-watershed-p"
@@ -34,7 +36,7 @@ HEAP_FILENAME_RE = re.compile(
 SCRATCH_DIRECTORY = Path(__file__).resolve().parent.parent / "physical_bridge_heap_scratch"
 BOUNDED_WATERSHED_BINARY = "_bounded_watershed_cy.pyd"
 BOUNDED_WATERSHED_BINARY_SHA256 = (
-    "a14824fb65f5c9e7ad2ee859cc2e6a91de27dde5c18cebb3eb6bc388771b6767"
+    "90d1a8d2b444922458c963477481eebe66c47abbcd82aab41e57268e21ac3611"
 )
 
 
@@ -67,6 +69,25 @@ def heap_file_bytes(capacity_items: int = HEAP_CAPACITY_ITEMS) -> int:
             f"unexpected bounded watershed heap item size: {item_bytes}"
         )
     return capacity_items * item_bytes
+
+
+def _validate_compact_index_space(
+    shape: tuple[int, ...],
+    offset: tuple[int, ...] | np.ndarray,
+) -> int:
+    """Return padded element count after proving every raveled index fits int32."""
+
+    if len(shape) != len(offset):
+        raise ValueError("bounded watershed shape/offset rank mismatch")
+    padded_elements = math.prod(
+        int(length) + 2 * int(padding)
+        for length, padding in zip(shape, offset, strict=True)
+    )
+    if padded_elements > MAX_RAVELED_ELEMENTS:
+        raise ValueError(
+            "bounded watershed padded image exceeds the signed-int32 index range"
+        )
+    return padded_elements
 
 
 def _heap_pattern(pid: int) -> str:
@@ -266,6 +287,7 @@ def watershed(
     if markers.dtype != np.int32:
         raise TypeError("bounded watershed requires int32 markers")
     connectivity, offset = _validate_connectivity(image.ndim, connectivity, offset)
+    _validate_compact_index_space(image.shape, offset)
 
     pad_width = [(padding, padding) for padding in offset]
     image = np.pad(image, pad_width, mode="constant")
@@ -304,6 +326,7 @@ def watershed(
 
 __all__ = [
     "HEAP_CAPACITY_ITEMS",
+    "MAX_RAVELED_ELEMENTS",
     "SCRATCH_DIRECTORY",
     "cleanup_heap_files_for_pid",
     "cleanup_stale_heap_files",

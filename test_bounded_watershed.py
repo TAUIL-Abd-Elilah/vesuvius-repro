@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import stat
 import sys
@@ -26,8 +27,46 @@ def test_binary_and_heap_layout_are_frozen() -> None:
     assert hashlib.sha256(binary.read_bytes()).hexdigest() == (
         B.BOUNDED_WATERSHED_BINARY_SHA256
     )
-    assert B.heap_file_bytes(1) == B.EXPECTED_HEAP_ITEM_BYTES == 32
-    assert B.HEAP_CAPACITY_ITEMS == 2_000_000_000
+    assert B.heap_file_bytes(1) == B.EXPECTED_HEAP_ITEM_BYTES == 24
+    assert B.HEAP_CAPACITY_ITEMS == 2_666_666_666
+    assert B.heap_file_bytes() == 63_999_999_984
+    assert B._core.heap_item_layout() == {
+        "size": 24,
+        "value": 0,
+        "age": 8,
+        "index": 12,
+        "source": 16,
+    }
+
+
+def test_compact_index_guard_has_exact_signed_int32_boundary() -> None:
+    assert B._validate_compact_index_space(
+        (B.MAX_RAVELED_ELEMENTS,), (0,)
+    ) == B.MAX_RAVELED_ELEMENTS
+    assert (
+        B._core.validate_raveled_element_count(B.MAX_RAVELED_ELEMENTS)
+        == B.MAX_RAVELED_ELEMENTS
+    )
+    with pytest.raises(ValueError, match="signed-int32 index range"):
+        B._validate_compact_index_space((B.MAX_RAVELED_ELEMENTS + 1,), (0,))
+    with pytest.raises(ValueError, match="signed-int32 index range"):
+        B._core.validate_raveled_element_count(B.MAX_RAVELED_ELEMENTS + 1)
+
+
+def test_frozen_probability_arrays_are_far_inside_compact_index_range() -> None:
+    repo = Path(B.__file__).resolve().parent
+    manifest = json.loads(
+        (repo / "results" / "physical_normalization_ab" / "manifest.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    padded_sizes = []
+    for block in manifest["blocks"]:
+        extent = block["geometry"]["prediction_extent_local_l1"]
+        shape = tuple(extent[i + 1] - extent[i] for i in (0, 2, 4))
+        padded_sizes.append(B._validate_compact_index_space(shape, (1, 1, 1)))
+    assert max(padded_sizes) == 790_152
+    assert max(padded_sizes) < B.MAX_RAVELED_ELEMENTS
 
 
 def test_default_uses_fixed_full_capacity_without_estimator(
@@ -40,7 +79,7 @@ def test_default_uses_fixed_full_capacity_without_estimator(
     def storage(capacity_items: int, *, scratch_directory: Path):
         capacities.append(capacity_items)
         assert scratch_directory == tmp_path
-        yield bytearray(32_000)
+        yield bytearray(24_000)
 
     monkeypatch.setattr(B, "_heap_storage", storage)
     image = np.zeros((3, 3), dtype=np.float32)
@@ -153,6 +192,40 @@ def test_multi_voxel_repeated_label_markers_match_scikit_image(
     assert list(tmp_path.iterdir()) == []
 
 
+def test_compact_source_indices_match_scikit_image_with_compactness(
+    tmp_path: Path,
+) -> None:
+    rng = np.random.default_rng(2026082102)
+    image = rng.normal(size=(8, 9, 10)).astype(np.float32)
+    mask = np.ones_like(image, dtype=bool)
+    mask[0, 0, 0] = False
+    markers = np.zeros_like(image, dtype=np.int32)
+    markers[1, 1, 1] = 1
+    markers[6, 7, 8] = 2
+    markers[2, 6, 4] = 3
+    for watershed_line in (False, True):
+        expected = reference_watershed(
+            image,
+            markers=markers,
+            mask=mask,
+            connectivity=3,
+            compactness=0.125,
+            watershed_line=watershed_line,
+        )
+        actual = B.watershed(
+            image,
+            markers=markers,
+            mask=mask,
+            connectivity=3,
+            compactness=0.125,
+            watershed_line=watershed_line,
+            _heap_capacity_items=TEST_HEAP_CAPACITY_ITEMS,
+            _scratch_directory=tmp_path,
+        )
+        assert np.array_equal(actual, expected)
+    assert list(tmp_path.iterdir()) == []
+
+
 def _direct_core_watershed(
     image: np.ndarray,
     markers: np.ndarray,
@@ -187,7 +260,7 @@ def _direct_core_watershed(
 
 
 def test_compiled_event_stream_matches_5000_random_cases() -> None:
-    storage = bytearray(32_000_000)
+    storage = bytearray(24_000_000)
     rng = np.random.default_rng(782601)
     values = np.array([-1.0, -0.5, 0.0, 0.25, 1.0], dtype=np.float32)
     checked = 0

@@ -22,8 +22,8 @@ ctypedef cnp.int8_t DTYPE_BOOL_t
 cdef struct Heapitem:
     cnp.float64_t value
     cnp.int32_t age
-    Py_ssize_t index
-    Py_ssize_t source
+    cnp.int32_t index
+    cnp.int32_t source
 
 
 cdef struct Heap:
@@ -143,6 +143,34 @@ def heap_item_size():
     return sizeof(Heapitem)
 
 
+def heap_item_layout():
+    """Return compiled Heapitem byte size and field offsets."""
+
+    cdef Heapitem item
+    cdef char *base = <char *>&item
+    return {
+        "size": sizeof(Heapitem),
+        "value": <Py_ssize_t>(<char *>&item.value - base),
+        "age": <Py_ssize_t>(<char *>&item.age - base),
+        "index": <Py_ssize_t>(<char *>&item.index - base),
+        "source": <Py_ssize_t>(<char *>&item.source - base),
+    }
+
+
+cdef inline void _validate_raveled_element_count(Py_ssize_t count) except *:
+    if count > 2147483648:
+        raise ValueError(
+            "bounded watershed padded image exceeds the signed-int32 index range"
+        )
+
+
+def validate_raveled_element_count(Py_ssize_t count):
+    """Expose the compiled flat-index boundary for allocation-free verification."""
+
+    _validate_raveled_element_count(count)
+    return count
+
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.cdivision(True)
@@ -170,6 +198,7 @@ def watershed_raveled_bounded(
     cdef Py_ssize_t neighbor_index = 0
     cdef DTYPE_BOOL_t compact = compactness > 0
 
+    _validate_raveled_element_count(image.shape[0])
     if heap_storage.shape[0] < sizeof(Heapitem):
         raise ValueError("bounded watershed heap storage is too small")
     if heap_storage.shape[0] % sizeof(Heapitem):
@@ -184,8 +213,8 @@ def watershed_raveled_bounded(
             index = marker_locations[i]
             element.value = image[index]
             element.age = 0
-            element.index = index
-            element.source = index
+            element.index = <cnp.int32_t>index
+            element.source = <cnp.int32_t>index
             heappush(&heap, &element)
 
         while heap.items > 0:
@@ -221,7 +250,7 @@ def watershed_raveled_bounded(
                 elif not watershed_line:
                     output[neighbor_index] = output[element.index]
                 new_element.age = age
-                new_element.index = neighbor_index
+                new_element.index = <cnp.int32_t>neighbor_index
                 new_element.source = element.source
                 if new_element.value < element.value:
                     new_element.value = element.value

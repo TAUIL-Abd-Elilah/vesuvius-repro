@@ -35,6 +35,7 @@ from bounded_watershed import (
     BOUNDED_WATERSHED_BINARY_SHA256,
     EXPECTED_HEAP_ITEM_BYTES,
     HEAP_CAPACITY_ITEMS,
+    MAX_RAVELED_ELEMENTS,
     MIN_FREE_AFTER_FULL_HEAP_BYTES,
     cleanup_heap_files_for_pid,
     cleanup_stale_heap_files,
@@ -45,18 +46,18 @@ from probability_bridge_split import BridgeSplitConfig, split_probability_bridge
 PROTOCOL_ID = "physical_probability_bridge_split_v1"
 LOCK_STATUS = "preregistered_before_bridge_outcomes"
 PUBLIC_BRANCH = "physical-multithreshold-repair"
-EXECUTION_REVISION = 5
+EXECUTION_REVISION = 6
 SUPERSEDED_PROTOCOL_LOCK_PATH = (
-    "results/physical_bridge_split/protocol_lock_amendment_03.json"
+    "results/physical_bridge_split/protocol_lock_amendment_04.json"
 )
 SUPERSEDED_PROTOCOL_LOCK_CONTENT_SHA256 = (
-    "b2b483197755e4c5533cdacf066d7a415d33e55670df3518b46ac21cc0db5e19"
+    "05ac984f3694c0081efebf635f9e21e8c3cd7f7dd33f28671ad180b0c853bfed"
 )
 PREOUTCOME_FAILURE_RECEIPT_PATH = (
-    "results/physical_bridge_split/preoutcome_failure_04.json"
+    "results/physical_bridge_split/preoutcome_failure_05.json"
 )
 PREOUTCOME_FAILURE_STDERR_PATH = (
-    "results/physical_bridge_split/preoutcome_failure_04.stderr.txt"
+    "results/physical_bridge_split/preoutcome_failure_05.stderr.txt"
 )
 SOURCE_MANIFEST_CONTENT_SHA256 = (
     "567a18faa1c8ca7e743c9240133f4200e67e3085823dd4795c4518e3e0e65ac0"
@@ -78,6 +79,7 @@ MIN_EDITED_BLOCKS_PER_SCROLL = 1
 GROUP_WORKER_SCHEMA_VERSION = 2
 GROUP_WORKER_REQUEST_KIND = "physical_bridge_split_group_request"
 GROUP_WORKER_RESPONSE_KIND = "physical_bridge_split_group_response"
+FROZEN_MAX_PADDED_RAVELED_ELEMENTS = 790_152
 ALLOWED_SUPERSEDED_LOCK_DIFFERENCES = (
     "content_sha256",
     "execution_revision",
@@ -124,6 +126,7 @@ IMPLEMENTATION_FILES = (
     "PHYSICAL_BRIDGE_SPLIT_AMENDMENT_02.md",
     "PHYSICAL_BRIDGE_SPLIT_AMENDMENT_03.md",
     "PHYSICAL_BRIDGE_SPLIT_AMENDMENT_04.md",
+    "PHYSICAL_BRIDGE_SPLIT_AMENDMENT_05.md",
     "PHYSICAL_BRIDGE_SPLIT_PREREG.md",
     "THIRD_PARTY_NOTICES.md",
     "physical_bridge_split.py",
@@ -136,9 +139,12 @@ IMPLEMENTATION_FILES = (
     "results/physical_bridge_split/preoutcome_failure_02.stderr.txt",
     "results/physical_bridge_split/preoutcome_failure_03.json",
     "results/physical_bridge_split/preoutcome_failure_03.stderr.txt",
+    "results/physical_bridge_split/preoutcome_failure_04.json",
+    "results/physical_bridge_split/preoutcome_failure_04.stderr.txt",
     "results/physical_bridge_split/protocol_lock_amendment_01.json",
     "results/physical_bridge_split/protocol_lock_amendment_02.json",
     "results/physical_bridge_split/protocol_lock_amendment_03.json",
+    "results/physical_bridge_split/protocol_lock_amendment_04.json",
     "results/physical_bridge_split/protocol_lock.json",
     PREOUTCOME_FAILURE_RECEIPT_PATH,
     PREOUTCOME_FAILURE_STDERR_PATH,
@@ -307,13 +313,15 @@ def _validate_amendment_02_chain(repo: Path) -> dict[str, Any]:
     return prior_lock
 
 
-def validate_superseded_lock_chain(repo: Path) -> dict[str, Any]:
+def _validate_amendment_03_chain(repo: Path) -> dict[str, Any]:
     """Validate the immutable amendment-03 -> 02 -> 01 failure chain."""
 
     amendment_02 = _validate_amendment_02_chain(repo)
-    prior_lock = load_hashed_json(repo / SUPERSEDED_PROTOCOL_LOCK_PATH)
-    if prior_lock.get("content_sha256") != SUPERSEDED_PROTOCOL_LOCK_CONTENT_SHA256:
-        raise SystemExit("superseded amendment-03 protocol lock content mismatch")
+    lock_path = "results/physical_bridge_split/protocol_lock_amendment_03.json"
+    lock_sha256 = "b2b483197755e4c5533cdacf066d7a415d33e55670df3518b46ac21cc0db5e19"
+    prior_lock = load_hashed_json(repo / lock_path)
+    if prior_lock.get("content_sha256") != lock_sha256:
+        raise SystemExit("amendment-03 protocol lock content mismatch")
     expected_amendment = {
         "allowed_top_level_differences_from_superseded_lock": list(
             ALLOWED_SUPERSEDED_LOCK_DIFFERENCES
@@ -374,11 +382,83 @@ def validate_superseded_lock_chain(repo: Path) -> dict[str, Any]:
     return prior_lock
 
 
+def validate_superseded_lock_chain(repo: Path) -> dict[str, Any]:
+    """Validate the immutable amendment-04 -> 03 -> 02 -> 01 failure chain."""
+
+    amendment_03 = _validate_amendment_03_chain(repo)
+    prior_lock = load_hashed_json(repo / SUPERSEDED_PROTOCOL_LOCK_PATH)
+    if prior_lock.get("content_sha256") != SUPERSEDED_PROTOCOL_LOCK_CONTENT_SHA256:
+        raise SystemExit("superseded amendment-04 protocol lock content mismatch")
+    expected_amendment = {
+        "allowed_top_level_differences_from_superseded_lock": list(
+            ALLOWED_SUPERSEDED_LOCK_DIFFERENCES
+        ),
+        "changed_execution_only": (
+            "replace the nonbinding per-call heap estimate with one fixed full-capacity "
+            "native sparse mapping before the unchanged compiled event stream"
+        ),
+        "compiled_event_core_changed": False,
+        "disk_free_preflight_bytes": 72_589_934_592,
+        "event_order_changed": False,
+        "heap_capacity_exhaustion": "abort_without_result",
+        "heap_capacity_is_event_bound": False,
+        "heap_capacity_items_every_production_call": 2_000_000_000,
+        "heap_file_logical_bytes": 64_000_000_000,
+        "heap_item_bytes": 32,
+        "heap_sparse_allocation_reserves_disk_space": False,
+        "heap_sparse_size_sequence_windows": [
+            "FSCTL_SET_SPARSE",
+            "SetFilePointerEx",
+            "SetEndOfFile",
+            "mmap_ACCESS_WRITE",
+        ],
+        "heap_stale_file_recovery": "remove_only_after_owning_pid_has_exited",
+        "heap_storage": "native_sparse_file_backed_mmap_direct_item_binary_heap",
+        "implementation_binary_files_sha256": {
+            "_bounded_watershed_cy.pyd": (
+                "a14824fb65f5c9e7ad2ee859cc2e6a91de27dde5c18cebb3eb6bc388771b6767"
+            )
+        },
+        "kind": "fixed_full_capacity_sparse_bit_equivalent_watershed_heap",
+        "minimum_free_after_full_heap_bytes": 8_589_934_592,
+        "preoutcome_failure_receipt_content_sha256": (
+            "9e6c3d8776532fd0c6ffb1a205f5ff1375c7af4c92a62f9956c9eca60212b7b1"
+        ),
+        "preoutcome_failure_receipt_path": (
+            "results/physical_bridge_split/preoutcome_failure_04.json"
+        ),
+        "scientific_protocol_changed": False,
+        "signed_age_semantics": "pinned_scikit_image_int32_cast_including_wrap",
+        "supersedes_protocol_lock_content_sha256": amendment_03["content_sha256"],
+        "supersedes_protocol_lock_path": (
+            "results/physical_bridge_split/protocol_lock_amendment_03.json"
+        ),
+        "watershed_reference": "scikit-image 0.26.0",
+        "worker_group_key": ["scroll", "geometry.score_local_l1[0]"],
+        "worker_parallelism": 1,
+    }
+    if prior_lock.get("resource_amendment") != expected_amendment:
+        raise SystemExit("amendment-04 resource binding mismatch")
+    if set(prior_lock) != set(amendment_03):
+        raise SystemExit("amendment-04 top-level lock schema differs from amendment-03")
+    for key in sorted(set(prior_lock) - set(ALLOWED_SUPERSEDED_LOCK_DIFFERENCES)):
+        if P.canonical_json(prior_lock[key]) != P.canonical_json(amendment_03[key]):
+            raise SystemExit(f"amendment-04 scientific field changed: {key}")
+    _validate_failure_artifact(
+        repo,
+        "results/physical_bridge_split/preoutcome_failure_04.json",
+        "9e6c3d8776532fd0c6ffb1a205f5ff1375c7af4c92a62f9956c9eca60212b7b1",
+        "results/physical_bridge_split/preoutcome_failure_04.stderr.txt",
+        "amendment-04",
+    )
+    return prior_lock
+
+
 def validate_preoutcome_failure(repo: Path) -> dict[str, Any]:
     validate_superseded_lock_chain(repo)
     receipt = load_hashed_json(repo / PREOUTCOME_FAILURE_RECEIPT_PATH)
     expected = {
-        "attempt_id": "physical_bridge_split_attempt8",
+        "attempt_id": "physical_bridge_split_attempt9",
         "bridge_outcomes_seen": False,
         "development_comparison_started": None,
         "development_comparisons_inspected": False,
@@ -388,13 +468,13 @@ def validate_preoutcome_failure(repo: Path) -> dict[str, Any]:
         "development_scoring_started": True,
         "development_selection_started": None,
         "execution_phase_at_failure": "unknown_development_or_holdout",
-        "execution_revision": 4,
+        "execution_revision": 5,
         "failed_worker_exit_code": 1,
         "failed_worker_group": {
             "scroll": "PHerc1203",
-            "score_local_l1_z0": 64,
+            "score_local_l1_z0": 960,
         },
-        "failed_worker_pid": 15972,
+        "failed_worker_pid": 4264,
         "failed_worker_response_completed": False,
         "failure_class": "MemoryError",
         "failure_phase": "build_masks/split_probability_bridges/bounded_watershed",
@@ -404,7 +484,7 @@ def validate_preoutcome_failure(repo: Path) -> dict[str, Any]:
         "last_frame": "_bounded_watershed_cy.pyx:80 heappush",
         "observed_stderr_bytes": 2167,
         "observed_stderr_sha256": (
-            "5f6c1e3c1c275dcddd321d3aad10fb751d9411a68e0d6287718d12ff058dd09c"
+            "d47c6bd8da9f4268f9a65bd0a4aa05e23e9143da9a8bab01c846cc50fc25dcc1"
         ),
         "partial_candidate_masks_inspected": False,
         "partial_candidate_masks_may_have_existed_in_memory": True,
@@ -421,7 +501,7 @@ def validate_preoutcome_failure(repo: Path) -> dict[str, Any]:
         "prior_protocol_lock_content_sha256": SUPERSEDED_PROTOCOL_LOCK_CONTENT_SHA256,
         "prior_protocol_lock_path": SUPERSEDED_PROTOCOL_LOCK_PATH,
         "protocol_id": PROTOCOL_ID,
-        "public_head": "74900651b833a1d803d3ef713b13fd5ed8aaab4e",
+        "public_head": "fca0edc2435ffdf49f0d55e8f2f092f4bc01f43a",
         "result_existed_after_exit": False,
         "result_path": "results/physical_bridge_split/result.json",
         "schema_version": 1,
@@ -431,7 +511,7 @@ def validate_preoutcome_failure(repo: Path) -> dict[str, Any]:
         "source_manifest_content_sha256": SOURCE_MANIFEST_CONTENT_SHA256,
         "stderr_canonical_lf_bytes": 2132,
         "stderr_canonical_lf_sha256": (
-            "fea8f50165e648799fd605459a470058bb6aa75e0df43b580610b9046c55d89d"
+            "42557381d018714fadd8de28e02aaefa0fa332698c0951d77e273f7da025a953"
         ),
         "stderr_path": PREOUTCOME_FAILURE_STDERR_PATH,
         "stdout_bytes": 0,
@@ -440,7 +520,7 @@ def validate_preoutcome_failure(repo: Path) -> dict[str, Any]:
         ),
     }
     if receipt.get("content_sha256") != (
-        "9e6c3d8776532fd0c6ffb1a205f5ff1375c7af4c92a62f9956c9eca60212b7b1"
+        "8d675170acdd30bc476ff1b88fcf9723bc654bf981dc5443e589f5533bb7b66e"
     ):
         raise SystemExit("pre-outcome failure receipt content mismatch")
     if set(receipt) != set(expected) | {"content_sha256"}:
@@ -462,19 +542,19 @@ def validate_preoutcome_failure(repo: Path) -> dict[str, Any]:
 def validate_scientific_identity_with_superseded_lock(
     lock: dict[str, Any], prior_lock: dict[str, Any]
 ) -> None:
-    """Permit only the enumerated execution/publication fields to differ from amendment 03."""
+    """Permit only the enumerated execution/publication fields to differ from amendment 04."""
 
     allowed = set(ALLOWED_SUPERSEDED_LOCK_DIFFERENCES)
     if set(lock) != set(prior_lock):
-        raise SystemExit("amendment-04 top-level lock schema differs from amendment 03")
+        raise SystemExit("amendment-05 top-level lock schema differs from amendment 04")
     recorded = lock.get("resource_amendment", {}).get(
         "allowed_top_level_differences_from_superseded_lock"
     )
     if recorded != list(ALLOWED_SUPERSEDED_LOCK_DIFFERENCES):
-        raise SystemExit("amendment-04 allowed top-level difference list mismatch")
+        raise SystemExit("amendment-05 allowed top-level difference list mismatch")
     for key in sorted(set(lock) - allowed):
         if P.canonical_json(lock[key]) != P.canonical_json(prior_lock[key]):
-            raise SystemExit(f"amendment-04 scientific field changed: {key}")
+            raise SystemExit(f"amendment-05 scientific field changed: {key}")
 
 
 def _split_rank(block_id: str) -> str:
@@ -517,6 +597,22 @@ def split_assignments(manifest: dict[str, Any]) -> dict[str, list[dict[str, Any]
     return assignments
 
 
+def frozen_max_padded_raveled_elements(manifest: dict[str, Any]) -> int:
+    """Return the largest frozen probability-array size after 3D watershed padding."""
+
+    maximum = 0
+    for block in manifest["blocks"]:
+        extent = block["geometry"]["prediction_extent_local_l1"]
+        if len(extent) != 6:
+            raise ValueError("frozen prediction extent must have six coordinates")
+        shape = tuple(int(extent[i + 1]) - int(extent[i]) for i in (0, 2, 4))
+        if any(length <= 0 for length in shape):
+            raise ValueError("frozen prediction extent must have positive dimensions")
+        padded = (shape[0] + 2) * (shape[1] + 2) * (shape[2] + 2)
+        maximum = max(maximum, padded)
+    return maximum
+
+
 def implementation_binary_hashes(repo: Path) -> dict[str, str]:
     hashes: dict[str, str] = {}
     for name in IMPLEMENTATION_BINARY_FILES:
@@ -539,20 +635,29 @@ def current_resource_amendment(
             ALLOWED_SUPERSEDED_LOCK_DIFFERENCES
         ),
         "changed_execution_only": (
-            "replace the nonbinding per-call heap estimate with one fixed full-capacity "
-            "native sparse mapping before the unchanged compiled event stream"
+            "store losslessly guarded raveled index and source payloads as signed int32, "
+            "raising fixed exact-event capacity without changing the event state machine"
         ),
-        "compiled_event_core_changed": False,
+        "compiled_event_core_changed": True,
+        "compiled_event_state_machine_changed": False,
         "disk_free_preflight_bytes": (
             HEAP_CAPACITY_ITEMS * EXPECTED_HEAP_ITEM_BYTES
             + MIN_FREE_AFTER_FULL_HEAP_BYTES
         ),
         "event_order_changed": False,
+        "frozen_max_padded_raveled_elements": FROZEN_MAX_PADDED_RAVELED_ELEMENTS,
         "heap_capacity_is_event_bound": False,
         "heap_capacity_exhaustion": "abort_without_result",
         "heap_capacity_items_every_production_call": HEAP_CAPACITY_ITEMS,
         "heap_file_logical_bytes": HEAP_CAPACITY_ITEMS * EXPECTED_HEAP_ITEM_BYTES,
         "heap_item_bytes": EXPECTED_HEAP_ITEM_BYTES,
+        "heap_item_layout": {
+            "age": "signed_int32_at_byte_8",
+            "index": "signed_int32_at_byte_12",
+            "size_bytes": EXPECTED_HEAP_ITEM_BYTES,
+            "source": "signed_int32_at_byte_16",
+            "value": "float64_at_byte_0",
+        },
         "heap_sparse_allocation_reserves_disk_space": False,
         "heap_sparse_size_sequence_windows": [
             "FSCTL_SET_SPARSE",
@@ -562,8 +667,12 @@ def current_resource_amendment(
         ],
         "heap_storage": "native_sparse_file_backed_mmap_direct_item_binary_heap",
         "heap_stale_file_recovery": "remove_only_after_owning_pid_has_exited",
+        "index_payload_guard": (
+            "padded_raveled_element_count_lte_signed_int32_max_plus_one"
+        ),
+        "index_payload_max_raveled_elements": MAX_RAVELED_ELEMENTS,
         "implementation_binary_files_sha256": implementation_binary_hashes(repo),
-        "kind": "fixed_full_capacity_sparse_bit_equivalent_watershed_heap",
+        "kind": "compact_guarded_fixed_capacity_sparse_bit_equivalent_watershed_heap",
         "minimum_free_after_full_heap_bytes": MIN_FREE_AFTER_FULL_HEAP_BYTES,
         "signed_age_semantics": "pinned_scikit_image_int32_cast_including_wrap",
         "preoutcome_failure_receipt_content_sha256": failure_receipt[
@@ -587,6 +696,8 @@ def build_protocol_lock(repo: Path, manifest_path: Path) -> dict[str, Any]:
     manifest = load_hashed_json(manifest_path)
     if manifest["content_sha256"] != SOURCE_MANIFEST_CONTENT_SHA256:
         raise SystemExit("unexpected source manifest content hash")
+    if frozen_max_padded_raveled_elements(manifest) != FROZEN_MAX_PADDED_RAVELED_ELEMENTS:
+        raise SystemExit("frozen maximum padded raveled element count drift")
     source_lock = R.load_protocol_lock(repo / SOURCE_PROTOCOL_LOCK_PATH)
     if source_lock["content_sha256"] != SOURCE_PROTOCOL_LOCK_CONTENT_SHA256:
         raise SystemExit("unexpected source protocol lock content hash")
@@ -745,6 +856,8 @@ def verify_protocol_files(repo: Path, lock: dict[str, Any]) -> dict[str, Any]:
     manifest = load_hashed_json(manifest_path)
     if manifest["content_sha256"] != lock["source_manifest_content_sha256"]:
         raise SystemExit("source manifest content drift")
+    if frozen_max_padded_raveled_elements(manifest) != FROZEN_MAX_PADDED_RAVELED_ELEMENTS:
+        raise SystemExit("frozen maximum padded raveled element count drift")
     if split_assignments(manifest) != lock["split"]["assignments"]:
         raise SystemExit("dev/holdout assignment drift")
     if {name: asdict(config) for name, config in CANDIDATE_CONFIGS.items()} != lock["candidates"]:
