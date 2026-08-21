@@ -1,0 +1,33 @@
+group ('PHerc1203', 960) worker PID 38504 failed with exit 1; stderr: Traceback (most recent call last):
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 1753, in <module>
+    main()
+    ~~~~^^
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 1749, in main
+    args.func(args)
+    ~~~~~~~~~^^^^^^
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 1559, in group_worker_command
+    rows = score_block_group(blocks, array_refs, candidates, labels_root)
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 1109, in score_block_group
+    masks, audits = build_masks(blocks, arrays, candidate_names)
+                    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 978, in build_masks
+    result = split_probability_bridges(probability, CANDIDATE_CONFIGS[name])
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\probability_bridge_split.py", line 178, in split_probability_bridges
+    partition = watershed(
+        -local_p,
+    ...<3 lines>...
+        watershed_line=True,
+    )
+  File "C:\Users\PC\miniconda3\envs\vesuvius\Lib\site-packages\skimage\segmentation\_watershed.py", line 230, in watershed
+    _watershed_cy.watershed_raveled(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        image.ravel(),
+        ^^^^^^^^^^^^^^
+    ...<6 lines>...
+        watershed_line,
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "skimage/segmentation/_watershed_cy.pyx", line 192, in skimage.segmentation._watershed_cy.watershed_raveled
+  File "../src/skimage/segmentation/heap_general.pxi", line 111, in skimage.segmentation._watershed_cy.heappush
+MemoryError
