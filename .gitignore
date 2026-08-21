@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 outputs/
+build/
+_bounded_watershed_cy.c
+_bounded_watershed_cy.cp*.pyd

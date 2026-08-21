@@ -560,21 +560,23 @@ def test_scroll_z0_jobs_are_an_exact_unfragmented_partition() -> None:
         B.partition_blocks_by_scroll_z0([blocks[0], copy.deepcopy(blocks[0])])
 
 
-def test_amendment02_failure_receipt_and_superseded_chain_are_bound() -> None:
+def test_amendment03_failure_receipt_and_superseded_chain_are_bound() -> None:
     repo = Path(B.__file__).resolve().parent
     prior = B.validate_superseded_lock_chain(repo)
     receipt = B.validate_preoutcome_failure(repo)
 
     assert prior["content_sha256"] == B.SUPERSEDED_PROTOCOL_LOCK_CONTENT_SHA256
     assert receipt["content_sha256"] == (
-        "a7cdde195f28459a5dc10f3ad206ca278ca59b0f660d0c29f3ed05e4bfed0348"
+        "51f48a66d1992a9bb70175bd614346ac8c84e77c72110688a8a9fc1519e9e691"
     )
     assert receipt["development_scoring_started"] is True
-    assert receipt["development_scoring_completed"] is False
+    assert receipt["development_scoring_completed"] is None
+    assert receipt["holdout_opened"] is None
+    assert receipt["selected_candidate_inspected"] is False
     assert receipt["bridge_outcomes_seen"] is False
 
 
-def test_amendment02_rejects_any_unlisted_scientific_change() -> None:
+def test_amendment03_rejects_any_unlisted_scientific_change() -> None:
     repo = Path(B.__file__).resolve().parent
     prior = B.validate_superseded_lock_chain(repo)
     amended = copy.deepcopy(prior)
@@ -665,6 +667,9 @@ def current_worker_lock() -> dict:
         "implementation_commit": B.git_output(repo, "rev-parse", "HEAD"),
         "implementation_files_sha256": {
             name: B.canonical_lf_sha256(repo / name) for name in B.IMPLEMENTATION_FILES
+        },
+        "resource_amendment": {
+            "implementation_binary_files_sha256": B.implementation_binary_hashes(repo)
         },
     }
 
@@ -760,6 +765,25 @@ def test_group_ipc_rejects_rehashed_schema_and_binding_changes(tmp_path: Path) -
     wrong_lock["content_sha256"] = B._content_sha(wrong_lock)
     with pytest.raises(SystemExit, match="protocol_lock_content_sha256 mismatch"):
         B._validate_worker_response(wrong_lock, request, launched_pid)
+
+    wrong_binary = copy.deepcopy(response)
+    wrong_binary["implementation_binary_files_sha256"][B.BOUNDED_WATERSHED_BINARY] = (
+        "0" * 64
+    )
+    wrong_binary["content_sha256"] = B._content_sha(wrong_binary)
+    with pytest.raises(
+        SystemExit,
+        match="implementation_binary_files_sha256 mismatch",
+    ):
+        B._validate_worker_response(wrong_binary, request, launched_pid)
+
+    drifted_request = copy.deepcopy(request)
+    drifted_request["implementation_binary_files_sha256"][B.BOUNDED_WATERSHED_BINARY] = (
+        "0" * 64
+    )
+    drifted_request["content_sha256"] = B._content_sha(drifted_request)
+    with pytest.raises(SystemExit, match="implementation binary drift"):
+        B._verify_worker_implementation_bindings(drifted_request)
 
     corrupted = copy.deepcopy(response)
     corrupted["rows"][0]["block_id"] = "other"

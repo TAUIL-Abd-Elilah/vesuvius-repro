@@ -19,7 +19,7 @@ from typing import Any
 
 import numpy as np
 from scipy import ndimage as ndi
-from skimage.segmentation import watershed
+from bounded_watershed import watershed
 
 
 @dataclass(frozen=True)

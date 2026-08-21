@@ -1,4 +1,5 @@
 numpy>=1.26
+Cython==3.2.9
 scipy>=1.13
 scikit-image>=0.24
 tifffile>=2024.8
