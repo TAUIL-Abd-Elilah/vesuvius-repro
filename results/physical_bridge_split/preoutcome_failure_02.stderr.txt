@@ -1,0 +1,39 @@
+Traceback (most recent call last):
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 1129, in <module>
+    main()
+    ~~~~^^
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 1125, in main
+    args.func(args)
+    ~~~~~~~~~^^^^^^
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 987, in score_command
+    dev_rows = score_blocks_streaming(
+        dev_blocks, array_refs, CANDIDATE_CONFIGS, labels_root
+    )
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 959, in score_blocks_streaming
+    masks, audits = build_masks(
+                    ~~~~~~~~~~~^
+        [block], {block_id: block_arrays}, candidate_names
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\physical_bridge_split.py", line 866, in build_masks
+    result = split_probability_bridges(probability, CANDIDATE_CONFIGS[name])
+  File "D:\Competition\Vesuvius progress prizes\_worktrees\vesuvius-repro-multithreshold-repair\probability_bridge_split.py", line 178, in split_probability_bridges
+    partition = watershed(
+        -local_p,
+    ...<3 lines>...
+        watershed_line=True,
+    )
+  File "C:\Users\PC\miniconda3\envs\vesuvius\Lib\site-packages\skimage\segmentation\_watershed.py", line 230, in watershed
+    _watershed_cy.watershed_raveled(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        image.ravel(),
+        ^^^^^^^^^^^^^^
+    ...<6 lines>...
+        watershed_line,
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "skimage/segmentation/_watershed_cy.pyx", line 192, in skimage.segmentation._watershed_cy.watershed_raveled
+  File "../src/skimage/segmentation/heap_general.pxi", line 111, in skimage.segmentation._watershed_cy.heappush
+MemoryError

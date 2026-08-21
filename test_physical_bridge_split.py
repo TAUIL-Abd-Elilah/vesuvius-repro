@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import copy
 import gc
+import io
 import json
+import os
 import weakref
 from collections import Counter
 from pathlib import Path
@@ -518,6 +520,541 @@ def test_streaming_releases_each_decoded_block_before_loading_next(
     assert loaded_ids == ["block-c", "block-a", "block-b"]
     assert [row["block_id"] for row in rows] == ["block-a", "block-b", "block-c"]
     assert all(reference() is None for reference in references)
+
+
+def grouped_block(block_id: str, scroll: str, z0: int, z_stratum: int = 0) -> dict:
+    return {
+        "block_id": block_id,
+        "scroll": scroll,
+        "z_stratum": z_stratum,
+        "geometry": {"score_local_l1": [z0, z0 + 64, 0, 64, 0, 64]},
+    }
+
+
+def test_scroll_z0_jobs_are_an_exact_unfragmented_partition() -> None:
+    blocks = [
+        grouped_block("b", "PHerc1203", 64),
+        grouped_block("d", "PHerc0139", 192),
+        grouped_block("a", "PHerc0139", 64),
+        grouped_block("c", "PHerc1203", 64),
+    ]
+    jobs = B.partition_blocks_by_scroll_z0(blocks)
+
+    assert [key for key, _ in jobs] == [
+        ("PHerc0139", 64),
+        ("PHerc0139", 192),
+        ("PHerc1203", 64),
+    ]
+    assert [[block["block_id"] for block in group] for _, group in jobs] == [
+        ["a"],
+        ["d"],
+        ["b", "c"],
+    ]
+    assert sorted(block["block_id"] for _, group in jobs for block in group) == [
+        "a",
+        "b",
+        "c",
+        "d",
+    ]
+    with pytest.raises(ValueError, match="duplicate grouped block_id"):
+        B.partition_blocks_by_scroll_z0([blocks[0], copy.deepcopy(blocks[0])])
+
+
+def test_amendment02_failure_receipt_and_superseded_chain_are_bound() -> None:
+    repo = Path(B.__file__).resolve().parent
+    prior = B.validate_superseded_lock_chain(repo)
+    receipt = B.validate_preoutcome_failure(repo)
+
+    assert prior["content_sha256"] == B.SUPERSEDED_PROTOCOL_LOCK_CONTENT_SHA256
+    assert receipt["content_sha256"] == (
+        "a7cdde195f28459a5dc10f3ad206ca278ca59b0f660d0c29f3ed05e4bfed0348"
+    )
+    assert receipt["development_scoring_started"] is True
+    assert receipt["development_scoring_completed"] is False
+    assert receipt["bridge_outcomes_seen"] is False
+
+
+def test_amendment02_rejects_any_unlisted_scientific_change() -> None:
+    repo = Path(B.__file__).resolve().parent
+    prior = B.validate_superseded_lock_chain(repo)
+    amended = copy.deepcopy(prior)
+    amended["execution_revision"] = B.EXECUTION_REVISION
+    amended["implementation_commit"] = "1" * 40
+    amended["implementation_files_sha256"] = {"example": "2" * 64}
+    amended["resource_amendment"] = {
+        "allowed_top_level_differences_from_superseded_lock": list(
+            B.ALLOWED_SUPERSEDED_LOCK_DIFFERENCES
+        )
+    }
+    amended["content_sha256"] = B._content_sha(amended)
+    B.validate_scientific_identity_with_superseded_lock(amended, prior)
+
+    changed = copy.deepcopy(amended)
+    changed["analysis"]["bootstrap_seed"] += 1
+    changed["content_sha256"] = B._content_sha(changed)
+    with pytest.raises(SystemExit, match="scientific field changed: analysis"):
+        B.validate_scientific_identity_with_superseded_lock(changed, prior)
+
+    missing = copy.deepcopy(amended)
+    del missing["status"]
+    missing["content_sha256"] = B._content_sha(missing)
+    with pytest.raises(SystemExit, match="top-level lock schema differs"):
+        B.validate_scientific_identity_with_superseded_lock(missing, prior)
+
+
+def scoring_job_multiset(blocks: list[dict]) -> Counter:
+    jobs = Counter()
+    for block in blocks:
+        z0 = block["geometry"]["score_local_l1"][0]
+        for k in range(B.P.SCORE_SIZE_L1):
+            if (z0 + k) % B.P.Z_SAMPLE_STEP == 0:
+                jobs[(block["block_id"], block["scroll"], z0 + k, k)] += 1
+    return jobs
+
+
+def test_frozen_split_group_jobs_preserve_exact_multiset_and_plane_counts() -> None:
+    repo = Path(__file__).resolve().parent
+    lock = B.load_hashed_json(
+        repo / "results" / "physical_bridge_split" / "protocol_lock_amendment_01.json"
+    )
+    manifest = B.load_hashed_json(repo / lock["source_manifest_path"])
+
+    for split, expected_unique_planes in (("dev", 304), ("holdout", 288)):
+        blocks = B._blocks_for_split(manifest, lock, split)
+        grouped_jobs = Counter()
+        grouped_planes = set()
+        for (scroll, z0), group in B.partition_blocks_by_scroll_z0(blocks):
+            grouped_jobs.update(scoring_job_multiset(group))
+            planes = {
+                (scroll, z0 + k)
+                for k in range(B.P.SCORE_SIZE_L1)
+                if (z0 + k) % B.P.Z_SAMPLE_STEP == 0
+            }
+            assert len(planes) == 16
+            assert grouped_planes.isdisjoint(planes)
+            grouped_planes.update(planes)
+
+        legacy_jobs = scoring_job_multiset(blocks)
+        assert grouped_jobs == legacy_jobs
+        assert sum(grouped_jobs.values()) == 32 * 16
+        assert len(grouped_planes) == expected_unique_planes
+
+
+def fake_group_row(block: dict, candidates: list[str]) -> dict:
+    arms = {"corrected_fixed": {}}
+    audits = {}
+    for candidate in candidates:
+        control = B.matched_budget_arm(candidate)
+        arms[candidate] = {}
+        arms[control] = {}
+        audits[candidate] = {}
+        audits[control] = {}
+    return {
+        "block_id": block["block_id"],
+        "scroll": block["scroll"],
+        "z_stratum": block["z_stratum"],
+        "arms": arms,
+        "audits": audits,
+    }
+
+
+def current_worker_lock() -> dict:
+    repo = Path(B.__file__).resolve().parent
+    return {
+        "content_sha256": "a" * 64,
+        "implementation_commit": B.git_output(repo, "rev-parse", "HEAD"),
+        "implementation_files_sha256": {
+            name: B.canonical_lf_sha256(repo / name) for name in B.IMPLEMENTATION_FILES
+        },
+    }
+
+
+def test_group_scorer_loads_all_arrays_then_builds_and_scores_once(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    candidate = next(iter(B.CANDIDATE_CONFIGS))
+    blocks = [
+        grouped_block("shared-b", "PHerc0139", 64),
+        grouped_block("shared-a", "PHerc0139", 64),
+    ]
+    array_refs = {}
+    for block in blocks:
+        path = tmp_path / f"{block['block_id']}.npz"
+        path.write_bytes(block["block_id"].encode("ascii"))
+        array_refs[block["block_id"]] = (path, B.P.sha256_file(path))
+    loaded: list[str] = []
+    calls = {"build": 0, "score": 0}
+
+    def load(path: Path, block: dict, manifest_hash: str) -> dict:
+        assert path == array_refs[block["block_id"]][0]
+        assert manifest_hash == B.SOURCE_MANIFEST_CONTENT_SHA256
+        loaded.append(block["block_id"])
+        return {"corrected": block["block_id"]}
+
+    def build(selected_blocks: list[dict], arrays: dict, candidates: tuple[str, ...]):
+        calls["build"] += 1
+        assert selected_blocks == blocks
+        assert list(arrays) == ["shared-b", "shared-a"]
+        assert loaded == ["shared-b", "shared-a"]
+        assert candidates == (candidate,)
+        return (
+            {block["block_id"]: {"corrected_fixed": object()} for block in blocks},
+            {block["block_id"]: {} for block in blocks},
+        )
+
+    def score(selected_blocks: list[dict], masks: dict, audits: dict, labels: Path):
+        calls["score"] += 1
+        assert selected_blocks == blocks
+        assert set(masks) == {"shared-a", "shared-b"}
+        assert set(audits) == {"shared-a", "shared-b"}
+        assert labels == tmp_path
+        return [
+            fake_group_row(block, [candidate])
+            for block in sorted(blocks, key=lambda item: item["block_id"])
+        ]
+
+    monkeypatch.setattr(B.P, "_load_block_arrays", load)
+    monkeypatch.setattr(B, "build_masks", build)
+    monkeypatch.setattr(B, "score_blocks", score)
+    rows = B.score_block_group(blocks, array_refs, [candidate], tmp_path)
+
+    assert calls == {"build": 1, "score": 1}
+    assert [row["block_id"] for row in rows] == ["shared-a", "shared-b"]
+
+
+def test_group_ipc_rejects_rehashed_schema_and_binding_changes(tmp_path: Path) -> None:
+    candidate = next(iter(B.CANDIDATE_CONFIGS))
+    block = grouped_block("block-a", "PHerc0139", 64)
+    array_path = tmp_path / "block-a.npz"
+    array_path.write_bytes(b"frozen")
+    request = B._worker_request(
+        ("PHerc0139", 64),
+        [block],
+        {"block-a": (array_path, B.P.sha256_file(array_path))},
+        (candidate,),
+        tmp_path,
+        current_worker_lock(),
+    )
+    B._validate_worker_request(request)
+
+    extra = copy.deepcopy(request)
+    extra["unexpected"] = True
+    extra["content_sha256"] = B._content_sha(extra)
+    with pytest.raises(ValueError, match="unexpected schema"):
+        B._validate_worker_request(extra)
+
+    launched_pid = os.getpid() + 100_000
+    response = B._worker_response(request, [fake_group_row(block, [candidate])])
+    response["worker_pid"] = launched_pid
+    response["content_sha256"] = B._content_sha(response)
+    assert B._validate_worker_response(response, request, launched_pid) == response["rows"]
+
+    rebound = copy.deepcopy(response)
+    rebound["request_content_sha256"] = "0" * 64
+    rebound["content_sha256"] = B._content_sha(rebound)
+    with pytest.raises(SystemExit, match="request_content_sha256 mismatch"):
+        B._validate_worker_response(rebound, request, launched_pid)
+
+    wrong_lock = copy.deepcopy(response)
+    wrong_lock["protocol_lock_content_sha256"] = "b" * 64
+    wrong_lock["content_sha256"] = B._content_sha(wrong_lock)
+    with pytest.raises(SystemExit, match="protocol_lock_content_sha256 mismatch"):
+        B._validate_worker_response(wrong_lock, request, launched_pid)
+
+    corrupted = copy.deepcopy(response)
+    corrupted["rows"][0]["block_id"] = "other"
+    with pytest.raises(SystemExit, match="content SHA mismatch"):
+        B._validate_worker_response(corrupted, request, launched_pid)
+
+
+@pytest.mark.parametrize(
+    ("stdout", "message"),
+    [
+        ("", "returned no response"),
+        ("not-json", "returned malformed JSON"),
+        ("[]", "returned a non-object response"),
+        ("{}\n", "returned noncanonical JSON"),
+        ("{}", "response has an unexpected schema"),
+    ],
+)
+def test_pipe_ipc_rejects_missing_malformed_or_noncanonical_output(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stdout: str,
+    message: str,
+) -> None:
+    candidate = next(iter(B.CANDIDATE_CONFIGS))
+    block = grouped_block("block-a", "PHerc0139", 64)
+    array_path = tmp_path / "block-a.npz"
+    array_path.write_bytes(b"frozen")
+
+    def launch(request: dict) -> dict:
+        assert request["protocol_lock_content_sha256"] == "a" * 64
+        return {
+            "pid": os.getpid() + 30_000,
+            "returncode": 0,
+            "stdout": stdout,
+            "stderr": "",
+        }
+
+    monkeypatch.setattr(B, "_launch_group_worker", launch)
+    with pytest.raises(SystemExit, match=message):
+        B.score_blocks_spawned(
+            [block],
+            {"block-a": (array_path, B.P.sha256_file(array_path))},
+            [candidate],
+            tmp_path,
+            current_worker_lock(),
+        )
+
+
+def test_worker_rechecks_implementation_after_computation_before_output(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    candidate = next(iter(B.CANDIDATE_CONFIGS))
+    block = grouped_block("block-a", "PHerc0139", 64)
+    array_path = tmp_path / "block-a.npz"
+    array_path.write_bytes(b"frozen")
+    request = B._worker_request(
+        ("PHerc0139", 64),
+        [block],
+        {"block-a": (array_path, B.P.sha256_file(array_path))},
+        (candidate,),
+        tmp_path,
+        current_worker_lock(),
+    )
+    checks = 0
+
+    def verify(value: dict) -> None:
+        nonlocal checks
+        assert value == request
+        checks += 1
+        if checks == 2:
+            raise SystemExit("group worker implementation drift: physical_bridge_split.py")
+
+    monkeypatch.setattr(B, "_verify_worker_implementation_bindings", verify)
+    monkeypatch.setattr(B.os, "getppid", lambda: request["parent_pid"])
+    monkeypatch.setattr(
+        B,
+        "score_block_group",
+        lambda blocks, refs, candidates, labels: [fake_group_row(block, [candidate])],
+    )
+    stdin = io.StringIO(B.P.canonical_json(request))
+    stdout = io.StringIO()
+    monkeypatch.setattr(B.sys, "stdin", stdin)
+    monkeypatch.setattr(B.sys, "stdout", stdout)
+
+    with pytest.raises(SystemExit, match="implementation drift"):
+        B.group_worker_command(SimpleNamespace())
+
+    assert checks == 2
+    assert stdout.getvalue() == ""
+
+
+def test_result_boundary_reverifies_lock_manifest_implementation_and_head(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    lock_path = tmp_path / "protocol_lock.json"
+    expected_lock_sha = "1" * 64
+    expected_manifest_sha = "2" * 64
+    expected_head = "3" * 40
+    lock = {"content_sha256": expected_lock_sha}
+    calls: list[str] = []
+
+    def load(path: Path) -> dict:
+        assert path == lock_path
+        calls.append("load")
+        return lock
+
+    def verify_files(repo: Path, value: dict) -> dict:
+        assert repo == tmp_path
+        assert value is lock
+        calls.append("files")
+        return {"content_sha256": expected_manifest_sha}
+
+    def verify_head(repo: Path, value: dict, path: Path) -> str:
+        assert (repo, value, path) == (tmp_path, lock, lock_path)
+        calls.append("head")
+        return expected_head
+
+    monkeypatch.setattr(B, "load_hashed_json", load)
+    monkeypatch.setattr(B, "verify_protocol_files", verify_files)
+    monkeypatch.setattr(B, "verify_public_freeze", verify_head)
+    B.reverify_before_result_write(
+        tmp_path,
+        lock_path,
+        expected_lock_sha,
+        expected_manifest_sha,
+        expected_head,
+    )
+    assert calls == ["load", "files", "head"]
+
+    monkeypatch.setattr(B, "verify_public_freeze", lambda repo, value, path: "4" * 40)
+    with pytest.raises(SystemExit, match="public freeze HEAD changed"):
+        B.reverify_before_result_write(
+            tmp_path,
+            lock_path,
+            expected_lock_sha,
+            expected_manifest_sha,
+            expected_head,
+        )
+
+
+def test_spawned_jobs_are_serial_and_use_a_fresh_pid_per_group(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    candidate = next(iter(B.CANDIDATE_CONFIGS))
+    blocks = [
+        grouped_block("same-z-b", "PHerc1203", 64),
+        grouped_block("next-z", "PHerc1203", 192),
+        grouped_block("same-z-a", "PHerc1203", 64),
+    ]
+    array_refs = {}
+    for block in blocks:
+        path = tmp_path / f"{block['block_id']}.npz"
+        path.write_bytes(block["block_id"].encode("ascii"))
+        array_refs[block["block_id"]] = (path, B.P.sha256_file(path))
+
+    active = 0
+    max_active = 0
+    pids: list[int] = []
+    requested_groups: list[tuple[tuple[str, int], list[str]]] = []
+
+    def launch(request: dict) -> dict:
+        nonlocal active, max_active
+        assert active == 0
+        active += 1
+        max_active = max(max_active, active)
+        group, request_blocks, _, candidates, _ = B._validate_worker_request(request)
+        pid = os.getpid() + 10_000 + len(pids)
+        pids.append(pid)
+        requested_groups.append((group, list(request["block_ids"])))
+        rows = [
+            fake_group_row(block, list(candidates))
+            for block in sorted(request_blocks, key=lambda item: item["block_id"])
+        ]
+        response = B._worker_response(request, rows)
+        response["worker_pid"] = pid
+        response["content_sha256"] = B._content_sha(response)
+        active -= 1
+        return {
+            "pid": pid,
+            "returncode": 0,
+            "stdout": B.P.canonical_json(response),
+            "stderr": "",
+        }
+
+    monkeypatch.setattr(B, "_launch_group_worker", launch)
+    rows = B.score_blocks_spawned(
+        blocks, array_refs, [candidate], tmp_path, current_worker_lock()
+    )
+
+    assert max_active == 1
+    assert len(pids) == len(set(pids)) == 2
+    assert requested_groups == [
+        (("PHerc1203", 64), ["same-z-b", "same-z-a"]),
+        (("PHerc1203", 192), ["next-z"]),
+    ]
+    assert [row["block_id"] for row in rows] == ["next-z", "same-z-a", "same-z-b"]
+
+
+def test_failed_child_stops_before_next_group_without_disk_ipc(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    candidate = next(iter(B.CANDIDATE_CONFIGS))
+    blocks = [
+        grouped_block("first", "PHerc0139", 64),
+        grouped_block("never-started", "PHerc0139", 192),
+    ]
+    array_refs = {}
+    for block in blocks:
+        path = tmp_path / f"{block['block_id']}.npz"
+        path.write_bytes(block["block_id"].encode("ascii"))
+        array_refs[block["block_id"]] = (path, B.P.sha256_file(path))
+    calls = 0
+
+    def fail(request: dict) -> dict:
+        nonlocal calls
+        assert request["kind"] == B.GROUP_WORKER_REQUEST_KIND
+        calls += 1
+        return {"pid": os.getpid() + 20_000, "returncode": 9, "stdout": "", "stderr": "boom"}
+
+    monkeypatch.setattr(B, "_launch_group_worker", fail)
+    with pytest.raises(SystemExit, match="failed with exit 9"):
+        B.score_blocks_spawned(
+            blocks, array_refs, [candidate], tmp_path, current_worker_lock()
+        )
+
+    assert calls == 1
+    assert "tempfile" not in B.__dict__
+
+
+def test_grouped_child_rows_equal_separate_legacy_rows_for_shared_z_group(
+    tmp_path: Path,
+) -> None:
+    labels_root = tmp_path / "labels"
+    labels_root.mkdir()
+    for config in B.P.SCROLLS.values():
+        label_path = labels_root / config["label_store"]
+        B.zarr.open(
+            str(label_path),
+            mode="w",
+            shape=(64, 144, 160),
+            chunks=(1, 144, 160),
+            dtype="u1",
+            fill_value=1,
+        )
+    candidate = next(iter(B.CANDIDATE_CONFIGS))
+    blocks = []
+    array_refs = {}
+    for block_id, score_x0, extent_x0 in (
+        ("shared-z-left", 8, 0),
+        ("shared-z-right", 88, 80),
+    ):
+        extent = [0, 64, 0, 144, extent_x0, extent_x0 + 80]
+        block = {
+            "block_id": block_id,
+            "scroll": "PHerc0139",
+            "z_stratum": 0,
+            "geometry": {
+                "score_local_l1": [0, 64, 72, 136, score_x0, score_x0 + 64],
+                "prediction_extent_local_l1": extent,
+                "prediction_extent_global_l1": extent,
+            },
+        }
+        blocks.append(block)
+        array_path = tmp_path / f"{block_id}.npz"
+        shape = (
+            B.P.SCORE_SIZE_L1,
+            B.P.SCORE_SIZE_L1 + B.P.NULL_SHIFT_L1 + 2 * B.P.METRIC_HALO_L1,
+            B.P.SCORE_SIZE_L1 + 2 * B.P.METRIC_HALO_L1,
+        )
+        metadata = {
+            "schema_version": 1,
+            "manifest_content_sha256": B.SOURCE_MANIFEST_CONTENT_SHA256,
+            "block_id": block_id,
+            "prediction_extent_global_l1": extent,
+        }
+        corrected = np.zeros(shape, dtype=np.float32)
+        corrected[20:40, 70:90, 10:30] = 0.9
+        corrected[20:40, 70:90, 50:70] = 0.9
+        corrected[30, 80, 30:51] = 0.25
+        np.savez_compressed(
+            array_path,
+            baseline_l1=np.zeros(shape, dtype=np.uint8),
+            corrected_pmax_l1=corrected,
+            metadata_json=np.asarray(json.dumps(metadata)),
+        )
+        array_refs[block_id] = (array_path, B.P.sha256_file(array_path))
+
+    separate_legacy = B.score_blocks_streaming(
+        blocks, array_refs, [candidate], labels_root
+    )
+    grouped_child = B.score_blocks_spawned(
+        blocks, array_refs, [candidate], labels_root, current_worker_lock()
+    )
+
+    assert B.P.canonical_json(grouped_child) == B.P.canonical_json(separate_legacy)
 
 
 def test_completed_inference_rejects_rehashed_missing_normalization_proof(
