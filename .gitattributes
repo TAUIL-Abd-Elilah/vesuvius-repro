@@ -1,0 +1,6 @@
+PHERC0139_FIBER_PRESENCE_PREREG.md text eol=lf
+pherc0139_fiber_presence_benchmark.py text eol=lf
+pherc0139_fiber_presence_lock.json text eol=lf
+pherc0139_fiber_reference_manifest.json text eol=lf
+requirements-fiber-lock.txt text eol=lf
+test_pherc0139_fiber_presence_benchmark.py text eol=lf
