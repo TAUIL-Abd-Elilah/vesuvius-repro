@@ -1,0 +1,18 @@
+Villa commit: 2363183da6725adf85d3f2dc474044dd7cb03398
+Data: public PHerc0332 Lasagna manifest, VC3D split-cache layout
+
+[sparse_cache_ts] cos ... vol=4199x1971x1971
+[sparse_cache_ts] grad_mag ... vol=2100x986x986
+[sparse_cache_ts] nx ... vol=2100x986x986
+[sparse_cache_ts] ny ... vol=2100x986x986
+[fit_data] load_3d_streaming ... primary_spacing=(16.0, 16.0, 16.0)
+AFTER_SIZE=(2100, 986, 986)
+AFTER_GROUPS=['cos', 'grad_mag', 'nx', 'ny']
+REAL_SCROLL_READ=PHerc0332 grad_mag[1050,579,374]=228
+REMOTE_SOURCE=True
+
+Combined fit smoke:
+[fit] shell-dir-crop closest shell before crop ... dist=0.101
+[fit] shell-dir-crop selected shell_0001.tifxyz ... crop=25x43
+[fit_data] load_3d_streaming ... groups=['grad_mag', 'nx', 'ny']
+[optimizer] stage0 ... steps=1000
