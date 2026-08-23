@@ -2,8 +2,9 @@
 
 The scientific contract lives in ``pherc0139_fiber_presence_lock.json``.  This
 runner deliberately requires either ``--plan``/``--dry-run`` or an explicit
-``--run``.  Planning reads only the lock; it does not open the prediction Zarr
-or fetch any prediction chunk.
+``--run``.  A separately tagged ``--resume-transport`` path exists only for
+the publicly recorded first-attempt TLS failure. Planning reads only the lock;
+it does not open the prediction Zarr or fetch any prediction chunk.
 
 ``--prepare-references`` verifies and freezes the public transformed tifxyz
 maps without opening any prediction.  Outcome mode accepts only that pinned
@@ -33,6 +34,7 @@ import zlib
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from importlib import metadata as importlib_metadata
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
@@ -45,6 +47,10 @@ ROOT = Path(__file__).resolve().parent
 DEFAULT_LOCK = ROOT / "pherc0139_fiber_presence_lock.json"
 DEFAULT_OUTCOME_DIR = ROOT / "results" / "pherc0139_fiber_presence_v1"
 PREREG_TAG = "pherc0139-fiber-sanity-prereg-v1"
+PREREG_COMMIT = "b309c4c4d23686e14fe8b82faa6413e29789275d"
+TRANSPORT_AMENDMENT_TAG = "pherc0139-fiber-sanity-transport-amendment-v1"
+TRANSPORT_FAILURE_RECORD = ROOT / "pherc0139_fiber_transport_failure.json"
+TRANSPORT_AMENDMENT = ROOT / "PHERC0139_FIBER_TRANSPORT_AMENDMENT.md"
 REFERENCE_FILES = ("meta.json", "x.tif", "y.tif", "z.tif")
 DOC_SPECS = (
     ("metadata", "metadata", "url", "content_sha256", "transport_sha256",
@@ -1303,6 +1309,7 @@ def mirror_prediction_channels(
     output_root: Path,
     timeout_seconds: float,
     workers: int,
+    pinned_missing_chunks: Mapping[str, set[tuple[int, int, int]]] | None = None,
 ) -> tuple[
     dict[str, Any],
     dict[str, Any],
@@ -1346,18 +1353,39 @@ def mirror_prediction_channels(
             )
         metadata_receipts[channel_name] = channel_metadata
 
+    pinned_missing = {
+        name: set((pinned_missing_chunks or {}).get(name, set())) for name in CHANNEL_NAMES
+    }
     tasks = []
+    chunk_receipts: dict[str, list[dict[str, Any]]] = {name: [] for name in CHANNEL_NAMES}
     for channel_name in CHANNEL_NAMES:
         channel = lock["fiber_artifact"]["channels"][channel_name]
+        planned_coordinates = {
+            tuple(int(value) for value in coordinate)
+            for coordinate in chunk_plan[channel_name]["chunk_coordinates"]
+        }
+        if not pinned_missing[channel_name] <= planned_coordinates:
+            raise BenchmarkError(f"pinned fill set is outside the chunk plan for {channel_name}")
         for coordinate in chunk_plan[channel_name]["chunk_coordinates"]:
+            coordinate_tuple = tuple(int(value) for value in coordinate)
             key = _chunk_object_key(coordinate, separators[channel_name])
-            tasks.append((channel_name, tuple(coordinate), key,
-                          channel["zarr_url"].rstrip("/") + "/" + key,
+            url = channel["zarr_url"].rstrip("/") + "/" + key
+            if coordinate_tuple in pinned_missing[channel_name]:
+                chunk_receipts[channel_name].append({
+                    "chunk_coordinate_zyx": list(coordinate_tuple),
+                    "object_key": key,
+                    "url": url,
+                    "status": "pinned_first_attempt_http_404_fill",
+                    "http_status": 404,
+                    "fill_value": 0,
+                    "network_request_on_resume": False,
+                })
+                continue
+            tasks.append((channel_name, coordinate_tuple, key, url,
                           mirror_root / channel_name / Path(key)))
 
-    chunk_receipts: dict[str, list[dict[str, Any]]] = {name: [] for name in CHANNEL_NAMES}
     missing_chunks: dict[str, set[tuple[int, int, int]]] = {
-        name: set() for name in CHANNEL_NAMES
+        name: set(pinned_missing[name]) for name in CHANNEL_NAMES
     }
     errors = []
     with ThreadPoolExecutor(max_workers=workers) as executor:
@@ -1953,7 +1981,24 @@ def runtime_receipt() -> dict[str, Any]:
     }
 
 
-def git_receipt() -> dict[str, Any]:
+def _annotated_tag_receipt(
+    git: Any, required_tag: str, expected_commit: str
+) -> dict[str, str]:
+    reference = f"refs/tags/{required_tag}"
+    if git("cat-file", "-t", reference) != "tag":
+        raise BenchmarkError(f"required tag is not annotated: {required_tag}")
+    tag_object = git("rev-parse", reference)
+    peeled_commit = git("rev-parse", reference + "^{}")
+    if peeled_commit != expected_commit:
+        raise BenchmarkError(f"required tag does not resolve to HEAD: {required_tag}")
+    return {"name": required_tag, "object": tag_object, "commit": peeled_commit}
+
+
+def git_receipt(
+    required_tag: str,
+    required_paths: Sequence[str],
+    required_ancestor: str | None = None,
+) -> dict[str, Any]:
     def git(*arguments: str) -> str:
         try:
             completed = subprocess.run(
@@ -1973,14 +2018,254 @@ def git_receipt() -> dict[str, Any]:
     if tracked_status:
         raise BenchmarkError("outcome requires a clean tracked worktree")
     tags = sorted(value for value in git("tag", "--points-at", "HEAD").splitlines() if value)
-    if PREREG_TAG not in tags:
-        raise BenchmarkError(f"outcome requires HEAD to carry preregistration tag {PREREG_TAG}")
+    if required_tag not in tags:
+        raise BenchmarkError(f"outcome requires HEAD to carry tag {required_tag}")
+    required_tag_receipt = _annotated_tag_receipt(git, required_tag, commit)
+    original_preregistration_tag = None
+    if required_ancestor is not None:
+        if re.fullmatch(r"[0-9a-f]{40}", required_ancestor) is None:
+            raise BenchmarkError("required ancestor is not a 40-digit lowercase git object ID")
+        try:
+            git("merge-base", "--is-ancestor", required_ancestor, commit)
+        except BenchmarkError as exc:
+            raise BenchmarkError(
+                f"outcome commit does not descend from {required_ancestor}"
+            ) from exc
+        original_preregistration_tag = _annotated_tag_receipt(
+            git, PREREG_TAG, required_ancestor
+        )
+    tracked_blobs = {}
+    for relative in required_paths:
+        observed = git("ls-files", "--error-unmatch", "--", relative)
+        if observed != relative:
+            raise BenchmarkError(f"required outcome source is not tracked exactly: {relative}")
+        tracked_blobs[relative] = git("rev-parse", f"{commit}:{relative}")
     return {
         "commit": commit,
         "tracked_worktree_clean": True,
         "tags_at_head": tags,
-        "required_preregistration_tag": PREREG_TAG,
+        "required_annotated_tag": required_tag_receipt,
+        "required_ancestor": required_ancestor,
+        "original_preregistration_tag": original_preregistration_tag,
+        "tracked_source_blobs": tracked_blobs,
     }
+
+
+MIRROR_DIGEST_ALGORITHM = (
+    "SHA256(json.dumps(sorted entries {path,bytes,sha256,kind}, sort_keys=True, "
+    "separators=(',',':'), ensure_ascii=True)); paths are POSIX-relative to "
+    "prediction_mirror; no trailing newline"
+)
+
+
+def _receipt_set_sha256(entries: Sequence[Mapping[str, Any]]) -> str:
+    ordered = sorted((dict(entry) for entry in entries), key=lambda entry: str(entry["path"]))
+    payload = json.dumps(
+        ordered, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("utf-8")
+    return sha256_bytes(payload)
+
+
+def mirror_inventory_receipt(
+    mirror_root: Path,
+) -> tuple[dict[str, Any], dict[str, set[str]]]:
+    """Hash the pre-resume mirror without decoding or sampling any array value."""
+
+    if not mirror_root.is_dir():
+        raise BenchmarkError(f"partial prediction mirror is missing: {mirror_root}")
+    entries: list[dict[str, Any]] = []
+    stored_keys: dict[str, set[str]] = {name: set() for name in CHANNEL_NAMES}
+    for path in sorted((value for value in mirror_root.rglob("*") if value.is_file())):
+        relative = path.relative_to(mirror_root).as_posix()
+        parts = relative.split("/")
+        if path.name.endswith(".partial"):
+            raise BenchmarkError(f"partial transport file remains: {relative}")
+        if not parts or parts[0] not in CHANNEL_NAMES:
+            raise BenchmarkError(f"unexpected mirror object: {relative}")
+        channel = parts[0]
+        if len(parts) == 2 and parts[1] in (".zarray", ".zattrs"):
+            kind = "metadata"
+        elif len(parts) == 4 and all(part.isdigit() for part in parts[1:]):
+            kind = "chunk"
+            stored_keys[channel].add("/".join(parts[1:]))
+        elif len(parts) == 2 and re.fullmatch(r"\d+\.\d+\.\d+", parts[1]):
+            kind = "chunk"
+            stored_keys[channel].add(parts[1])
+        else:
+            raise BenchmarkError(f"unexpected mirror object: {relative}")
+        entries.append({
+            "path": relative,
+            "bytes": path.stat().st_size,
+            "sha256": sha256_file(path),
+            "kind": kind,
+        })
+
+    channel_receipts = {}
+    for channel in CHANNEL_NAMES:
+        channel_entries = [entry for entry in entries if entry["path"].startswith(channel + "/")]
+        chunk_entries = [entry for entry in channel_entries if entry["kind"] == "chunk"]
+        channel_receipts[channel] = {
+            "stored_chunk_count": len(chunk_entries),
+            "stored_chunk_bytes": sum(int(entry["bytes"]) for entry in chunk_entries),
+            "chunk_receipt_set_sha256": _receipt_set_sha256(chunk_entries),
+            "all_object_receipt_set_sha256": _receipt_set_sha256(channel_entries),
+        }
+    metadata_entries = [entry for entry in entries if entry["kind"] == "metadata"]
+    receipt = {
+        "digest_algorithm": MIRROR_DIGEST_ALGORITHM,
+        "sha256": _receipt_set_sha256(entries),
+        "object_count": len(entries),
+        "bytes": sum(int(entry["bytes"]) for entry in entries),
+        "metadata_object_count": len(metadata_entries),
+        "metadata_bytes": sum(int(entry["bytes"]) for entry in metadata_entries),
+        "partial_file_count": 0,
+        "channels": channel_receipts,
+    }
+    return receipt, stored_keys
+
+
+def verify_transport_failure_state(
+    lock: Mapping[str, Any],
+    lock_receipt: Mapping[str, Any],
+    chunk_plan: Mapping[str, Mapping[str, Any]],
+    output_root: Path,
+) -> tuple[dict[str, Any], dict[str, Any], Path]:
+    if not TRANSPORT_FAILURE_RECORD.is_file() or not TRANSPORT_AMENDMENT.is_file():
+        raise BenchmarkError("transport failure record or amendment is missing")
+    try:
+        failure = json.loads(TRANSPORT_FAILURE_RECORD.read_bytes())
+    except json.JSONDecodeError as exc:
+        raise BenchmarkError(f"invalid transport failure record: {exc}") from exc
+    if (not isinstance(failure, dict)
+            or failure.get("event") != "TRANSPORT_FAILURE_BEFORE_ARRAY_OPEN"
+            or failure.get("experiment_id") != lock.get("experiment_id")):
+        raise BenchmarkError("unexpected transport failure record")
+    scientific = failure.get("scientific_state")
+    if (not isinstance(scientific, Mapping)
+            or scientific.get("zarr_array_opened") is not False
+            or scientific.get("prediction_values_sampled") is not False
+            or scientific.get("metrics_computed") is not False
+            or scientific.get("panels_rendered") is not False
+            or scientific.get("scientific_outcome") is not None):
+        raise BenchmarkError("failure record does not describe a pre-analysis transport abort")
+    preregistration = failure.get("preregistration")
+    if not isinstance(preregistration, Mapping):
+        raise BenchmarkError("failure record is missing preregistration provenance")
+
+    marker = output_root / "OUTCOME_STARTED"
+    expected_marker = failure.get("outcome_marker")
+    if not isinstance(expected_marker, Mapping) or not marker.is_file():
+        raise BenchmarkError("original outcome marker is missing")
+    if (marker.stat().st_size != int(expected_marker.get("bytes", -1))
+            or sha256_file(marker) != expected_marker.get("sha256")):
+        raise BenchmarkError("original outcome marker changed after the transport failure")
+    marker_payload = json.loads(marker.read_bytes())
+    if (marker_payload.get("lock_sha256") != lock_receipt["sha256"]
+            or marker_payload.get("prediction_chunk_plan_sha256")
+            != sha256_bytes(canonical_json_bytes(chunk_plan))
+            or marker_payload.get("preregistration_tag") != PREREG_TAG
+            or preregistration.get("commit") != PREREG_COMMIT
+            or marker_payload.get("git_commit") != preregistration.get("commit")
+            or preregistration.get("tag") != PREREG_TAG):
+        raise BenchmarkError("original outcome marker is inconsistent with the frozen plan")
+    for forbidden in ("result.json", "segments.csv", "points.csv", "panels",
+                      "TRANSPORT_RESUME_STARTED", "TRANSPORT_RESUME_FAILURE.json"):
+        if (output_root / forbidden).exists():
+            raise BenchmarkError(f"unexpected pre-resume outcome artifact: {forbidden}")
+
+    inventory, stored_keys = mirror_inventory_receipt(output_root / "prediction_mirror")
+    if inventory != failure.get("mirror_inventory"):
+        raise BenchmarkError("partial mirror receipt-set digest differs from the public failure record")
+    failure_detail = failure.get("failure")
+    failed = failure_detail.get("failed_requests") if isinstance(failure_detail, Mapping) else None
+    fills = failure.get("inferred_http_404_fill_keys", {})
+    if not isinstance(failed, Mapping) or not isinstance(fills, Mapping):
+        raise BenchmarkError("failure record is missing failed or fill object sets")
+    failed_count = 0
+    for channel in CHANNEL_NAMES:
+        for collection_name, collection in (("failed", failed), ("fill", fills)):
+            keys = collection.get(channel)
+            if (not isinstance(keys, list) or len(keys) != len(set(keys))
+                    or any(not isinstance(key, str)
+                           or re.fullmatch(r"\d+/\d+/\d+", key) is None for key in keys)):
+                raise BenchmarkError(
+                    f"invalid {collection_name} object-key set for {channel}"
+                )
+        if set(failed[channel]) & set(fills[channel]):
+            raise BenchmarkError(f"failed and fill sets overlap for {channel}")
+        failed_count += len(failed[channel])
+        planned = {
+            "/".join(str(int(value)) for value in coordinate)
+            for coordinate in chunk_plan[channel]["chunk_coordinates"]
+        }
+        allowed_missing = set(failed.get(channel, [])) | set(fills.get(channel, []))
+        actual_missing = planned - stored_keys[channel]
+        if actual_missing != allowed_missing:
+            raise BenchmarkError(f"pre-resume missing-object set changed for {channel}")
+        if stored_keys[channel] - planned:
+            raise BenchmarkError(f"pre-resume mirror has unplanned chunks for {channel}")
+    if failed_count != int(failure_detail.get("failed_request_count", -1)):
+        raise BenchmarkError("failure request count disagrees with its object-key sets")
+    return failure, inventory, marker
+
+
+def create_transport_resume_marker(output_root: Path, payload: Mapping[str, Any]) -> Path:
+    marker = output_root / "TRANSPORT_RESUME_STARTED"
+    if marker.exists():
+        raise BenchmarkError(f"transport resume has already started: {marker}")
+    if (output_root / "result.json").exists():
+        raise BenchmarkError("refusing to resume a completed outcome")
+    try:
+        with marker.open("xb") as handle:
+            handle.write(canonical_json_bytes(dict(payload)))
+            handle.flush()
+            os.fsync(handle.fileno())
+    except FileExistsError as exc:
+        raise BenchmarkError(f"transport resume has already started: {marker}") from exc
+    return marker
+
+
+def record_transport_resume_failure(output_root: Path, error: BaseException) -> Path | None:
+    """Persist a second technical failure only after the exclusive resume began."""
+
+    resume_marker = output_root / "TRANSPORT_RESUME_STARTED"
+    result = output_root / "result.json"
+    if not resume_marker.is_file() or result.exists():
+        return None
+    path = output_root / "TRANSPORT_RESUME_FAILURE.json"
+    if path.exists():
+        return path
+    original_marker = output_root / "OUTCOME_STARTED"
+    partial_artifacts = []
+    for candidate in (output_root / "segments.csv", output_root / "points.csv"):
+        if candidate.is_file():
+            partial_artifacts.append(_artifact_receipt(candidate, output_root))
+    panels = output_root / "panels"
+    if panels.is_dir():
+        partial_artifacts.extend(
+            _artifact_receipt(candidate, output_root)
+            for candidate in sorted(panels.glob("*.png")) if candidate.is_file()
+        )
+    payload = {
+        "schema_version": 1,
+        "event": "TRANSPORT_RESUME_TECHNICAL_FAILURE",
+        "recorded_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "error": {"type": type(error).__name__, "message": str(error)},
+        "original_outcome_marker": _artifact_receipt(original_marker, output_root),
+        "transport_resume_marker": _artifact_receipt(resume_marker, output_root),
+        "result_written": False,
+        "outcome_status": "incomplete technical failure; execution stage unknown",
+        "scientific_values_may_have_been_sampled": True,
+        "partial_artifacts": partial_artifacts,
+    }
+    try:
+        with path.open("xb") as handle:
+            handle.write(canonical_json_bytes(payload))
+            handle.flush()
+            os.fsync(handle.fileno())
+    except FileExistsError:
+        return path
+    return path
 
 
 # A deliberately tiny bitmap alphabet keeps panel bytes independent of fonts,
@@ -2221,6 +2506,7 @@ def run_outcome(
     timeout_seconds: float,
     download_workers: int,
     decoded_chunk_cache: int,
+    resume_transport: bool = False,
 ) -> dict[str, Any]:
     implementation = {
         "runner": _source_receipt(Path(__file__).resolve()),
@@ -2228,24 +2514,85 @@ def run_outcome(
         "requirements_lock": _source_receipt(ROOT / "requirements-fiber-lock.txt"),
         "preregistration": _source_receipt(ROOT / "PHERC0139_FIBER_PRESENCE_PREREG.md"),
     }
+    if resume_transport:
+        implementation.update({
+            "transport_failure_record": _source_receipt(TRANSPORT_FAILURE_RECORD),
+            "transport_amendment": _source_receipt(TRANSPORT_AMENDMENT),
+        })
     runtime = runtime_receipt()
-    source_control = git_receipt()
+    required_tag = TRANSPORT_AMENDMENT_TAG if resume_transport else PREREG_TAG
+    required_git_paths = [
+        ".gitattributes",
+        "PHERC0139_FIBER_PRESENCE_PREREG.md",
+        "pherc0139_fiber_presence_benchmark.py",
+        "pherc0139_fiber_presence_lock.json",
+        "pherc0139_fiber_reference_manifest.json",
+        "requirements-fiber-lock.txt",
+        "test_pherc0139_fiber_presence_benchmark.py",
+    ]
+    if resume_transport:
+        required_git_paths.extend([
+            "PHERC0139_FIBER_TRANSPORT_AMENDMENT.md",
+            "pherc0139_fiber_transport_failure.json",
+        ])
+    source_control = git_receipt(
+        required_tag,
+        required_git_paths,
+        required_ancestor=PREREG_COMMIT if resume_transport else None,
+    )
     reference_manifest, reference_manifest_receipt, samples_by_segment = (
         load_pinned_reference_manifest(lock, lock_path, cache_root)
     )
     chunk_plan = prediction_chunk_plan(lock, samples_by_segment)
-    marker = create_outcome_marker(output_root, {
-        "schema_version": 1,
-        "experiment_id": lock["experiment_id"],
-        "lock_sha256": lock_receipt["sha256"],
-        "reference_manifest_sha256": reference_manifest_receipt["sha256"],
-        "prediction_chunk_plan_sha256": sha256_bytes(canonical_json_bytes(chunk_plan)),
-        "git_commit": source_control["commit"],
-        "preregistration_tag": PREREG_TAG,
-        "runner_sha256": implementation["runner"]["sha256"],
-    })
+    transport_resume = None
+    pinned_missing_chunks = None
+    if resume_transport:
+        failure, pre_resume_inventory, marker = verify_transport_failure_state(
+            lock, lock_receipt, chunk_plan, output_root
+        )
+        resume_marker = create_transport_resume_marker(output_root, {
+            "schema_version": 1,
+            "experiment_id": lock["experiment_id"],
+            "original_outcome_marker_sha256": sha256_file(marker),
+            "failure_record_sha256": implementation["transport_failure_record"]["sha256"],
+            "pre_resume_mirror_sha256": pre_resume_inventory["sha256"],
+            "git_commit": source_control["commit"],
+            "transport_amendment_tag": TRANSPORT_AMENDMENT_TAG,
+            "runner_sha256": implementation["runner"]["sha256"],
+        })
+        transport_resume = {
+            "status": "transport-only resume after pre-analysis TLS failure",
+            "original_preregistration": failure["preregistration"],
+            "failure_record": implementation["transport_failure_record"],
+            "amendment": implementation["transport_amendment"],
+            "pre_resume_mirror_inventory": pre_resume_inventory,
+            "resume_marker": _artifact_receipt(resume_marker, output_root),
+        }
+        pinned_missing_chunks = {
+            channel: {
+                tuple(int(value) for value in key.split("/"))
+                for key in failure["inferred_http_404_fill_keys"][channel]
+            }
+            for channel in CHANNEL_NAMES
+        }
+    else:
+        marker = create_outcome_marker(output_root, {
+            "schema_version": 1,
+            "experiment_id": lock["experiment_id"],
+            "lock_sha256": lock_receipt["sha256"],
+            "reference_manifest_sha256": reference_manifest_receipt["sha256"],
+            "prediction_chunk_plan_sha256": sha256_bytes(canonical_json_bytes(chunk_plan)),
+            "git_commit": source_control["commit"],
+            "preregistration_tag": PREREG_TAG,
+            "runner_sha256": implementation["runner"]["sha256"],
+        })
     arrays, prediction_receipt, missing_chunks = mirror_prediction_channels(
-        lock, chunk_plan, output_root, timeout_seconds, download_workers
+        lock,
+        chunk_plan,
+        output_root,
+        timeout_seconds,
+        download_workers,
+        pinned_missing_chunks=pinned_missing_chunks,
     )
     samplers = {
         "presence": ChunkedArraySampler(
@@ -2346,13 +2693,14 @@ def run_outcome(
     result = {
         "schema_version": 2,
         "experiment_id": lock["experiment_id"],
-        "mode": "OUTCOME",
+        "mode": "OUTCOME_AFTER_TRANSPORT_RESUME" if resume_transport else "OUTCOME",
         "decision": primary["decision"],
         "lock": dict(lock_receipt),
         "implementation": implementation,
         "runtime": runtime,
         "source_control": source_control,
         "outcome_marker": _artifact_receipt(marker, output_root),
+        **({"transport_resume": transport_resume} if transport_resume is not None else {}),
         "reference_manifest": reference_manifest_receipt,
         "prediction": prediction_receipt,
         "sampling": lock["sampling"],
@@ -2378,6 +2726,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     action = parser.add_mutually_exclusive_group(required=True)
     action.add_argument("--run", action="store_true", help="execute the single locked outcome run")
     action.add_argument(
+        "--resume-transport",
+        action="store_true",
+        help="execute the one publicly amended resume after the recorded TLS failure",
+    )
+    action.add_argument(
         "--prepare-references",
         action="store_true",
         help="verify/download references and write the prediction-free manifest",
@@ -2397,10 +2750,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         parser.error("--download-workers must be positive")
     if args.decoded_chunk_cache <= 0:
         parser.error("--decoded-chunk-cache must be positive")
-    if args.run and args.lock.resolve() != DEFAULT_LOCK.resolve():
-        parser.error("--run requires the canonical preregistered lock path")
-    if args.run and args.out_dir.resolve() != DEFAULT_OUTCOME_DIR.resolve():
-        parser.error("--run requires the canonical preregistered outcome directory")
+    if (args.run or args.resume_transport) and args.lock.resolve() != DEFAULT_LOCK.resolve():
+        parser.error("outcome execution requires the canonical preregistered lock path")
+    if (args.run or args.resume_transport) and args.out_dir.resolve() != DEFAULT_OUTCOME_DIR.resolve():
+        parser.error("outcome execution requires the canonical preregistered outcome directory")
     return args
 
 
@@ -2445,11 +2798,19 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.timeout_seconds,
             args.download_workers,
             args.decoded_chunk_cache,
+            resume_transport=args.resume_transport,
         )
         print(result["decision"])
         print(args.out_dir / "result.json")
         return 0
     except (BenchmarkError, OSError, ValueError) as exc:
+        if getattr(args, "resume_transport", False):
+            try:
+                failure_path = record_transport_resume_failure(args.out_dir, exc)
+                if failure_path is not None:
+                    print(f"transport resume failure record: {failure_path}", file=sys.stderr)
+            except (BenchmarkError, OSError, ValueError) as record_error:
+                print(f"could not persist transport resume failure: {record_error}", file=sys.stderr)
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
 

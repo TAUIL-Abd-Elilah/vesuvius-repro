@@ -205,10 +205,30 @@ class OrientationTests(unittest.TestCase):
 
 
 class IntegrityTests(unittest.TestCase):
+    def test_required_tag_must_be_annotated_and_point_to_head(self) -> None:
+        expected = "a" * 40
+        responses = {
+            ("cat-file", "-t", "refs/tags/amendment"): "tag",
+            ("rev-parse", "refs/tags/amendment"): "b" * 40,
+            ("rev-parse", "refs/tags/amendment^{}"): expected,
+        }
+
+        def fake_git(*arguments):
+            return responses[arguments]
+
+        self.assertEqual(
+            benchmark._annotated_tag_receipt(fake_git, "amendment", expected),
+            {"name": "amendment", "object": "b" * 40, "commit": expected},
+        )
+        responses[("cat-file", "-t", "refs/tags/amendment")] = "commit"
+        with self.assertRaises(benchmark.BenchmarkError):
+            benchmark._annotated_tag_receipt(fake_git, "amendment", expected)
+
     def test_outcome_run_cannot_redirect_the_one_run_seal(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            with self.assertRaises(SystemExit):
-                benchmark.parse_args(["--run", "--out-dir", directory])
+            for action in ("--run", "--resume-transport"):
+                with self.subTest(action=action), self.assertRaises(SystemExit):
+                    benchmark.parse_args([action, "--out-dir", directory])
 
     def test_only_definitive_http_404_is_a_fill_chunk(self) -> None:
         missing = HTTPError("https://example.test/chunk", 404, "Not Found", {}, None)
@@ -285,6 +305,49 @@ class IntegrityTests(unittest.TestCase):
             with self.assertRaises(benchmark.BenchmarkError):
                 benchmark.create_outcome_marker(root, {"test": True})
 
+    def test_transport_resume_marker_is_exclusive(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            marker = benchmark.create_transport_resume_marker(root, {"test": True})
+            self.assertTrue(marker.is_file())
+            with self.assertRaises(benchmark.BenchmarkError):
+                benchmark.create_transport_resume_marker(root, {"test": True})
+
+    def test_second_transport_failure_is_persisted_after_resume_starts(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            benchmark.create_outcome_marker(root, {"first": True})
+            benchmark.create_transport_resume_marker(root, {"resume": True})
+            path = benchmark.record_transport_resume_failure(root, OSError("network down"))
+            self.assertIsNotNone(path)
+            payload = __import__("json").loads(path.read_bytes())
+            self.assertEqual(payload["event"], "TRANSPORT_RESUME_TECHNICAL_FAILURE")
+            self.assertEqual(payload["error"]["type"], "OSError")
+            self.assertTrue(payload["scientific_values_may_have_been_sampled"])
+            self.assertNotIn("scientific_outcome", payload)
+            self.assertEqual(
+                benchmark.record_transport_resume_failure(root, OSError("again")), path
+            )
+
+    def test_mirror_inventory_digest_commits_to_all_object_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for channel in benchmark.CHANNEL_NAMES:
+                channel_root = root / channel
+                channel_root.mkdir(parents=True)
+                (channel_root / ".zarray").write_bytes(b"array-" + channel.encode())
+                (channel_root / ".zattrs").write_bytes(b"{}")
+                chunk = channel_root / "1" / "2" / "3"
+                chunk.parent.mkdir(parents=True)
+                chunk.write_bytes(b"chunk-" + channel.encode())
+            first, keys = benchmark.mirror_inventory_receipt(root)
+            self.assertEqual(first["object_count"], 9)
+            self.assertEqual(first["metadata_object_count"], 6)
+            self.assertEqual(keys, {name: {"1/2/3"} for name in benchmark.CHANNEL_NAMES})
+            (root / "presence" / "1" / "2" / "3").write_bytes(b"changed")
+            second, _ = benchmark.mirror_inventory_receipt(root)
+            self.assertNotEqual(first["sha256"], second["sha256"])
+
     def test_analysis_failure_raises_instead_of_becoming_scientific_null(self) -> None:
         class FailingSampler:
             def sample(self, _points):
@@ -342,12 +405,16 @@ class PredictionMirrorIntegrationTests(unittest.TestCase):
                     "chunk_coordinates": [[0, 0, 0], [1, 1, 1]],
                 }
             lock = {"fiber_artifact": {"channels": channels}}
+            requested_urls = []
 
             def fake_download(url, path, cache_root, expected_sha256=None, timeout_seconds=120.0):
                 del timeout_seconds
+                requested_urls.append(url)
                 parts = url.rstrip("/").split("/")
                 source_path = source / parts[-2] / parts[-1]
                 if parts[-2] == "presence" and parts[-1] == "1.1.1":
+                    raise AssertionError("pinned first-attempt 404 was requested again")
+                if parts[-2] == "nx" and parts[-1] == "1.1.1":
                     raise HTTPError(url, 404, "Not Found", {}, None)
                 path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(source_path, path)
@@ -355,13 +422,24 @@ class PredictionMirrorIntegrationTests(unittest.TestCase):
 
             with mock.patch.object(benchmark, "download_cached", side_effect=fake_download):
                 arrays, receipts, missing = benchmark.mirror_prediction_channels(
-                    lock, chunk_plan, output, timeout_seconds=1.0, workers=2
+                    lock,
+                    chunk_plan,
+                    output,
+                    timeout_seconds=1.0,
+                    workers=2,
+                    pinned_missing_chunks={
+                        "presence": {(1, 1, 1)}, "nx": set(), "ny": set()
+                    },
                 )
 
             self.assertEqual(missing["presence"], {(1, 1, 1)})
+            self.assertEqual(missing["nx"], {(1, 1, 1)})
             self.assertEqual(receipts["missing_fill_chunk_counts"]["presence"], 1)
             statuses = {item["status"] for item in receipts["chunks"]["presence"]}
-            self.assertEqual(statuses, {"stored_object", "missing_uses_pinned_fill"})
+            self.assertEqual(
+                statuses, {"stored_object", "pinned_first_attempt_http_404_fill"}
+            )
+            self.assertNotIn("https://example.test/presence/1.1.1", requested_urls)
             sampler = benchmark.ChunkedArraySampler(arrays["presence"], 1.0, 4)
             np.testing.assert_allclose(
                 sampler.sample(np.asarray([[0.5, 0.5, 0.5], [2.0, 2.0, 2.0]])),

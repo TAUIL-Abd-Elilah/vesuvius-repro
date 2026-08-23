@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "event": "TRANSPORT_FAILURE_BEFORE_ARRAY_OPEN",
+  "recorded_at_utc": "2026-08-23T01:55:52Z",
+  "experiment_id": "pherc0139-fiber-surface-sanity-v1",
+  "preregistration": {
+    "commit": "b309c4c4d23686e14fe8b82faa6413e29789275d",
+    "tag": "pherc0139-fiber-sanity-prereg-v1",
+    "public_url": "https://github.com/TAUIL-Abd-Elilah/vesuvius-repro/tree/pherc0139-fiber-sanity-prereg-v1"
+  },
+  "outcome_marker": {
+    "path": "results/pherc0139_fiber_presence_v1/OUTCOME_STARTED",
+    "bytes": 576,
+    "sha256": "4b3bb24c42d1c112e1ea800d4f820af3caab8f38cd22cb31a345c24a07c0f8c9"
+  },
+  "failure": {
+    "process_exit_code": 1,
+    "runner_stage": "mirror_prediction_channels",
+    "type": "SSLError",
+    "message": "[SSL: DECRYPTION_FAILED_OR_BAD_RECORD_MAC] decryption failed or bad record mac (_ssl.c:2580)",
+    "failed_request_count": 22,
+    "failed_requests": {
+      "presence": [
+        "43/33/28",
+        "44/15/28",
+        "44/16/30",
+        "44/17/26",
+        "44/20/18",
+        "44/27/33",
+        "44/29/25",
+        "46/19/20",
+        "46/19/31",
+        "53/30/30"
+      ],
+      "nx": [
+        "25/23/15",
+        "25/23/22",
+        "26/20/26",
+        "26/21/37",
+        "31/27/34",
+        "31/28/14",
+        "55/17/27"
+      ],
+      "ny": [
+        "20/36/21",
+        "33/22/14",
+        "53/24/38",
+        "53/25/18",
+        "53/26/36"
+      ]
+    }
+  },
+  "mirror_inventory": {
+    "digest_algorithm": "SHA256(json.dumps(sorted entries {path,bytes,sha256,kind}, sort_keys=True, separators=(',',':'), ensure_ascii=True)); paths are POSIX-relative to prediction_mirror; no trailing newline",
+    "sha256": "4b37c5a6b713f36ad5569dfd5ef3cf75952d8ad8844059f1bea7ea38497af35d",
+    "object_count": 32460,
+    "bytes": 6780157635,
+    "metadata_object_count": 6,
+    "metadata_bytes": 996,
+    "partial_file_count": 0,
+    "channels": {
+      "presence": {
+        "stored_chunk_count": 12322,
+        "stored_chunk_bytes": 2220798375,
+        "chunk_receipt_set_sha256": "f4b5b1288c86693683fdf81e06db7bbd6c1f8262d4b66e6195abbd866288212f",
+        "all_object_receipt_set_sha256": "9a92e36f01186ba41155e9ed3ce33f2733b74b40c638f021d251030a83928675"
+      },
+      "nx": {
+        "stored_chunk_count": 10065,
+        "stored_chunk_bytes": 2253346190,
+        "chunk_receipt_set_sha256": "5a7d97b08557bd0f7f15dbaf4d50812ce36a9282dc4509058346454c8f3b42d9",
+        "all_object_receipt_set_sha256": "ddf170bbc62eee0f2abb0efdd3d2e8e82e9cf2806d64840a3e25f2c65b9663bd"
+      },
+      "ny": {
+        "stored_chunk_count": 10067,
+        "stored_chunk_bytes": 2306012074,
+        "chunk_receipt_set_sha256": "4e9a7c320ddbee4f345b4c311b934b738fa3977e2fa9e4fc11bbbe1c4e4d3a51",
+        "all_object_receipt_set_sha256": "04b69e2ce266a61452e9ea6c4b2e9f44ac178d9cc6898e62dc8b0a475afb9d5b"
+      }
+    }
+  },
+  "inferred_http_404_fill_keys": {
+    "basis": "All futures completed. The 14 planned-but-unstored objects not present in the 22-item non-404 error list therefore took the runner's explicit HTTP-404 fill path.",
+    "presence": ["9/12/11", "9/12/12", "9/13/12", "10/13/12", "10/14/13", "12/17/16"],
+    "nx": ["9/12/11", "9/13/12", "10/14/13", "12/17/16"],
+    "ny": ["9/12/11", "9/13/12", "10/14/13", "12/17/16"]
+  },
+  "scientific_state": {
+    "zarr_array_opened": false,
+    "prediction_values_sampled": false,
+    "metrics_computed": false,
+    "panels_rendered": false,
+    "scientific_outcome": null,
+    "reason": "The runner raises on any non-404 mirror error before zarr.open and before all sampling and analysis."
+  }
+}
