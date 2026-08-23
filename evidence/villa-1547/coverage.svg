@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="430" viewBox="0 0 960 430" role="img" aria-labelledby="title desc">
+  <title id="title">PHerc0139 directed source-point coverage</title>
+  <desc id="desc">The w045 to w046 pair measures about 83.5 percent in both directions. Four adjacent controls range from 0.43 to 2.31 percent.</desc>
+  <rect width="960" height="430" rx="16" fill="#f8fafc"/>
+  <text x="32" y="40" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#0f172a">PHerc0139 overlap magnitude</text>
+  <text x="32" y="63" font-family="system-ui, sans-serif" font-size="13" fill="#475569">Fraction of source points within 2 coordinate units of the target surface</text>
+
+  <g stroke="#cbd5e1" stroke-width="1">
+    <line x1="190" y1="74" x2="190" y2="360"/>
+    <line x1="365" y1="74" x2="365" y2="360"/>
+    <line x1="540" y1="74" x2="540" y2="360"/>
+    <line x1="715" y1="74" x2="715" y2="360"/>
+    <line x1="890" y1="74" x2="890" y2="360"/>
+  </g>
+  <line x1="225" y1="74" x2="225" y2="360" stroke="#2563eb" stroke-width="2" stroke-dasharray="5 5"/>
+  <line x1="715" y1="74" x2="715" y2="360" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 5"/>
+
+  <g font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="14" fill="#334155" text-anchor="end">
+    <text x="178" y="105">w045 → w046</text>
+    <text x="178" y="153">w046 → w045</text>
+    <text x="178" y="213">w044 → w045</text>
+    <text x="178" y="261">w045 → w044</text>
+    <text x="178" y="309">w046 → w047</text>
+    <text x="178" y="357">w047 → w046</text>
+  </g>
+
+  <g>
+    <rect x="190" y="82" width="584.59" height="30" rx="4" fill="#d97706"/>
+    <rect x="190" y="130" width="584.26" height="30" rx="4" fill="#d97706"/>
+    <rect x="190" y="190" width="15.19" height="30" rx="4" fill="#64748b"/>
+    <rect x="190" y="238" width="16.20" height="30" rx="4" fill="#64748b"/>
+    <rect x="190" y="286" width="3.02" height="30" rx="2" fill="#64748b"/>
+    <rect x="190" y="334" width="3.58" height="30" rx="2" fill="#64748b"/>
+  </g>
+
+  <g font-family="system-ui, sans-serif" font-size="14" font-weight="650" fill="#0f172a">
+    <text x="784" y="103">83.5126%</text>
+    <text x="784" y="151">83.4661%</text>
+    <text x="214" y="211">2.1704%</text>
+    <text x="215" y="259">2.3137%</text>
+    <text x="202" y="307">0.4316%</text>
+    <text x="202" y="355">0.5108%</text>
+  </g>
+
+  <g font-family="system-ui, sans-serif" font-size="12" fill="#64748b" text-anchor="middle">
+    <text x="190" y="383">0%</text>
+    <text x="365" y="383">25%</text>
+    <text x="540" y="383">50%</text>
+    <text x="715" y="383">75%</text>
+    <text x="890" y="383">100%</text>
+  </g>
+  <text x="225" y="407" font-family="system-ui, sans-serif" font-size="12" fill="#2563eb" text-anchor="middle">control ceiling 5%</text>
+  <text x="715" y="407" font-family="system-ui, sans-serif" font-size="12" fill="#15803d" text-anchor="middle">positive floor 75%</text>
+</svg>

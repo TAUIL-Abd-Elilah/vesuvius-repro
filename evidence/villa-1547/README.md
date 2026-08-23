@@ -24,6 +24,8 @@ the largest adjacent control. This is point-to-triangle coverage within 2
 coordinate units, not the issue's separate exact-vertex-duplication metric.
 It is a diagnostic signal, not an automatic deletion verdict.
 
+![Directed source-point coverage for the positive pair and adjacent controls](coverage.svg)
+
 The old boolean output marks all six undirected pairs as overlapping because
 even a few nearby points are enough. The new magnitude report makes the
 w045/w046 pair stand out instead of looking like an ordinary overlap.
