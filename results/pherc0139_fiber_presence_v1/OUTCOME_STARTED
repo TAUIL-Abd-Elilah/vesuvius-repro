@@ -1,0 +1,10 @@
+{
+  "experiment_id": "pherc0139-fiber-surface-sanity-v1",
+  "git_commit": "b309c4c4d23686e14fe8b82faa6413e29789275d",
+  "lock_sha256": "12e033eed440d035e2413e60a7a1ccf90ee79fd21dcec63c6e29dd45929c1d03",
+  "prediction_chunk_plan_sha256": "d2e12af572394bb332499c687e18d4ca116908590be1fa10fe09edcf453c9926",
+  "preregistration_tag": "pherc0139-fiber-sanity-prereg-v1",
+  "reference_manifest_sha256": "d2a99361b7614cabcff9b019ffeb99bb136a32bc29f7e7c97442e6406616f0e2",
+  "runner_sha256": "90a91b49247ad7b2f73d5dffbb546c349b570eb367a95ed3bc11ba46098c21cd",
+  "schema_version": 1
+}

@@ -1,0 +1,31 @@
+{
+  "status": "POST_HOC",
+  "reason": "Villa issue 1547 reported substantial overlap between frozen maps w045 and w046 after the outcome run had begun.",
+  "issue_url": "https://github.com/ScrollPrize/villa/issues/1547",
+  "main_result_sha256": "0bb5eccb21fceb80b4625fc45c9d26ad813913da201770d382bd25980c30a24c",
+  "excluded_segment": "20260325000000-w046_20260325",
+  "retained_segments": 36,
+  "primary": {
+    "decision": "LOCALIZATION_NOT_SUPPORTED",
+    "positive_segments": 21,
+    "negative_segments": 15,
+    "zero_segments": 0,
+    "global_median_segment_delta": 0.004407588948072014,
+    "thresholds": {
+      "minimum_analyzable_segments": 30,
+      "minimum_positive_segments": 24,
+      "minimum_median_segment_delta": 0.02
+    }
+  },
+  "secondary_orientation": {
+    "decision": "TANGENCY_SUPPORTED",
+    "baseline_policy": "fully recomputed on the retained 36-map cohort using the frozen hash-sort and half-rotation rule",
+    "global_median_of_segment_presence_weighted_tangent_angles_degrees": 6.741681805214367,
+    "global_median_of_segment_matched_baseline_angles_degrees": 24.9922522379908,
+    "segments_improving_by_at_least_5_degrees": 36,
+    "median_improvement_degrees": 18.003912382374793,
+    "minimum_improvement_degrees": 12.20584268992244,
+    "maximum_improvement_degrees": 23.994251247878466
+  },
+  "interpretation": "Removing one member of the reported overlap pair does not change either frozen decision. This sensitivity analysis was not preregistered and cannot replace the frozen 37-map result."
+}
