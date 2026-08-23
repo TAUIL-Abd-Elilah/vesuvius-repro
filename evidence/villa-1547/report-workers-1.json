@@ -1,0 +1,145 @@
+{
+  "directed_overlap_pair_count": 12,
+  "metric": {
+    "comparison": "<=",
+    "coordinate_units": "tifxyz coordinate units; usually voxels",
+    "definition": "matched_source_points / queried_source_points",
+    "distance": "euclidean point-to-target-triangle",
+    "name": "directed_source_point_surface_coverage"
+  },
+  "parameters": {
+    "point_stride": 1,
+    "target_index_sampling_stride": 1,
+    "tolerance": 2.0
+  },
+  "schema_version": 1,
+  "self_pairs_excluded": true,
+  "source_count": 4,
+  "sources": [
+    {
+      "hits": [
+        {
+          "matched_source_points": 2389,
+          "source_coverage_fraction": 0.021703581227174445,
+          "target_id": "w045",
+          "target_path": "w045"
+        },
+        {
+          "matched_source_points": 1734,
+          "source_coverage_fraction": 0.015753038864763706,
+          "target_id": "w046",
+          "target_path": "w046"
+        },
+        {
+          "matched_source_points": 1,
+          "source_coverage_fraction": 9.084797499863727e-06,
+          "target_id": "w047",
+          "target_path": "w047"
+        }
+      ],
+      "queried_source_points": 110074,
+      "source_id": "w044",
+      "source_path": "w044",
+      "valid_source_points": 110074
+    },
+    {
+      "hits": [
+        {
+          "matched_source_points": 2541,
+          "source_coverage_fraction": 0.02313722990630378,
+          "target_id": "w044",
+          "target_path": "w044"
+        },
+        {
+          "matched_source_points": 91716,
+          "source_coverage_fraction": 0.8351256112107664,
+          "target_id": "w046",
+          "target_path": "w046"
+        },
+        {
+          "matched_source_points": 456,
+          "source_coverage_fraction": 0.004152135709277656,
+          "target_id": "w047",
+          "target_path": "w047"
+        }
+      ],
+      "queried_source_points": 109823,
+      "source_id": "w045",
+      "source_path": "w045",
+      "valid_source_points": 109823
+    },
+    {
+      "hits": [
+        {
+          "matched_source_points": 1814,
+          "source_coverage_fraction": 0.016517487229451025,
+          "target_id": "w044",
+          "target_path": "w044"
+        },
+        {
+          "matched_source_points": 91665,
+          "source_coverage_fraction": 0.8346612276117025,
+          "target_id": "w045",
+          "target_path": "w045"
+        },
+        {
+          "matched_source_points": 474,
+          "source_coverage_fraction": 0.004316035803064932,
+          "target_id": "w047",
+          "target_path": "w047"
+        }
+      ],
+      "queried_source_points": 109823,
+      "source_id": "w046",
+      "source_path": "w046",
+      "valid_source_points": 109823
+    },
+    {
+      "hits": [
+        {
+          "matched_source_points": 2,
+          "source_coverage_fraction": 1.843980785720213e-05,
+          "target_id": "w044",
+          "target_path": "w044"
+        },
+        {
+          "matched_source_points": 536,
+          "source_coverage_fraction": 0.004941868505730171,
+          "target_id": "w045",
+          "target_path": "w045"
+        },
+        {
+          "matched_source_points": 554,
+          "source_coverage_fraction": 0.005107826776444989,
+          "target_id": "w046",
+          "target_path": "w046"
+        }
+      ],
+      "queried_source_points": 108461,
+      "source_id": "w047",
+      "source_path": "w047",
+      "valid_source_points": 108461
+    }
+  ],
+  "target_count": 4,
+  "targets": [
+    {
+      "target_id": "w044",
+      "target_path": "w044"
+    },
+    {
+      "target_id": "w045",
+      "target_path": "w045"
+    },
+    {
+      "target_id": "w046",
+      "target_path": "w046"
+    },
+    {
+      "target_id": "w047",
+      "target_path": "w047"
+    }
+  ],
+  "tool": "vc_seg_add_overlap",
+  "zero_match_pairs_omitted": true
+}
