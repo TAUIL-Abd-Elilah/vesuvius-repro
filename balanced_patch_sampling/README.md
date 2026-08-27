@@ -32,6 +32,9 @@ authoritative timestamped records:
 5. [SpiralCheck package-metadata correction](https://gist.github.com/TAUIL-Abd-Elilah/54015cd45744f6348b2db57792169caf),
    published after baseline scoring failed validation but before treatment
    scoring; the fresh rerun is explicitly partially unblinded.
+6. [Secondary winding-annotation protocol and frozen comparator](https://gist.github.com/TAUIL-Abd-Elilah/91141e1a07d0a6a81b073a199ed077fd),
+   published before treatment scoring. It was added in response to the
+   whole-winding metric limitation documented in Villa issue #1621.
 
 Two public, pre-result audit artifacts bind the actual scoring scope:
 
@@ -166,6 +169,9 @@ used the full public patch collection. The sealed comparison is therefore a
 post-selection holdout check, not a pristine independent confirmation. The
 pre-result cluster sensitivity addresses dependence among derived patch IDs;
 optimizer seeds 23 and 101 address training variability on the same split.
+The separately frozen annotation secondary uses point collections that every
+fit disabled as inputs. It tests relative and same-winding agreement, not a
+uniform global winding offset.
 
 ## Sealed results: intentionally blank
 
