@@ -1,0 +1,23 @@
+{
+  "z_begin": 10500,
+  "z_end": 11500,
+  "optimizer_random_seed": 101,
+  "optimizer_num_training_steps": 5000,
+  "input_use_verified_patches": true,
+  "input_use_unverified_patches": false,
+  "input_use_tracks": false,
+  "input_use_fibers": false,
+  "input_use_pcl_absolute": false,
+  "input_use_pcl_relative": false,
+  "input_use_pcl_same_winding": false,
+  "input_use_pcl_drawn_control_points": false,
+  "input_use_normals": false,
+  "input_use_surf_sdt": false,
+  "input_use_gradient_magnitude": false,
+  "input_use_winding_inference": false,
+  "input_use_outer_shell": false,
+  "patch_sampling_area_exponent": 0.5,
+  "patch_uuid_sampling_cap_regex": "^band-seed",
+  "patch_uuid_sampling_cap_fraction": 0.75,
+  "output_save_png_visualizations": false
+}
