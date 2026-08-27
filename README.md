@@ -76,7 +76,8 @@ used per-scroll inference configurations whose provenance had not reached the ou
 [`balanced_patch_sampling/`](balanced_patch_sampling/) is a source-only,
 pre-outcome reproduction package for the PHercParis4 family-cap sampler. It
 contains frozen protocols, public-data provenance, configs, and portable fit /
-scoring tooling; sealed outcomes are explicitly **TBD** and no data,
+scoring tooling. Its public operational amendment, held-out scope, and fit-view
+marker are linked there with hashes; sealed outcomes are explicitly **TBD** and no data,
 checkpoints, meshes, or scored reports are tracked.
 
 Reproduction was the starting point. The same public inputs support four more measurements,

@@ -20,11 +20,19 @@ patch data, fibers, checkpoints, meshes, fit outputs, or outcome JSON**.
   `6b757b9e6f9efe2d0f808671cad89c5ad95882a3`; the sampler/evaluator source is
   intentionally external and must be checked out at the Villa commit above.
 
-The two public pre-outcome registrations are the authoritative timestamped
-records:
+The public pre-outcome registrations and operational freeze are the
+authoritative timestamped records:
 
 1. [Sealed PHercParis4 patch-sampling comparison](https://gist.github.com/TAUIL-Abd-Elilah/235a47482c6959420ca4592b0e22ed4f)
 2. [Family-cap replication addendum](https://gist.github.com/TAUIL-Abd-Elilah/fb185ed973673c382042014891d90b1e)
+3. [Scoring operational amendment](https://gist.github.com/TAUIL-Abd-Elilah/63d7de8c85eadf9728ee9e663bd9f378)
+
+Two public, pre-result audit artifacts bind the actual scoring scope:
+
+- [Held-out point-scope manifest](https://gist.github.com/TAUIL-Abd-Elilah/a067a3aa13cda92c7f1e711028d1e097),
+  file SHA-256 `aeb342353687473bcff9ff7182e591831fcf94014ad9ba4ff6bb4f10c01881e8`.
+- [Fit-input audit-view marker](https://gist.github.com/TAUIL-Abd-Elilah/0568295efe8e94458be73aa5c5fe3760),
+  file SHA-256 `66336316173765797da5837d908eeec0acf4b596df0858d34e5532b7aaa128c1`.
 
 ## What the package contains
 
@@ -33,6 +41,8 @@ records:
 - `SEALED_PATCH_PROTOCOL.md` and `SEALED_REPLICATION_PROTOCOL.md`: verbatim
   frozen protocol copies; their public gists above are the authoritative
   timestamped records.
+- `SEALED_OPERATIONAL_AMENDMENT.md`: verbatim pre-result correction to the
+  leakage-audit input view and half-open scoring interval.
 - `config_screen_*.json`: immutable input overrides for each named screen arm.
 - `config_sealed_{baseline,cap075}_seed{17,23,101}.json`: all six frozen
   sealed-fit overrides.
@@ -40,9 +50,15 @@ records:
 - `run_screen.ps1`: parameterized runner that writes each arm to a new output
   directory.
 - `run_sealed.ps1`: portable, hash-recording sealed fit runner (one arm/seed).
+- `materialize_fit_audit_view.py`: reconstructs and verifies the exact patch
+  set consumed by both fitted arms.
+- `build_sealed_heldout_scope_manifest.py`: freezes the model-independent
+  per-patch held-out point scope before model loading.
 - `run_sealed_spiralcheck.py`, `compare_sealed_patch_reports.py`, and
   `summarize_sealed_replicates.py`: portable export/scoring, strict per-seed
-  comparison, and three-seed summarization tooling. No result is stored here.
+  comparison, and three-seed summarization tooling.
+- `test_*.py`: source-only regression tests for the two preflights and scoring
+  runner. No result is stored here.
 
 ## Reproduce a development arm
 
@@ -81,16 +97,36 @@ powershell -ExecutionPolicy Bypass -File balanced_patch_sampling/run_sealed.ps1 
   -SplitManifest <split-manifest.json> -OutputRoot <sealed-output-directory>
 ```
 
-After both checkpoints for one seed exist, export and score them with explicit
-paths; this script verifies the code commit, split, checkpoint configuration,
-and report compatibility before producing a comparison:
+After both checkpoints for one seed exist, materialize the exact fit-input
+audit view and freeze the held-out point scope. Both commands refuse output
+reuse and validate their pinned sources and hashes:
+
+```powershell
+python balanced_patch_sampling/materialize_fit_audit_view.py `
+  --baseline-fit-artifact <baseline-satisfied.json> --baseline-rejected-artifact <baseline-rejected.txt> `
+  --treatment-fit-artifact <treatment-satisfied.json> --treatment-rejected-artifact <treatment-rejected.txt> `
+  --source-fit <sealed-fit-partition> --split-manifest <split-manifest.json> `
+  --spiral-fitting <villa-checkout>/spiral-fitting --output <new-fit-audit-view>
+
+python balanced_patch_sampling/build_sealed_heldout_scope_manifest.py `
+  --spiralcheck-source <spiralcheck-checkout> --split-manifest <split-manifest.json> `
+  --heldout-patches <heldout-patches> --source-manifest <public-input-manifest.json> `
+  --output <new-heldout-scope.json>
+```
+
+Then export and score both arms. The runner verifies the code commit, split,
+checkpoint configuration, fit view, held-out point scope, and report pairing
+before invoking the unchanged comparator:
 
 ```powershell
 python balanced_patch_sampling/run_sealed_spiralcheck.py `
   --baseline-checkpoint <baseline-checkpoint> --treatment-checkpoint <treatment-checkpoint> `
   --spiral-fitting <villa-checkout>/spiral-fitting --spiralcheck-source <spiralcheck-checkout> `
   --spiralcheck-python <python-executable> --manifest <split-manifest.json> `
-  --heldout-patches <heldout-patches> --fit-inputs <fit-side-patches> `
+  --heldout-scope-manifest <heldout-scope.json> `
+  --heldout-patches <heldout-patches> --fit-inputs <fit-audit-view> `
+  --baseline-fit-artifact <baseline-satisfied.json> --baseline-rejected-artifact <baseline-rejected.txt> `
+  --treatment-fit-artifact <treatment-satisfied.json> --treatment-rejected-artifact <treatment-rejected.txt> `
   --umbilicus <umbilicus.json> --output-root <new-score-output-directory> `
   --optimizer-seed 17
 ```
