@@ -26,6 +26,9 @@ authoritative timestamped records:
 1. [Sealed PHercParis4 patch-sampling comparison](https://gist.github.com/TAUIL-Abd-Elilah/235a47482c6959420ca4592b0e22ed4f)
 2. [Family-cap replication addendum](https://gist.github.com/TAUIL-Abd-Elilah/fb185ed973673c382042014891d90b1e)
 3. [Scoring operational amendment](https://gist.github.com/TAUIL-Abd-Elilah/63d7de8c85eadf9728ee9e663bd9f378)
+4. [Source-family cluster sensitivity](https://gist.github.com/TAUIL-Abd-Elilah/4671ce67acbae22128ce7c844e5459a7),
+   frozen while the seed-17 baseline scorer was still running and before any
+   score report existed.
 
 Two public, pre-result audit artifacts bind the actual scoring scope:
 
@@ -43,6 +46,8 @@ Two public, pre-result audit artifacts bind the actual scoring scope:
   timestamped records.
 - `SEALED_OPERATIONAL_AMENDMENT.md`: verbatim pre-result correction to the
   leakage-audit input view and half-open scoring interval.
+- `SEALED_CLUSTER_SENSITIVITY_PROTOCOL.md`: pre-result dependence-robust
+  sensitivity that supplements, without changing, the original frozen gates.
 - `config_screen_*.json`: immutable input overrides for each named screen arm.
 - `config_sealed_{baseline,cap075}_seed{17,23,101}.json`: all six frozen
   sealed-fit overrides.
@@ -57,6 +62,8 @@ Two public, pre-result audit artifacts bind the actual scoring scope:
 - `run_sealed_spiralcheck.py`, `compare_sealed_patch_reports.py`, and
   `summarize_sealed_replicates.py`: portable export/scoring, strict per-seed
   comparison, and three-seed summarization tooling.
+- `analyze_sealed_cluster_sensitivity.py`: paired source-family cluster
+  bootstrap and family-specific within-six-voxel diagnostic.
 - `test_*.py`: source-only regression tests for the two preflights and scoring
   runner. No result is stored here.
 
@@ -133,6 +140,13 @@ python balanced_patch_sampling/run_sealed_spiralcheck.py `
 
 Run the comparator self-test before a new environment and summarize the three
 per-seed `sealed_comparison.json` files only after all six fits are complete.
+Run the separately frozen cluster sensitivity against each report pair:
+
+```powershell
+python balanced_patch_sampling/analyze_sealed_cluster_sensitivity.py `
+  <baseline-report.json> <treatment-report.json> `
+  --manifest <split-manifest.json> --output <new-cluster-sensitivity.json>
+```
 
 ## Interpretation limits
 
@@ -140,6 +154,13 @@ The screen disables non-patch annotation and dense-volume inputs. Public
 `eval_fibers/` are not direct fit inputs, but share upstream provenance and may
 overlap geometry. They are a geometric-consistency diagnostic, not independent
 ground truth, absolute-winding accuracy, or a production whole-scroll result.
+
+The `0.75` cap was selected using development fits made before the held-out
+split was created. Although the held-out outcome remained unseen, those fits
+used the full public patch collection. The sealed comparison is therefore a
+post-selection holdout check, not a pristine independent confirmation. The
+pre-result cluster sensitivity addresses dependence among derived patch IDs;
+optimizer seeds 23 and 101 address training variability on the same split.
 
 ## Sealed results: intentionally blank
 
