@@ -29,6 +29,9 @@ authoritative timestamped records:
 4. [Source-family cluster sensitivity](https://gist.github.com/TAUIL-Abd-Elilah/4671ce67acbae22128ce7c844e5459a7),
    frozen while the seed-17 baseline scorer was still running and before any
    score report existed.
+5. [SpiralCheck package-metadata correction](https://gist.github.com/TAUIL-Abd-Elilah/54015cd45744f6348b2db57792169caf),
+   published after baseline scoring failed validation but before treatment
+   scoring; the fresh rerun is explicitly partially unblinded.
 
 Two public, pre-result audit artifacts bind the actual scoring scope:
 
@@ -48,6 +51,8 @@ Two public, pre-result audit artifacts bind the actual scoring scope:
   leakage-audit input view and half-open scoring interval.
 - `SEALED_CLUSTER_SENSITIVITY_PROTOCOL.md`: pre-result dependence-robust
   sensitivity that supplements, without changing, the original frozen gates.
+- `SEALED_SPIRALCHECK_METADATA_CORRECTION.md`: post-baseline operational
+  correction for missing installed-package version metadata.
 - `config_screen_*.json`: immutable input overrides for each named screen arm.
 - `config_sealed_{baseline,cap075}_seed{17,23,101}.json`: all six frozen
   sealed-fit overrides.
